@@ -12,6 +12,10 @@ const MinSidebar = () => {
                 <span className="material-symbols-outlined text-xl">extension</span>
                 <span className="text-[8px] font-bold uppercase tracking-tighter">Puzzles</span>
             </Link>
+            <Link href="/analysis" className="flex flex-col items-center gap-1 text-neutral-500">
+                <span className="material-symbols-outlined text-xl">analytics</span>
+                <span className="text-[8px] font-bold uppercase tracking-tighter">Analysis</span>
+            </Link>
             <Link href="/learn" className="flex flex-col items-center gap-1 text-neutral-500">
                 <span className="material-symbols-outlined text-xl">school</span>
                 <span className="text-[8px] font-bold uppercase tracking-tighter">Learn</span>

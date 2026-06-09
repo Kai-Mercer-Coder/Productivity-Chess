@@ -1,3 +1,5 @@
+'use client'
+
 import Image from "next/image";
 import GrandmasterMonolith from "./Components/Home"
 import Login from "./Components/Login"

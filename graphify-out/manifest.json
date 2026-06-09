@@ -1,0 +1,312 @@
+{
+  ".opencode/opencode.json": {
+    "mtime": 1780910480.737737,
+    "ast_hash": "f2ae21510d07365eb2bce8159272c7a0",
+    "semantic_hash": ""
+  },
+  ".opencode/plugins/graphify.js": {
+    "mtime": 1780910480.7208033,
+    "ast_hash": "32b67963417a30cb80544e0b2a56a98d",
+    "semantic_hash": ""
+  },
+  "biome.json": {
+    "mtime": 1775957867.8730931,
+    "ast_hash": "d922fd917f506dfb4379de0bbd27ca7e",
+    "semantic_hash": ""
+  },
+  "next.config.ts": {
+    "mtime": 1780462487.5679815,
+    "ast_hash": "6698da6d7692cc8b87dd7cf26a746df2",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1780889141.7917063,
+    "ast_hash": "794775d251fb89535be0e45bf08112bb",
+    "semantic_hash": ""
+  },
+  "postcss.config.mjs": {
+    "mtime": 1775957867.8778763,
+    "ast_hash": "481fac0fdecd70e1821cc30b86030c1a",
+    "semantic_hash": ""
+  },
+  "skills-lock.json": {
+    "mtime": 1775957867.8809755,
+    "ast_hash": "8864226a1686ad5e21dfec894f81fa19",
+    "semantic_hash": ""
+  },
+  "src/app/(Routes)/dashboard/page.tsx": {
+    "mtime": 1775985871.4735627,
+    "ast_hash": "4c14c422fb03c84a00bbf4c5c4b21434",
+    "semantic_hash": ""
+  },
+  "src/app/(Routes)/login/page.tsx": {
+    "mtime": 1780570192.238336,
+    "ast_hash": "5d651b7768f8ccadbf0898f9289b7934",
+    "semantic_hash": ""
+  },
+  "src/app/(SubRoutes)/analysis/page.tsx": {
+    "mtime": 1780909535.86092,
+    "ast_hash": "28908297690a8b8be43c6ad3fcda7b14",
+    "semantic_hash": ""
+  },
+  "src/app/(SubRoutes)/play/Stuff/App.tsx": {
+    "mtime": 1780897500.162679,
+    "ast_hash": "6ff5b3931c6643677c2d7f27336c3a25",
+    "semantic_hash": ""
+  },
+  "src/app/(SubRoutes)/play/Stuff/types.ts": {
+    "mtime": 1775399787.0,
+    "ast_hash": "4b21180f5fa79a5dc5fadb87bdd7f967",
+    "semantic_hash": ""
+  },
+  "src/app/(SubRoutes)/play/page.tsx": {
+    "mtime": 1780901800.276739,
+    "ast_hash": "23e4a8679280ac6fee92671a5f24e880",
+    "semantic_hash": ""
+  },
+  "src/app/(SubRoutes)/puzzles/page.tsx": {
+    "mtime": 1780896997.597636,
+    "ast_hash": "7137797d4cac4008209086601de9bad3",
+    "semantic_hash": ""
+  },
+  "src/app/(SubRoutes)/puzzles/usePuzzle.ts": {
+    "mtime": 1780572262.3412786,
+    "ast_hash": "74f76e93c3d91893e6147a2f15704cc0",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/Base_Functions/MoveEngine.ts": {
+    "mtime": 1776309075.7501986,
+    "ast_hash": "5385c75e162706358c6074e0ead2a3f1",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/Base_Functions/MoveHandler.ts": {
+    "mtime": 1775399787.0,
+    "ast_hash": "777d96d93e67101273a1961d0902f6d3",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/Base_Functions/index.ts": {
+    "mtime": 1780897206.29407,
+    "ast_hash": "bb742a9b21c2ae28bd9313c375193ad8",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/Base_Functions/useBoardStyles.ts": {
+    "mtime": 1780896535.755754,
+    "ast_hash": "c0b0dcda0b3ab6c391d8e111867d0ead",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/Base_Functions/useChessGame.ts": {
+    "mtime": 1780896626.2872198,
+    "ast_hash": "40fa500a6359098703d6d0ccc46676a6",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/components/BoardComponents.tsx": {
+    "mtime": 1776309075.5761948,
+    "ast_hash": "8b130a52016444fc1848c4e22c17d8af",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/components/EngineControls.tsx": {
+    "mtime": 1780897133.9796805,
+    "ast_hash": "cf961a5ef6c82b5526eba5cd5cccbaab",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/components/EvalBar.tsx": {
+    "mtime": 1775399787.0,
+    "ast_hash": "31979f3e79f92d5b0d9337d239a7a041",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/components/GameHistory.tsx": {
+    "mtime": 1780897058.791648,
+    "ast_hash": "1b04fd3e47b7758b6d02b2672d594b84",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/components/Hints.tsx": {
+    "mtime": 1776258762.3397205,
+    "ast_hash": "07c149bada931252e1b852e6a310b168",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/components/MoveAnalysis.tsx": {
+    "mtime": 1775399787.0,
+    "ast_hash": "db32499fe9784d6f240760e037bd8007",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/components/SettingsPanel.tsx": {
+    "mtime": 1775399787.0,
+    "ast_hash": "db7f5fc0fd891122167ec638bbbaed67",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/components/index.ts": {
+    "mtime": 1780897207.1895275,
+    "ast_hash": "9a7227e0440b688bc0068c9ef4cc4b75",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/hooks/index.ts": {
+    "mtime": 1780897207.9050312,
+    "ast_hash": "2e3ef8832500b7462d6bdcc42d560a0b",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/hooks/useBookMoves.ts": {
+    "mtime": 1775399787.0,
+    "ast_hash": "645e0114822cf8934714fef80cd398bf",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/hooks/useEngine.ts": {
+    "mtime": 1780896997.598642,
+    "ast_hash": "95a176923df3ce4df112c5fae1145468",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/hooks/useEvaluation.ts": {
+    "mtime": 1776258620.7936506,
+    "ast_hash": "e70beecaec416ff7734ffd6bd2de09a5",
+    "semantic_hash": ""
+  },
+  "src/app/Base_Logic/index.ts": {
+    "mtime": 1780897208.412637,
+    "ast_hash": "11510625b1f4a4854edb0d81e9ab90dc",
+    "semantic_hash": ""
+  },
+  "src/app/Components/Dashboard.tsx": {
+    "mtime": 1776006741.5410545,
+    "ast_hash": "8d8ee1fc18487c6dc1fcc9480bb791df",
+    "semantic_hash": ""
+  },
+  "src/app/Components/Home.tsx": {
+    "mtime": 1780462702.015699,
+    "ast_hash": "3b34cc7dea4ea119806a37c7e744de77",
+    "semantic_hash": ""
+  },
+  "src/app/Components/Login.tsx": {
+    "mtime": 1775986524.3882775,
+    "ast_hash": "b63cabf99d4540cd6105c31850e5ed0d",
+    "semantic_hash": ""
+  },
+  "src/app/Components/LoginButton.tsx": {
+    "mtime": 1775957867.8840044,
+    "ast_hash": "fe9fd841d3053b4ad8d6a848344cbdcd",
+    "semantic_hash": ""
+  },
+  "src/app/Components/ui/MinSidebar.tsx": {
+    "mtime": 1780896436.6440961,
+    "ast_hash": "13bdb1714a0bbd5ef892c454a2250e24",
+    "semantic_hash": ""
+  },
+  "src/app/Components/ui/Navbar.tsx": {
+    "mtime": 1776786017.0961888,
+    "ast_hash": "be4bfdaf364b591cd91d4aac65f4076b",
+    "semantic_hash": ""
+  },
+  "src/app/Components/ui/Sidebar.tsx": {
+    "mtime": 1780902091.1254756,
+    "ast_hash": "be84943f23bf2d010a182c8b50a4b1d0",
+    "semantic_hash": ""
+  },
+  "src/app/Components/ui/card.tsx": {
+    "mtime": 1775957867.8854706,
+    "ast_hash": "b1aa95fa9bc4c7d6104bc51a85fdcae2",
+    "semantic_hash": ""
+  },
+  "src/app/Components/ui/charts.tsx": {
+    "mtime": 1775957867.886471,
+    "ast_hash": "ef3b86b8db9cb440b4685452eb3028d5",
+    "semantic_hash": ""
+  },
+  "src/app/Components/ui/drawer.tsx": {
+    "mtime": 1775993575.4651134,
+    "ast_hash": "f600974381e404057962b0b1f9e4a633",
+    "semantic_hash": ""
+  },
+  "src/app/Components/ui/progress.tsx": {
+    "mtime": 1775957867.8877769,
+    "ast_hash": "5affcf53d8b5663258128e1841b69dc5",
+    "semantic_hash": ""
+  },
+  "src/app/api/auth/[...nextauth]/route.ts": {
+    "mtime": 1776005941.4832442,
+    "ast_hash": "97d556625bff68a80afc090d441ad569",
+    "semantic_hash": ""
+  },
+  "src/app/api/puzzles/route.ts": {
+    "mtime": 1780570923.5001335,
+    "ast_hash": "c498b12d144736fcf89988302639cdc9",
+    "semantic_hash": ""
+  },
+  "src/app/api/updateStats/route.ts": {
+    "mtime": 1776784938.808062,
+    "ast_hash": "dae11d463cd195a2cf3bc7237fb031c9",
+    "semantic_hash": ""
+  },
+  "src/app/layout.tsx": {
+    "mtime": 1780462516.7024462,
+    "ast_hash": "72c11d2315183373936c553cff19084b",
+    "semantic_hash": ""
+  },
+  "src/app/lib/utils.ts": {
+    "mtime": 1775957867.8959627,
+    "ast_hash": "6d247e271f1b3f9dec2bfd456b13a166",
+    "semantic_hash": ""
+  },
+  "src/app/page.tsx": {
+    "mtime": 1780461838.765184,
+    "ast_hash": "0b986eb03f669d2f7e9f462e18a54947",
+    "semantic_hash": ""
+  },
+  "src/app/utils/client.ts": {
+    "mtime": 1775957867.8994703,
+    "ast_hash": "0ec5c051c6701d8190f351e31f59deeb",
+    "semantic_hash": ""
+  },
+  "src/app/utils/server.ts": {
+    "mtime": 1776776460.8491664,
+    "ast_hash": "ec2f6fa777a5eef08e0b8a071fd8a0b3",
+    "semantic_hash": ""
+  },
+  "src/lib/puzzleCache.ts": {
+    "mtime": 1780571104.1890404,
+    "ast_hash": "b6c81daa86cbc9f01d74d8ac89db32ba",
+    "semantic_hash": ""
+  },
+  "src/lib/puzzleShards.ts": {
+    "mtime": 1776777071.647379,
+    "ast_hash": "64d212885655c6713bee1a1df21bcc39",
+    "semantic_hash": ""
+  },
+  "tsconfig.json": {
+    "mtime": 1775957867.9009838,
+    "ast_hash": "0a2f4ed9289b65cd3feb4fb4ab3a4fcd",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase/SKILL.md": {
+    "mtime": 1775957867.8653162,
+    "ast_hash": "246802af013c0f342fba5c326e3ef9da",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase/assets/feedback-issue-template.md": {
+    "mtime": 1775957867.8663237,
+    "ast_hash": "e2c8b4f1a20e46315dd7609540d9b8d4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase/references/skill-feedback.md": {
+    "mtime": 1775957867.8673236,
+    "ast_hash": "c9fa098e2ec8bdce9d6a0f8a64d2c6c0",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1775957867.868324,
+    "ast_hash": "9346a4897ff955555ddedb7bebf77adb",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1775957867.8710835,
+    "ast_hash": "771faa62feb60b7de901a397aebb29b0",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1775957867.8730931,
+    "ast_hash": "9162add00befbcdb432430f405c4ad8d",
+    "semantic_hash": ""
+  },
+  "src/app/Components/Login.txt": {
+    "mtime": 1775986524.3882775,
+    "ast_hash": "b63cabf99d4540cd6105c31850e5ed0d",
+    "semantic_hash": ""
+  }
+}

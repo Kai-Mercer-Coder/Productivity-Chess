@@ -44,16 +44,12 @@ const GrandmasterMonolith = () => {
     };
 
     return (
-        <div className="bg-background text-on-background selection:bg-primary selection:text-surface min-h-screen">
+        <div className="bg-black text-on-background selection:bg-primary selection:text-surface min-h-screen">
 
             {/* TopNavBar */}
             <Navbar />
-
-            {/* SideNavBar (Desktop Only) */}
-            <Sidebar />
-
             {/* Main Content */}
-            <main className="xl:ml-32 pt-28 min-h-screen">
+            <main className=" pt-28 min-h-screen">
 
                 {/* Hero Section */}
                 <section className="px-6 md:px-10 py-12 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
