@@ -65,7 +65,7 @@ const GrandmasterMonolith = () => {
                             Experience chess in its purest form. A sanctuary for intellectual mastery, designed for those who seek the depth of the monolith.
                         </p>
                         <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
-                            <button className="bg-primary text-on-primary px-8 md:px-10 py-3.5 md:py-4 rounded-full font-bold text-sm hover:scale-105 transition-transform duration-300">Begin Training</button>
+                            <Link href="/learn" className="inline-block bg-primary text-on-primary px-8 md:px-10 py-3.5 md:py-4 rounded-full font-bold text-sm hover:scale-105 transition-transform duration-300">Begin Training</Link>
                             <button className="bg-surface-container-high text-white px-8 md:px-10 py-3.5 md:py-4 rounded-full font-bold text-sm border border-outline-variant/20 hover:bg-surface-container-highest transition-all">Watch Masters</button>
                         </div>
                     </div>
@@ -107,9 +107,9 @@ const GrandmasterMonolith = () => {
                                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Neural Analysis</h3>
                                 <p className="text-neutral-400 max-w-sm mb-8 text-sm md:text-base">Deep-engine move evaluation with human-centric explanations. Understand the 'why' behind every blunder and brilliance.</p>
                                 <div className="mt-auto">
-                                    <button className="text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all">
+                                    <Link href="/analysis" className="text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all">
                                         Explore Analytics <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                             <img
@@ -197,7 +197,7 @@ const GrandmasterMonolith = () => {
                         <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter">THE BOARD IS SET.</h2>
                         <p className="text-neutral-500 text-sm md:text-lg uppercase tracking-[0.3em]">Join the 1% of tactical masters</p>
                         <div className="flex justify-center gap-6 pt-4">
-                            <button className={`bg-white text-black px-8 md:px-12 py-4 md:py-5 rounded-full font-black text-sm tracking-widest hover:bg-neutral-200 transition-all active:scale-95`}><Link href={session ? `/dashboard` : `/login`} >CREATE ACCOUNT</Link></button>
+                            <Link href={session ? `/dashboard` : `/login`} className="inline-block bg-white text-black px-8 md:px-12 py-4 md:py-5 rounded-full font-black text-sm tracking-widest hover:bg-neutral-200 transition-all active:scale-95">CREATE ACCOUNT</Link>
                         </div>
                     </div>
                 </section>

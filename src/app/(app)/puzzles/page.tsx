@@ -1,13 +1,13 @@
 "use client";
 
-import type { Square } from "chess.js";
+import { Chess, type Square } from "chess.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PieceDropHandlerArgs } from "react-chessboard";
 import { Chessboard } from "react-chessboard";
 import { useSession } from "next-auth/react";
 import MobileNavbar from "@/components/layouts/MobileNavbar";
-import Navbar from "@/components/layouts/Navbar";
 import Sidebar from "@/components/layouts/Sidebar";
+import { useSidebar } from "@/components/layouts/SidebarContext";
 import { useChessGame } from "@/lib/hooks/useChessGame";
 import { preloadShardsForElo } from "@/lib/puzzles/PuzzleShards";
 import { usePuzzle } from "@/lib/puzzles/usePuzzle";
@@ -23,6 +23,7 @@ export default function PuzzlePage() {
   const game = useChessGame();
   const puzzle = usePuzzle({ tryMove: game.makeMove, loadFen: game.loadFen });
   const { data: session, update } = useSession();
+  const { isCollapsed } = useSidebar();
 
   const [difficulty, setDifficulty] = useState<"normal" | "hard">("normal");
   const [selectedTheme, setSelectedTheme] = useState("all");
@@ -102,6 +103,45 @@ export default function PuzzlePage() {
     puzzle.fetchAndLoad({ theme: selectedTheme, hard: difficulty === "hard", userElo });
   };
 
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+  const [legalMoveSquares, setLegalMoveSquares] = useState<string[]>([]);
+
+  const handleSquareClick = useCallback(
+    (args: any) => {
+      const square = typeof args === "string" ? args : args?.square;
+      if (puzzle.status !== "playing" || !square) return;
+      if (square === selectedSquare) {
+        setSelectedSquare(null);
+        setLegalMoveSquares([]);
+        return;
+      }
+      const piece = game.chessGame.get(square as Square);
+      if (piece && piece.color === (puzzle.playerColor === "b" ? "b" : "w")) {
+        setSelectedSquare(square);
+        const moves = game.chessGame.moves({ square: square as Square, verbose: true });
+        setLegalMoveSquares(moves.map((m) => m.to));
+      } else {
+        setSelectedSquare(null);
+        setLegalMoveSquares([]);
+      }
+    },
+    [puzzle.status, puzzle.playerColor, game.chessGame, selectedSquare],
+  );
+
+  const handlePieceDrag = useCallback(
+    (args: any) => {
+      const square = args?.square;
+      if (puzzle.status !== "playing" || !square) return;
+      const piece = game.chessGame.get(square as Square);
+      if (piece && piece.color === (puzzle.playerColor === "b" ? "b" : "w")) {
+        setSelectedSquare(square);
+        const moves = game.chessGame.moves({ square: square as Square, verbose: true });
+        setLegalMoveSquares(moves.map((m) => m.to));
+      }
+    },
+    [puzzle.status, puzzle.playerColor, game.chessGame],
+  );
+
   const squareStyles: Record<string, React.CSSProperties> = {};
   if (puzzle.hintSquares) {
     squareStyles[puzzle.hintSquares.from] = {
@@ -112,10 +152,24 @@ export default function PuzzlePage() {
       backgroundColor: "rgba(255,255,0,0.35)",
     };
   }
+  for (const sq of legalMoveSquares) {
+    if (!squareStyles[sq]) {
+      squareStyles[sq] = {
+        background: "radial-gradient(circle, rgba(255,255,255,0.35) 22%, transparent 22%)",
+        borderRadius: "50%",
+      };
+    }
+  }
+  if (selectedSquare && !squareStyles[selectedSquare]) {
+    squareStyles[selectedSquare] = {
+      background: "radial-gradient(circle, rgba(255,255,255,0.15) 50%, transparent 50%)",
+      borderRadius: "50%",
+    };
+  }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans antialiased selection:bg-white selection:text-black flex flex-col items-center justify-center p-4 lg:p-8 relative">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-neutral-900 via-black to-black pointer-events-none" />
+    <div className="min-h-screen bg-black text-white font-sans antialiased selection:bg-white selection:text-black relative">
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-neutral-900 via-black to-black pointer-events-none" />
 
       {puzzle.status === "loading" && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-50">
@@ -128,22 +182,27 @@ export default function PuzzlePage() {
         </div>
       )}
 
-      <div className="flex flex-col xl:flex-row items-start justify-center gap-5 w-full max-w-[1600px] relative z-10">
-        <Navbar />
-        <Sidebar />
-        <MobileNavbar />
+      <Sidebar />
+      <MobileNavbar />
 
-        {puzzle.puzzle ? (
-          <section className="flex gap-30 mt-[70px] flex-col items-center-safe justify-center w-full h-full xl:flex-row">
-            <div className="flex flex-col gap-3 shrink-0">
-              <div className="relative p-[3px] bg-neutral-800 rounded-lg ring-1 ring-white/4">
-                <div className="relative w-[600px] h-[600px] bg-neutral-900 rounded-md overflow-hidden">
+      <main className={`transition-all duration-300 min-h-screen ${isCollapsed ? "md:ml-[68px]" : "md:ml-[220px] lg:ml-[240px] xl:ml-[260px]"}`}>
+        <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 lg:px-8 pt-8 pb-24">
+          {puzzle.puzzle ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+              <section className="lg:col-span-7 xl:col-span-8 flex flex-col items-center w-full">
+                <div className="relative w-full max-w-[700px] aspect-square bg-surface-container shadow-[0_30px_100px_rgba(0,0,0,0.5)] rounded-[2rem] overflow-hidden group border border-white/5">
                   <StatusOverlay status={puzzle.status} />
                   <Chessboard
                     options={{
                       id: "puzzle-board",
                       position: game.position,
-                      onPieceDrop: handlePieceDrop,
+                      onPieceDrop: (args) => {
+                        setSelectedSquare(null);
+                        setLegalMoveSquares([]);
+                        return handlePieceDrop(args);
+                      },
+                      onSquareClick: handleSquareClick,
+                      onPieceDrag: handlePieceDrag,
                       boardOrientation:
                         puzzle.playerColor === "b" ? "black" : "white",
                       allowDragging: puzzle.status === "playing",
@@ -155,171 +214,190 @@ export default function PuzzlePage() {
                     }}
                   />
                 </div>
-              </div>
 
-              <PuzzleInfoBar
-                playerColor={puzzle.playerColor}
-                status={puzzle.status}
-                currentPlayerMove={currentPlayerMove}
-                totalPlayerMoves={totalPlayerMoves}
-              />
-            </div>
-
-            <div className="w-full xl:max-w-[400px] flex flex-col max-h-[880px] overflow-hidden backdrop-blur-xl shrink-0">
-              <section className="flex gap-4 mb-20">
-                <div className="p-8 rounded-3xl border border-white/15 shadow-xl glass">
-                  <span className="text-[10px] font-black text-neutral-500 uppercase tracking-widest block mb-2">
-                    Rating
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-white tracking-tighter">
-                      {puzzle.puzzle.rating.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-8 rounded-3xl border border-white/15 shadow-xl glass">
-                  <span className="text-[10px] font-black text-neutral-500 uppercase tracking-widest block mb-2">
-                    Themes
-                  </span>
-                  <div className="flex flex-wrap gap-1">
-                    {puzzle.puzzle.themes.slice(0, 4).map((t) => (
-                      <span
-                        key={t}
-                        className="text-[10px] font-medium text-white/70 bg-white/5 px-2 py-1 rounded capitalize"
-                      >
-                        {t.replace(/([A-Z])/g, " $1")}
-                      </span>
-                    ))}
-                  </div>
+                <div className="mt-8 w-full max-w-[700px]">
+                  <PuzzleInfoBar
+                    playerColor={puzzle.playerColor}
+                    status={puzzle.status}
+                    currentPlayerMove={currentPlayerMove}
+                    totalPlayerMoves={totalPlayerMoves}
+                  />
                 </div>
               </section>
 
-              <PuzzleMoveHistory
-                history={history}
-                puzzle={puzzle.puzzle}
-                moveIndex={puzzle.moveIndex}
-                onToggleSettings={() => setShowSettings(true)}
-              />
-
-              {puzzle.status === "solved" ? (
-                <PuzzleSolvedFooter
-                  rating={puzzle.puzzle.rating}
-                  themes={puzzle.puzzle.themes}
-                  onNextPuzzle={loadNextPuzzle}
-                />
-              ) : (
-                <div className="p-6 bg-surface-container-lowest/50 grid grid-cols-2 gap-4 border-t border-white/5">
-                  <button
-                    type="button"
-                    onClick={puzzle.getHint}
-                    disabled={puzzle.status !== "playing"}
-                    className="bg-white/5 hover:bg-white/10 transition-all py-4 rounded-2xl flex flex-col items-center gap-2 group active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <span className="material-symbols-outlined group-hover:text-yellow-400 transition-colors">
-                      lightbulb
+              <aside className="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 w-full max-w-[500px] mx-auto lg:mx-0">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-8 rounded-3xl border border-white/5 shadow-xl glass">
+                    <span className="text-[10px] font-black text-neutral-500 uppercase tracking-widest block mb-2">
+                      Rating
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-widest">
-                      Hint
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowSolution(true)}
-                    disabled={puzzle.status !== "playing"}
-                    className="bg-white/5 hover:bg-white/10 transition-all py-4 rounded-2xl flex flex-col items-center gap-2 group active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <span className="material-symbols-outlined group-hover:text-error transition-colors">
-                      visibility
-                    </span>
-                    <span className="text-[10px] font-black uppercase tracking-widest">
-                      Solution
-                    </span>
-                  </button>
-                </div>
-              )}
-
-              {puzzle.puzzle.themes.length > 0 && (
-                <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5 flex items-center gap-8 relative overflow-hidden group shadow-xl">
-                  <div className="flex-1 z-10">
-                    <h3 className="text-sm font-black text-white mb-2 uppercase tracking-wide">
-                      Tactical Motif{puzzle.puzzle.themes.length > 1 ? "s" : ""}
-                    </h3>
-                    <p className="text-xs text-neutral-400 leading-relaxed capitalize">
-                      {puzzle.puzzle.themes
-                        .join(", ")
-                        .replace(/([A-Z])/g, " $1")}
-                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-black text-white tracking-tighter">
+                        {puzzle.puzzle.rating.toLocaleString()}
+                      </span>
+                    </div>
                   </div>
-                  <div className="w-20 h-20 opacity-5 absolute -right-2 pointer-events-none group-hover:scale-110 transition-transform duration-700">
-                    <span className="material-symbols-outlined scale-600">
-                      psychology
+                  <div className="p-8 rounded-3xl border border-white/5 shadow-xl glass">
+                    <span className="text-[10px] font-black text-neutral-500 uppercase tracking-widest block mb-2">
+                      Themes
                     </span>
-                  </div>
-                </div>
-              )}
-
-              {showSolution && puzzle.puzzle && (
-                <div
-                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-                  onClick={() => setShowSolution(false)}
-                  onKeyDown={(e) => { if (e.key === "Escape") setShowSolution(false); }}
-                >
-                  <div
-                    className="bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl p-6 w-[340px]"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <h3 className="text-sm font-black uppercase tracking-wider text-white mb-4">
-                      Solution
-                    </h3>
-                    <div className="space-y-2 text-sm font-mono">
-                      {puzzle.puzzle.moves.map((m, i) => (
-                        <div
-                          key={m}
-                          className={`flex items-center gap-3 ${i < puzzle.moveIndex ? "text-neutral-600" : "text-white"}`}
+                    <div className="flex flex-wrap gap-1">
+                      {puzzle.puzzle.themes.slice(0, 4).map((t) => (
+                        <span
+                          key={t}
+                          className="text-[10px] font-medium text-white/70 bg-white/5 px-2 py-1 rounded capitalize"
                         >
-                          <span className="w-6 text-neutral-500">
-                            {Math.floor(i / 2) + 1}
-                            {i % 2 === 0 ? "." : "..."}
-                          </span>
-                          <span
-                            className={
-                              i < puzzle.moveIndex ? "" : "font-semibold"
-                            }
-                          >
-                            {m.substring(0, 2)}–{m.substring(2, 4)}
-                            {m.length > 4 ? m[4] : ""}
-                          </span>
-                        </div>
+                          {t.replace(/([A-Z])/g, " $1")}
+                        </span>
                       ))}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowSolution(false)}
-                      className="mt-6 w-full py-2.5 bg-white text-black rounded-lg text-xs font-semibold hover:bg-neutral-200 transition-all"
-                    >
-                      Close
-                    </button>
                   </div>
                 </div>
-              )}
 
-              {showSettings && (
-                <PuzzleSettingsModal
-                  difficulty={difficulty}
-                  selectedTheme={selectedTheme}
-                  onDifficultyChange={setDifficulty}
-                  onThemeChange={setSelectedTheme}
-                  onNextPuzzle={loadNextPuzzle}
-                  onClose={() => setShowSettings(false)}
+                <PuzzleMoveHistory
+                  history={history}
+                  puzzle={puzzle.puzzle}
+                  moveIndex={puzzle.moveIndex}
+                  onToggleSettings={() => setShowSettings(true)}
                 />
-              )}
+
+                {puzzle.status === "solved" ? (
+                  <PuzzleSolvedFooter
+                    rating={puzzle.puzzle.rating}
+                    themes={puzzle.puzzle.themes}
+                    onNextPuzzle={loadNextPuzzle}
+                  />
+                ) : (
+                  <div className="p-6 bg-surface-container-lowest/50 grid grid-cols-2 gap-4 rounded-3xl border border-white/5 glass">
+                    <button
+                      type="button"
+                      onClick={puzzle.getHint}
+                      disabled={puzzle.status !== "playing"}
+                      className="bg-white/5 hover:bg-white/10 transition-all py-4 rounded-2xl flex flex-col items-center gap-2 group active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed premium-hover"
+                    >
+                      <span className="material-symbols-outlined group-hover:text-yellow-400 transition-colors">
+                        lightbulb
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-widest">
+                        Hint
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowSolution(true)}
+                      disabled={puzzle.status !== "playing"}
+                      className="bg-white/5 hover:bg-white/10 transition-all py-4 rounded-2xl flex flex-col items-center gap-2 group active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed premium-hover"
+                    >
+                      <span className="material-symbols-outlined group-hover:text-error transition-colors">
+                        visibility
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-widest">
+                        Solution
+                      </span>
+                    </button>
+                  </div>
+                )}
+
+                {puzzle.puzzle.themes.length > 0 && (
+                  <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5 flex items-center gap-8 relative overflow-hidden group shadow-xl">
+                    <div className="flex-1 z-10">
+                      <h3 className="text-sm font-black text-white mb-2 uppercase tracking-wide">
+                        Tactical Motif{puzzle.puzzle.themes.length > 1 ? "s" : ""}
+                      </h3>
+                      <p className="text-xs text-neutral-400 leading-relaxed capitalize">
+                        {puzzle.puzzle.themes
+                          .join(", ")
+                          .replace(/([A-Z])/g, " $1")}
+                      </p>
+                    </div>
+                    <div className="w-20 h-20 opacity-5 absolute -right-2 pointer-events-none group-hover:scale-110 transition-transform duration-700">
+                      <span className="material-symbols-outlined scale-600">
+                        psychology
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {showSolution && puzzle.puzzle && (
+                  <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                    onClick={() => setShowSolution(false)}
+                    onKeyDown={(e) => { if (e.key === "Escape") setShowSolution(false); }}
+                  >
+                    <div
+                      className="bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl p-6 w-[340px]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <h3 className="text-sm font-black uppercase tracking-wider text-white mb-4">
+                        Solution
+                      </h3>
+                      <div className="space-y-2 text-sm font-mono">
+                        {puzzle.puzzle.moves.map((m, i) => (
+                          <div
+                            key={m}
+                            className={`flex items-center gap-3 ${i < puzzle.moveIndex ? "text-neutral-600" : "text-white"}`}
+                          >
+                            <span className="w-6 text-neutral-500">
+                              {Math.floor(i / 2) + 1}
+                              {i % 2 === 0 ? "." : "..."}
+                            </span>
+                            <span
+                              className={
+                                i < puzzle.moveIndex ? "" : "font-semibold"
+                              }
+                            >
+                              {m.substring(0, 2)}–{m.substring(2, 4)}
+                              {m.length > 4 ? m[4] : ""}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowSolution(false)}
+                        className="mt-6 w-full py-2.5 bg-white text-black rounded-lg text-xs font-semibold hover:bg-neutral-200 transition-all"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {showSettings && (
+                  <PuzzleSettingsModal
+                    difficulty={difficulty}
+                    selectedTheme={selectedTheme}
+                    onDifficultyChange={setDifficulty}
+                    onThemeChange={setSelectedTheme}
+                    onNextPuzzle={loadNextPuzzle}
+                    onClose={() => setShowSettings(false)}
+                  />
+                )}
+              </aside>
             </div>
-          </section>
-        ) : (
-          <div className="p-4 text-center text-neutral-500 mt-40">
-            No puzzle loaded
-          </div>
-        )}
+          ) : (
+            <div className="p-4 text-center text-neutral-500 mt-40">
+              No puzzle loaded
+            </div>
+          )}
+        </div>
+      </main>
+
+      <div className="fixed bottom-10 right-10 flex flex-col gap-6 z-50">
+        <button
+          type="button"
+          onClick={() => game.loadFen(new Chess().fen())}
+          className="w-14 h-14 glass text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all"
+        >
+          <span className="material-symbols-outlined">restart_alt</span>
+        </button>
+        <button
+          type="button"
+          onClick={loadNextPuzzle}
+          className="w-16 h-16 bg-white text-black rounded-full flex items-center justify-center shadow-[0_20px_40px_rgba(255,255,255,0.2)] hover:scale-110 active:scale-90 transition-all"
+        >
+          <span className="material-symbols-outlined font-black text-3xl">arrow_forward</span>
+        </button>
       </div>
     </div>
   );

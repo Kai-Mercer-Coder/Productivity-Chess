@@ -151,14 +151,12 @@ const Login = () => {
                         >
                             Sign out
                         </button>
-                        <button
-
-                            className="w-full py-3.5 rounded-xl text-[13px] font-medium tracking-wide bg-white/4 text-white/50 border border-white/8 transition-all duration-500 hover:bg-white/[0.07] hover:text-white/70 hover:border-white/12 active:scale-[0.98] cursor-pointer"
+                        <Link
+                            href="/dashboard"
+                            className="block w-full py-3.5 rounded-xl text-[13px] font-medium tracking-wide bg-white/4 text-white/50 border border-white/8 transition-all duration-500 hover:bg-white/[0.07] hover:text-white/70 hover:border-white/12 active:scale-[0.98] cursor-pointer text-center"
                         >
-                            <Link href="/dashboard">
-                                Continue to Website
-                            </Link>
-                        </button>
+                            Continue to Website
+                        </Link>
                     </div>
                 )}
 
