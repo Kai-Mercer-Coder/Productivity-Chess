@@ -4,6 +4,8 @@ import Head from "next/head";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import LenisProvider from "@/components/layouts/LenisProvider";
+import OnboardingOverlay from "@/components/profile/OnboardingOverlay";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -33,7 +35,7 @@ export default function RootLayout({
         <Head>
           <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
         </Head>
-        <body className="min-h-full flex flex-col">{children}</body>
+        <body className="min-h-full flex flex-col"><LenisProvider>{children}<OnboardingOverlay /></LenisProvider></body>
       </html>
     </SessionProvider>
   );

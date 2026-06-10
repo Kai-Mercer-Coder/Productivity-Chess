@@ -1,4 +1,4 @@
-import { Classification } from "../classification";
+import { Classification } from "./Classification";
 import { EngineLine, Evaluation } from "./Engine";
 
 interface Move {

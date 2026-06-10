@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 // import { auth } from "../auth/[...nextauth]/route";
 // import { createAdminClient } from "../../utils/server";
-import { getShardsInRange } from "@/lib/puzzleShards";
+import { getShardsInRange } from "@/lib/puzzles/PuzzleShards";
 import fs from "fs";
 import path from "path";
 

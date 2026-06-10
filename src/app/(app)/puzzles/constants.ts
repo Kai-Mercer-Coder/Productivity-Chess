@@ -1,0 +1,15 @@
+export const THEMES = [
+  "all",
+  "mate",
+  "fork",
+  "opening",
+  "middlegame",
+  "endgame",
+  "pin",
+  "crushing",
+  "advantage",
+  "hangingPiece",
+  "discoveredAttack",
+  "sacrifice",
+  "promotion",
+];
