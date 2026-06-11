@@ -2,6 +2,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -17,6 +18,19 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
         GithubProvider({
             clientId: process.env.GITHUB_CLIENT!,
             clientSecret: process.env.GITHUB_SECRET!,
+        }),
+        CredentialsProvider({
+            id: "guest",
+            name: "Guest",
+            credentials: {},
+            async authorize() {
+                const guestId = crypto.randomUUID();
+                return {
+                    id: guestId,
+                    email: `guest_${guestId.slice(0, 8)}@guest.local`,
+                    name: `Guest_${Math.random().toString(36).substring(2, 8)}`,
+                };
+            },
         }),
     ],
     callbacks: {
@@ -36,6 +50,7 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
             if (!existing) {
                 const { error: insertError } = await supabase.from("users").insert({
                     email: user.email,
+                    name: user.name,
                     elo: 1200,
                     puzzles_solved: 0,
                     delta_value: 200,
@@ -52,6 +67,9 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
             return true;
         },
         async jwt({ token, user, session, trigger }: any) {
+            if (user) {
+                token.name = user.name;
+            }
             if (user?.email) {
                 const { data: profile } = await supabase
                     .from("users")

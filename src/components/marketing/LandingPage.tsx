@@ -221,8 +221,8 @@ const GrandmasterMonolith = () => {
                             <h4 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-white mb-6">Legal</h4>
                             <ul className="space-y-4 text-sm text-neutral-500">
                                 <li><a className="hover:text-white transition-colors" href="#">Fair Play Policy</a></li>
-                                <li><a className="hover:text-white transition-colors" href="#">Privacy</a></li>
-                                <li><a className="hover:text-white transition-colors" href="#">Terms</a></li>
+                                <li><Link className="hover:text-white transition-colors" href="/privacy">Privacy</Link></li>
+                                <li><Link className="hover:text-white transition-colors" href="/terms">Terms</Link></li>
                             </ul>
                         </div>
                     </div>

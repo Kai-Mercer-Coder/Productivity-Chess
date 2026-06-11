@@ -1,160 +1,151 @@
-# Graph Report - my-app  (2026-06-08)
+# Graph Report - .  (2026-06-09)
 
 ## Corpus Check
-- 61 files · ~21,158 words
-- Verdict: corpus is large enough that graph structure adds value.
+- Corpus is ~25,241 words - fits in a single context window. You may not need a graph.
 
 ## Summary
-- 337 nodes · 444 edges · 28 communities (22 shown, 6 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
+- 391 nodes · 637 edges · 28 communities (16 shown, 12 thin omitted)
+- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 50 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
-## Graph Freshness
-- Built from commit: `b5d0e778`
-- Run `git rev-parse HEAD` and compare to check if the graph is stale.
-- Run `graphify update .` after code changes (no API cost).
-
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Community 0|Community 0]]
-- [[_COMMUNITY_Community 1|Community 1]]
-- [[_COMMUNITY_Community 2|Community 2]]
-- [[_COMMUNITY_Community 3|Community 3]]
-- [[_COMMUNITY_Community 4|Community 4]]
-- [[_COMMUNITY_Community 5|Community 5]]
-- [[_COMMUNITY_Community 6|Community 6]]
-- [[_COMMUNITY_Community 7|Community 7]]
-- [[_COMMUNITY_Community 8|Community 8]]
-- [[_COMMUNITY_Community 9|Community 9]]
-- [[_COMMUNITY_Community 10|Community 10]]
-- [[_COMMUNITY_Community 11|Community 11]]
-- [[_COMMUNITY_Community 12|Community 12]]
-- [[_COMMUNITY_Community 13|Community 13]]
-- [[_COMMUNITY_Community 14|Community 14]]
-- [[_COMMUNITY_Community 15|Community 15]]
-- [[_COMMUNITY_Community 16|Community 16]]
-- [[_COMMUNITY_Community 17|Community 17]]
-- [[_COMMUNITY_Community 18|Community 18]]
-- [[_COMMUNITY_Community 19|Community 19]]
-- [[_COMMUNITY_Community 21|Community 21]]
-- [[_COMMUNITY_Community 22|Community 22]]
-- [[_COMMUNITY_Community 24|Community 24]]
+- [[_COMMUNITY_Chess Engine Core|Chess Engine Core]]
+- [[_COMMUNITY_Utility Functions & UI Cards|Utility Functions & UI Cards]]
+- [[_COMMUNITY_Game Review & Evaluation|Game Review & Evaluation]]
+- [[_COMMUNITY_Chess Board UI System|Chess Board UI System]]
+- [[_COMMUNITY_Project Configuration|Project Configuration]]
+- [[_COMMUNITY_Puzzle Caching System|Puzzle Caching System]]
+- [[_COMMUNITY_App Layout & Styling|App Layout & Styling]]
+- [[_COMMUNITY_Biome Config & Assistants|Biome Config & Assistants]]
+- [[_COMMUNITY_Package Dependencies|Package Dependencies]]
+- [[_COMMUNITY_TypeScript Configuration|TypeScript Configuration]]
+- [[_COMMUNITY_Analysis Page UI|Analysis Page UI]]
+- [[_COMMUNITY_Auth & API Routes|Auth & API Routes]]
+- [[_COMMUNITY_Skills Lock Config|Skills Lock Config]]
+- [[_COMMUNITY_OpenCode Plugin Schema|OpenCode Plugin Schema]]
+- [[_COMMUNITY_Graphify Plugin Config|Graphify Plugin Config]]
+- [[_COMMUNITY_OpenCode Dependencies|OpenCode Dependencies]]
+- [[_COMMUNITY_Feedback Issue Template|Feedback Issue Template]]
+- [[_COMMUNITY_Base Logic Re-exports|Base Logic Re-exports]]
+- [[_COMMUNITY_Dashboard Page|Dashboard Page]]
+- [[_COMMUNITY_Puzzle Shard Ranges|Puzzle Shard Ranges]]
+- [[_COMMUNITY_Login Page Component|Login Page Component]]
+- [[_COMMUNITY_OpenCode Package Config|OpenCode Package Config]]
+- [[_COMMUNITY_Puzzle Route Handler|Puzzle Route Handler]]
+- [[_COMMUNITY_Skill Feedback Reference|Skill Feedback Reference]]
+- [[_COMMUNITY_Supabase Skill|Supabase Skill]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 22 edges
 2. `compilerOptions` - 16 edges
-3. `StockfishEngine` - 11 edges
-4. `MoveHandler` - 11 edges
-5. `useChessGame()` - 8 edges
-6. `Supabase` - 7 edges
-7. `scripts` - 6 edges
-8. `App()` - 6 edges
-9. `ChessApiEvalEngine` - 6 edges
-10. `BaseStockfishEngine` - 5 edges
+3. `analyse()` - 15 edges
+4. `StockfishEngine` - 13 edges
+5. `MoveHandler` - 13 edges
+6. `EvaluatedPosition` - 13 edges
+7. `useChessGame()` - 11 edges
+8. `ChessApiEvalEngine` - 10 edges
+9. `Base Logic Barrel Export` - 10 edges
+10. `getAttackers()` - 9 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `AnalysisPage()` --calls--> `useChessGame()`  [EXTRACTED]
-  src/app/(SubRoutes)/analysis/page.tsx → src/app/Base_Logic/Base_Functions/useChessGame.ts
-- `App()` --calls--> `useChessGame()`  [EXTRACTED]
-  src/app/(SubRoutes)/play/Stuff/App.tsx → src/app/Base_Logic/Base_Functions/useChessGame.ts
-- `Card()` --calls--> `cn()`  [EXTRACTED]
-  src/app/Components/ui/card.tsx → src/app/lib/utils.ts
-- `CardHeader()` --calls--> `cn()`  [EXTRACTED]
-  src/app/Components/ui/card.tsx → src/app/lib/utils.ts
-- `CardTitle()` --calls--> `cn()`  [EXTRACTED]
-  src/app/Components/ui/card.tsx → src/app/lib/utils.ts
+- `Next.js Breaking Changes Warning` --rationale_for--> `nextConfig`  [INFERRED]
+  AGENTS.md → next.config.ts
+- `EngineLine` --semantically_similar_to--> `MoveEngine`  [INFERRED] [semantically similar]
+  src/lib/types/Engine.ts → src/app/(SubRoutes)/play/Stuff/types.ts
+- `Move` --semantically_similar_to--> `PromotionMove`  [INFERRED] [semantically similar]
+  src/lib/types/Position.ts → src/app/(SubRoutes)/play/Stuff/types.ts
+- `evaluateFen()` --semantically_similar_to--> `ChessApiEvalEngine`  [INFERRED] [semantically similar]
+  src/app/Base_Logic/hooks/useGameReview.ts → src/app/Base_Logic/Base_Functions/MoveEngine.ts
+- `Claude AGENTS Reference` --references--> `Next.js Breaking Changes Warning`  [INFERRED]
+  CLAUDE.md → AGENTS.md
 
 ## Import Cycles
 - None detected.
 
-## Communities (28 total, 6 thin omitted)
+## Hyperedges (group relationships)
+- **Chess UI Components** — components_boardcomponents_boardcomponent, components_boardcomponents_promotiondialog, components_enginecontrols_enginecontrols, components_enginecontrols_undobutton, components_evalbar_evalbar, components_gamehistory_gamehistory, components_hints_hints, components_moveanalysis_moveanalysis, components_settingspanel_settingspanel [INFERRED 0.85]
+- **Navigation Components** — ui_navbar_navbar, ui_sidebar_sidebar, ui_minsidebar_minsidebar [INFERRED 0.85]
+- **Shared UI Primitive Components** — ui_card_card, ui_charts_chartsystem, ui_drawer_drawersystem, ui_progress_progress [INFERRED 0.75]
+- **Chess Move Analysis Pipeline** — lib_analyse_analyse, lib_classification_classification, lib_classification_classificationvalues, lib_classification_centipawnclassifications, lib_classification_getevaluationlossthreshold, lib_board_getattackers, lib_board_ispiecehanging, lib_board_piecevalues [INFERRED 0.85]
+- **Puzzle Shard Caching with IndexedDB** — lib_puzzlecache_getnextpuzzle, lib_puzzlecache_puzzlesharddb, lib_puzzleshards_getcachedorfetchpuzzles, lib_puzzleshards_getorfetchshard, lib_puzzleshards_getshardsinrange, lib_puzzleshards_preloadshardsforelo, lib_puzzleshards_clearoldshards, lib_puzzleshards_puzzlesharddb [INFERRED 0.85]
+- **Chess Board Interaction System** — base_functions_movehandler_movehandler, base_functions_usechessgame_usechessgame, base_functions_useboardstyles_useboardstyles, hooks_useengine_useengine [INFERRED 0.85]
+- **Chess Analysis Data Pipeline** — types_report_report, types_position_evaluatedposition, types_engine_engine_line, types_engine_evaluation, types_position_position, types_position_move, types_classification_classificationcount [INFERRED 0.95]
+- **Supabase Auth Architecture** — nextauth_route_authroute, utils_server_createclient, utils_server_createadminclient, utils_client_createclient, supabase_skill_supabseskill [INFERRED 0.85]
+- **Chess Play System** — stuff_app_app, subroutes_play_playpage, base_logic_index_baselogicreexports, stuff_types_promotionmove, stuff_types_moveengine, stuff_types_analysisstate [INFERRED 0.85]
 
-### Community 0 - "Community 0"
+## Communities (28 total, 12 thin omitted)
+
+### Community 0 - "Chess Engine Core"
+Cohesion: 0.06
+Nodes (22): Base_Functions barrel exports, BaseStockfishEngine, ChessApiEvalEngine, ChessApiResponse, StockfishEngine, MoveHandler, ALL_SQUARES, BoardStylesParams (+14 more)
+
+### Community 1 - "Utility Functions & UI Cards"
 Cohesion: 0.09
-Nodes (21): useBoardStyles(), BoardComponent(), BoardProps, PromotionDialog(), PromotionDialogProps, EngineControlsProps, UndoBT, Undobutton() (+13 more)
+Nodes (31): cn(), Card(), CardAction(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle() (+23 more)
 
-### Community 1 - "Community 1"
+### Community 2 - "Game Review & Evaluation"
+Cohesion: 0.16
+Nodes (28): EvalResponse, evaluateFen(), useGameReview(), UseGameReviewReturn, analyse(), getOpeningsDB(), Coordinate, getAttackers() (+20 more)
+
+### Community 3 - "Chess Board UI System"
+Cohesion: 0.10
+Nodes (26): Chess UI Component System, BoardComponent(), BoardProps, PromotionDialog(), PromotionDialogProps, EngineControls(), EngineControlsProps, UndoBT (+18 more)
+
+### Community 4 - "Project Configuration"
+Cohesion: 0.06
+Nodes (32): Next.js Breaking Changes Warning, Biome Linter/Formatter Config, Claude AGENTS Reference, nextConfig, dependencies, chess.js, @chess-openings/eco.json, chess-tactics (+24 more)
+
+### Community 5 - "Puzzle Caching System"
 Cohesion: 0.09
-Nodes (28): cn(), Card(), CardAction(), CardContent(), CardDescription(), CardFooter(), CardHeader(), CardTitle() (+20 more)
+Nodes (27): CachedPuzzleShard, db, getNextPuzzle(), getOrFetchSingleShard(), getShardIdForElo(), PuzzleRow, PuzzleShardDB, RATING_STEPS (+19 more)
 
-### Community 2 - "Community 2"
-Cohesion: 0.07
-Nodes (13): AnalysisMode, AnalysisPage(), dummyReview, reviewCategories, ViewMode, useChessGame(), encounters, performanceData (+5 more)
+### Community 6 - "App Layout & Styling"
+Cohesion: 0.10
+Nodes (13): geistMono, geistSans, metadata, encounters, GrandmasterDashboard(), performanceData, GrandmasterMonolith(), LenisProvider() (+5 more)
 
-### Community 3 - "Community 3"
+### Community 7 - "Biome Config & Assistants"
 Cohesion: 0.08
 Nodes (25): source, assist, actions, next, react, files, ignoreUnknown, includes (+17 more)
 
-### Community 4 - "Community 4"
-Cohesion: 0.13
-Nodes (7): BaseStockfishEngine, ChessApiEvalEngine, ChessApiResponse, StockfishEngine, PendingAnalysis, AnalysisState, MoveEngine
-
-### Community 5 - "Community 5"
-Cohesion: 0.08
-Nodes (25): dependencies, chess.js, @chess-openings/eco.json, chess-tactics, clsx, dexie, elo-rank, @emotion/react (+17 more)
-
-### Community 6 - "Community 6"
+### Community 8 - "Package Dependencies"
 Cohesion: 0.10
 Nodes (19): devDependencies, babel-plugin-react-compiler, @biomejs/biome, tailwindcss, @tailwindcss/postcss, @types/elo-rank, @types/node, @types/react (+11 more)
 
-### Community 7 - "Community 7"
+### Community 9 - "TypeScript Configuration"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
-### Community 8 - "Community 8"
-Cohesion: 0.16
-Nodes (13): CachedPuzzleShard, getCachedOrFetchPuzzles(), getOrFetchShard(), getShardsInRange(), preloadShardsForElo(), PuzzleShardDB, SHARD_RANGES, ShardRange (+5 more)
+### Community 10 - "Analysis Page UI"
+Cohesion: 0.18
+Nodes (13): accuracyColor(), AnalysisMode, AnalysisPage(), AnalysisView(), classificationVisuals, GameReviewView(), ModeSelector(), MoveHistory() (+5 more)
 
-### Community 9 - "Community 9"
-Cohesion: 0.16
-Nodes (13): CachedPuzzleShard, db, getNextPuzzle(), getOrFetchSingleShard(), getShardIdForElo(), PuzzleRow, PuzzleShardDB, RATING_STEPS (+5 more)
+### Community 11 - "Auth & API Routes"
+Cohesion: 0.24
+Nodes (6): NextAuth Auth Route, { handlers: { GET, POST }, auth }, supabase, POST(), UpdateStats API POST Handler, createAdminClient()
 
-### Community 11 - "Community 11"
-Cohesion: 0.25
-Nodes (4): ALL_SQUARES, BoardStylesParams, DIRS, PIECE_VALUES
-
-### Community 12 - "Community 12"
-Cohesion: 0.32
-Nodes (4): { handlers: { GET, POST }, auth }, supabase, POST(), createAdminClient()
-
-### Community 13 - "Community 13"
-Cohesion: 0.25
-Nodes (7): Core Principles, Making and Committing Schema Changes, Reference Guides, Supabase, Supabase CLI, Supabase Documentation, Supabase MCP Server
-
-### Community 14 - "Community 14"
+### Community 12 - "Skills Lock Config"
 Cohesion: 0.29
 Nodes (6): skills, supabase, computedHash, source, sourceType, version
 
-### Community 15 - "Community 15"
-Cohesion: 0.40
-Nodes (3): geistMono, geistSans, metadata
-
-### Community 16 - "Community 16"
-Cohesion: 0.50
-Nodes (3): Fix suggestion, Source, What happened
-
-### Community 17 - "Community 17"
-Cohesion: 0.50
-Nodes (3): Deploy on Vercel, Getting Started, Learn More
-
 ## Knowledge Gaps
-- **140 isolated node(s):** `plugin`, `$schema`, `enabled`, `clientKind`, `useIgnoreFile` (+135 more)
+- **143 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `$schema`, `enabled` (+138 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `useChessGame()` connect `Community 2` to `Community 0`, `Community 4`?**
-  _High betweenness centrality (0.039) - this node is a cross-community bridge._
-- **Why does `MoveHandler` connect `Community 10` to `Community 0`, `Community 4`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **What connects `plugin`, `$schema`, `enabled` to the rest of the system?**
-  _140 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.08658536585365853 - nodes in this community are weakly interconnected._
-- **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.09388335704125178 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.07394957983193277 - nodes in this community are weakly interconnected._
-- **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
+- **Why does `useChessGame()` connect `Chess Engine Core` to `Analysis Page UI`, `Chess Board UI System`?**
+  _High betweenness centrality (0.081) - this node is a cross-community bridge._
+- **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
+  _143 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Chess Engine Core` be split into smaller, more focused modules?**
+  _Cohesion score 0.06448087431693988 - nodes in this community are weakly interconnected._
+- **Should `Utility Functions & UI Cards` be split into smaller, more focused modules?**
+  _Cohesion score 0.09230769230769231 - nodes in this community are weakly interconnected._
+- **Should `Chess Board UI System` be split into smaller, more focused modules?**
+  _Cohesion score 0.09682539682539683 - nodes in this community are weakly interconnected._
+- **Should `Project Configuration` be split into smaller, more focused modules?**
+  _Cohesion score 0.058823529411764705 - nodes in this community are weakly interconnected._
+- **Should `Puzzle Caching System` be split into smaller, more focused modules?**
+  _Cohesion score 0.08912655971479501 - nodes in this community are weakly interconnected._

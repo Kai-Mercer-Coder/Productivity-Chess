@@ -28,6 +28,7 @@ const Login = () => {
 
     const isLoading = status === 'loading'
     const initial = session?.user?.name?.[0] || session?.user?.email?.[0] || '?'
+    const isGuest = session?.user?.email?.endsWith('@guest.local')
 
     return (
         <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden bg-black select-none">
@@ -74,7 +75,9 @@ const Login = () => {
                         {isLoading
                             ? 'Checking your session…'
                             : session
-                                ? `Signed in as ${session.user?.email}`
+                                ? isGuest
+                                    ? `Signed in as ${session.user?.name || 'Guest'}`
+                                    : `Signed in as ${session.user?.email}`
                                 : 'Sign in to continue to your account'}
                     </p>
                 </div>
@@ -130,6 +133,16 @@ const Login = () => {
                             </svg>
                             Continue with Github
                         </button>
+
+                        <div className="pt-5 mt-5 border-t border-white/5">
+                            <button
+                                onClick={() => signIn("guest")}
+                                className="w-full py-3 rounded-xl text-[12px] font-light tracking-wide text-white/25 border border-dashed border-white/6 transition-all duration-500 flex items-center justify-center gap-2.5 hover:text-white/50 hover:border-white/10 hover:bg-white/[0.02] active:scale-[0.98] cursor-pointer"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">person_outline</span>
+                                Continue as Guest
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -140,8 +153,8 @@ const Login = () => {
                         <div className="relative">
                             <div className="absolute inset-0 rounded-xl border border-white/6 bg-white/1.5" />
                             <div className="relative px-7 pt-7 pb-6">
-                                <span className="block text-[10px] text-white/25 tracking-[0.12em] uppercase font-medium mb-0.5">Email address</span>
-                                <span className="block text-[14px] text-white/50 font-light truncate">{session.user?.email}</span>
+                                <span className="block text-[10px] text-white/25 tracking-[0.12em] uppercase font-medium mb-0.5">{isGuest ? 'Signed in as' : 'Email address'}</span>
+                                <span className="block text-[14px] text-white/50 font-light truncate">{isGuest ? (session.user?.name || 'Guest') : session.user?.email}</span>
                             </div>
                         </div>
 
