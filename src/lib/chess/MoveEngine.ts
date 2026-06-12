@@ -43,7 +43,7 @@ export class StockfishEngine extends BaseStockfishEngine implements MoveEngine {
     private moveResolver: ((move: string | null) => void) | null = null;
     private elo: number;
 
-    constructor(stockfishPath = './stockfish-18-lite-single.js', elo = 1350) {
+    constructor(stockfishPath = '/stockfish/stockfish-18-lite-single.js', elo = 1350) {
         super(stockfishPath);
         this.elo = elo;
     }

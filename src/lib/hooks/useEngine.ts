@@ -6,7 +6,7 @@ export function useEngine(game: any) {
     const [elo, setElo] = useState(1350);
     const [isRandom, setIsRandom] = useState(false);
     const [isThinking, setIsThinking] = useState(false);
-    const [engine, setEngine] = useState<MoveEngine>(() => new StockfishEngine('/stockfish-18-lite-single.js', 1350));
+    const [engine, setEngine] = useState<MoveEngine>(() => new StockfishEngine('/stockfish/stockfish-18-lite-single.js', 1350));
 
     const handleEloChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newElo = parseInt(e.target.value, 10);
@@ -17,7 +17,7 @@ export function useEngine(game: any) {
     const handleModeToggle = () => {
         setIsRandom(prev => !prev);
         engine.terminate?.();
-        setEngine(new StockfishEngine('/stockfish-18-lite-single.js', elo));
+        setEngine(new StockfishEngine('/stockfish/stockfish-18-lite-single.js', elo));
     };
 
     const makeEngineMove = async (onPieceDrop: (args: any) => boolean) => {

@@ -35,7 +35,7 @@ export function useCoachService(opts: UseCoachServiceOptions = {}): UseCoachServ
 
         const coach = new CoachService();
         const apiKey = opts.apiKey || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
-        const stockfishUrl = opts.stockfishUrl || './stockfish-18-lite-single.js';
+        const stockfishUrl = opts.stockfishUrl || '/stockfish/stockfish-18-lite-single.js';
 
         if (!apiKey) {
             setError('No API key configured. Set NEXT_PUBLIC_OPENROUTER_API_KEY or pass apiKey.');
