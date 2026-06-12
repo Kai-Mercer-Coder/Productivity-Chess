@@ -8,7 +8,7 @@ import { useSidebar } from "./SidebarContext";
 import UserProfileOverlay from "@/components/profile/UserProfileOverlay";
 
 const navItems = [
-  { href: "/", label: "Play", icon: "chess" },
+  { href: "/play", label: "Play", icon: "chess" },
   { href: "/puzzles", label: "Puzzles", icon: "extension" },
   { href: "/analysis", label: "Analysis", icon: "analytics" },
   { href: "/learn", label: "Learn", icon: "school" },

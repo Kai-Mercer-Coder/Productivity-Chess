@@ -43,7 +43,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
-    <div className="flex w-screen min-h-screen items-center justify-center bg-black p-4 md:p-8 font-sans antialiased text-white">
+    <div className="flex w-full min-h-screen items-center justify-center bg-black p-4 md:p-8 font-sans antialiased text-white">
       <div className="flex flex-col md:flex-row items-start justify-center gap-6 md:gap-10 w-full max-w-[1200px]">
         <EvalBar evaluation={board.evaluation} mate={board.mateIn} />
 

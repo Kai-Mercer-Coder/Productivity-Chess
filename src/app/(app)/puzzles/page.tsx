@@ -5,9 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { PieceDropHandlerArgs } from "react-chessboard";
 import { Chessboard } from "react-chessboard";
 import { useSession } from "next-auth/react";
-import MobileNavbar from "@/components/layouts/MobileNavbar";
-import Sidebar from "@/components/layouts/Sidebar";
-import { useSidebar } from "@/components/layouts/SidebarContext";
+
 import { useChessGame } from "@/lib/hooks/useChessGame";
 import { preloadShardsForElo } from "@/lib/puzzles/PuzzleShards";
 import { usePuzzle } from "@/lib/puzzles/usePuzzle";
@@ -23,7 +21,6 @@ export default function PuzzlePage() {
   const game = useChessGame();
   const puzzle = usePuzzle({ tryMove: game.makeMove, loadFen: game.loadFen });
   const { data: session, update } = useSession();
-  const { isCollapsed } = useSidebar();
 
   const [difficulty, setDifficulty] = useState<"normal" | "hard">("normal");
   const [selectedTheme, setSelectedTheme] = useState("all");
@@ -182,10 +179,7 @@ export default function PuzzlePage() {
         </div>
       )}
 
-      <Sidebar />
-      <MobileNavbar />
-
-      <main className={`transition-all duration-300 min-h-screen ${isCollapsed ? "md:ml-[68px]" : "md:ml-[220px] lg:ml-[240px] xl:ml-[260px]"}`}>
+      <main>
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 lg:px-8 pt-8 pb-24">
           {puzzle.puzzle ? (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">

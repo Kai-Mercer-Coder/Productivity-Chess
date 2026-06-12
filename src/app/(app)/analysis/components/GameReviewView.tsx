@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import type { CoachExplanation } from "@/lib/chess/CoachService";
 import { useCoachService } from "@/lib/hooks/useCoachService";
+import { getCoachMessage } from "@/lib/chess/coach";
 import type Report from "@/lib/types/Report";
 import {
   accuracyColor,
@@ -99,12 +100,17 @@ function GameReviewView({
   const [showAnalysis, setShowAnalysis] = useState(false);
   const prevNavRef = useRef(navIndex);
   const wasActiveRef = useRef(false);
+  const [localCoachMsg, setLocalCoachMsg] = useState<string | null>(null);
+  const [localLoading, setLocalLoading] = useState(false);
+  const localNavRef = useRef(-1);
 
   const coach = useCoachService({
     enabled: showAnalysis,
     stockfishUrl,
     apiKey: apiKey || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY,
   });
+
+  const hasApiKey = !!(apiKey || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY);
 
   const currentClassification = useMemo(() => {
     if (!report) return null;
@@ -137,10 +143,35 @@ function GameReviewView({
     if (!showAnalysis) wasActiveRef.current = false;
   }, [showAnalysis]);
 
+  useEffect(() => {
+    if (!showAnalysis || !report || navIndex < 1) {
+      setLocalCoachMsg(null);
+      return;
+    }
+    if (hasApiKey) return;
+    if (localNavRef.current === navIndex) return;
+    localNavRef.current = navIndex;
+
+    const pos = report.positions[navIndex];
+    const prevPos = report.positions[navIndex - 1];
+    const classification = pos?.classification ?? null;
+
+    setLocalLoading(true);
+    getCoachMessage(pos, prevPos, classification).then((msg) => {
+      setLocalCoachMsg(msg);
+      setLocalLoading(false);
+    });
+  }, [showAnalysis, report, navIndex, hasApiKey]);
+
   const coachTokens = useMemo(() => {
     if (!coach.result) return [];
     return coach.result.tokens;
   }, [coach.result]);
+
+  const localCoachTokens: CoachExplanation[] = useMemo(() => {
+    if (!localCoachMsg) return [];
+    return [{ type: "text", text: localCoachMsg }];
+  }, [localCoachMsg]);
 
   const annotationData = useMemo(() => {
     if (!report || navIndex < 1 || navIndex >= report.positions.length)
@@ -403,7 +434,7 @@ function GameReviewView({
                   </div>
                 </div>
               )}
-              {(coachTokens.length > 0 || coach.loading || coach.error) && (
+              {hasApiKey && (coachTokens.length > 0 || coach.loading || coach.error) && (
                 <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 mt-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400/70">
@@ -427,6 +458,22 @@ function GameReviewView({
                       />
                     </div>
                   )}
+                </div>
+              )}
+              {!hasApiKey && (localCoachMsg || localLoading) && (
+                <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 mt-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400/70">
+                      Coach
+                    </span>
+                    <span className="text-[9px] text-neutral-600 font-mono">WASM</span>
+                  </div>
+                  <div className="text-sm text-neutral-300 leading-relaxed">
+                    <CoachMessage
+                      items={localCoachTokens}
+                      loading={localLoading}
+                    />
+                  </div>
                 </div>
               )}
             </div>

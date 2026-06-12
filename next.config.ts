@@ -6,8 +6,8 @@ const nextConfig = {
       fullUrl: false, // Prevents giant API fetch strings from printing
     },
   },
-  // Stops the client-side console errors from transmitting to your terminal
   experimental: {
+    viewTransition: true,
     workerThreads: true,
     cpus: 4,
   },

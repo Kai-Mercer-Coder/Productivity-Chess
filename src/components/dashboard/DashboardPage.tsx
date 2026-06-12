@@ -4,9 +4,6 @@ import Link from 'next/link';
 import { useSession } from "next-auth/react";
 import '../../app/style.css';
 import Lenis from 'lenis';
-import Sidebar from '@/components/layouts/Sidebar';
-import { useSidebar } from '@/components/layouts/SidebarContext';
-import MobileNavbar from '@/components/layouts/MobileNavbar';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const performanceData = [
@@ -26,7 +23,6 @@ const encounters = [
 
 export default function GrandmasterDashboard() {
   const { data: session } = useSession();
-  const { isCollapsed } = useSidebar();
   const user = session?.user;
   const elo = (user as any)?.elo ?? 1200;
   const rd = (user as any)?.delta_value ?? 200;
@@ -62,26 +58,40 @@ export default function GrandmasterDashboard() {
   };
 
   return (
-    <div className="bg-background text-on-surface min-h-screen selection:bg-white selection:text-black">
-      <Sidebar />
+    <>
+      <main className="pt-32 pb-24 px-6 md:px-10 max-w-7xl mx-auto">
+        {/* Status Badge */}
+        <div className="flex items-center gap-3 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 mb-12 w-fit">
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60">Live Engine Analysis Active</span>
+        </div>
 
-      <main className={`transition-all duration-300 pt-32 pb-24 px-6 md:px-10 max-w-7xl mx-auto ${isCollapsed ? "md:ml-[68px]" : "md:ml-[220px] lg:ml-[240px] xl:ml-[260px]"}`}>
+        {/* Hero Typography */}
+        <div className="mb-16">
+          <h1 className="text-huge font-black tracking-monolith text-white leading-none">
+            GRANDMASTER<br/>DASHBOARD
+          </h1>
+          <p className="text-xl text-neutral-500 font-light leading-relaxed tracking-tight mt-6 max-w-xl">
+            The terminal for elite chess mastery. Surgical precision. Unrestricted depth.
+          </p>
+        </div>
+
         <div className="grid grid-cols-12 gap-6 mb-12">
-          <div className="col-span-12 lg:col-span-4 bg-surface rounded-3xl p-8 md:p-10 flex flex-col justify-between border border-white/5 relative overflow-hidden group">
+          <div className="col-span-12 lg:col-span-4 bg-surface-container rounded-2xl p-8 md:p-10 flex flex-col justify-between border border-white/5 relative overflow-hidden group">
             <div className="absolute -top-10 -right-10 opacity-[0.03] group-hover:opacity-10 transition-opacity duration-700">
               <span className="material-symbols-outlined text-[15rem]">military_tech</span>
             </div>
             <div>
-              <h3 className="text-on-surface-variant text-[10px] font-bold uppercase tracking-[0.2em] mb-4">Current Rating</h3>
+              <h3 className="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] mb-4">01 / Rating</h3>
               <div className="flex items-baseline gap-3">
                 <span className="text-7xl md:text-8xl font-black tracking-tighter text-white">{elo}</span>
-                <span className="text-white/60 font-bold text-xl">+{Math.max(0, Math.round(1400 - elo / 2))}</span>
+                <span className="text-white/40 font-bold text-xl">+{Math.max(0, Math.round(1400 - elo / 2))}</span>
               </div>
               <p className="text-on-surface-variant text-sm mt-3 font-medium">{title} Title &bull; {tierLabel}</p>
             </div>
             <div className="mt-10 flex flex-wrap gap-3">
               <div className="bg-white/5 border border-white/5 px-4 py-2 rounded-full flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
                 <span className="text-[10px] font-bold text-white uppercase tracking-wider">Online</span>
               </div>
               <div className="bg-white/5 border border-white/5 px-4 py-2 rounded-full flex items-center gap-2">
@@ -91,9 +101,9 @@ export default function GrandmasterDashboard() {
             </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-8 bg-surface rounded-3xl p-8 md:p-10 border border-white/5 relative flex flex-col">
+          <div className="col-span-12 lg:col-span-8 bg-surface-container rounded-2xl p-8 md:p-10 border border-white/5 relative flex flex-col">
             <div className="flex justify-between items-center mb-10">
-              <h3 className="text-on-surface-variant text-[10px] font-bold uppercase tracking-[0.2em]">Performance Trends</h3>
+              <h3 className="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em]">02 / Performance Trends</h3>
               <select className="bg-white/5 text-white border-none rounded-full px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider outline-none cursor-pointer">
                 <option>Last 30 Days</option>
                 <option>Last 6 Months</option>
@@ -111,8 +121,8 @@ export default function GrandmasterDashboard() {
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 10, fontWeight: 700 }} dy={8} />
                   <YAxis hide domain={['dataMin - 30', 'dataMax + 30']} />
                   <Tooltip
-                    contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 13 }}
-                    labelStyle={{ color: '#a3a3a3' }}
+                    contentStyle={{ background: '#0F0F0F', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 13 }}
+                    labelStyle={{ color: '#A3A3A3' }}
                     itemStyle={{ color: '#fff' }}
                   />
                   <Area type="monotone" dataKey="rating" stroke="#ffffff" strokeWidth={3} fill="url(#ratingGrad)" dot={false} activeDot={{ r: 4, fill: '#fff' }} />
@@ -130,17 +140,17 @@ export default function GrandmasterDashboard() {
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-12 lg:col-span-7 xl:col-span-8">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-black tracking-tight text-white uppercase italic">Recent Encounters</h2>
+              <h2 className="text-xl font-black tracking-tight text-white uppercase">Recent Encounters</h2>
               <Link href="#" className="text-[10px] font-bold text-on-surface-variant hover:text-white transition-colors uppercase tracking-[0.2em]">View History</Link>
             </div>
             <div className="space-y-3">
               {encounters.map((enc) => (
                 <div
                   key={enc.name}
-                  className="group bg-surface hover:bg-surface-container-high border border-white/5 p-5 md:p-6 rounded-2xl flex items-center justify-between transition-all cursor-pointer"
+                  className="group bg-surface-container hover:bg-surface-container-high border border-white/5 p-5 md:p-6 rounded-2xl flex items-center justify-between transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-5">
-                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white border border-white/10 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-white border border-white/10 group-hover:scale-110 transition-transform">
                       <span className="material-symbols-outlined">person</span>
                     </div>
                     <div>
@@ -161,7 +171,7 @@ export default function GrandmasterDashboard() {
           </div>
 
           <div className="col-span-12 lg:col-span-5 xl:col-span-4 space-y-6">
-            <Link href="/learn/middle-games" className="block bg-white text-black rounded-3xl p-8 relative overflow-hidden group shadow-[0_20px_50px_rgba(255,255,255,0.05)] cursor-pointer active:scale-[0.98] transition-all">
+            <Link href="/learn/middle-games" className="block bg-white text-black rounded-2xl p-8 relative overflow-hidden group shadow-[0_20px_50px_rgba(255,255,255,0.05)] cursor-pointer active:scale-[0.98] transition-all">
               <div className="absolute -right-6 -bottom-6 opacity-[0.05] group-hover:rotate-12 transition-transform duration-700">
                 <span className="material-symbols-outlined text-[12rem]">school</span>
               </div>
@@ -176,36 +186,35 @@ export default function GrandmasterDashboard() {
             </Link>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-surface p-6 rounded-2xl border border-white/5">
-                <span className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Win Rate</span>
+              <div className="bg-surface-container p-6 rounded-2xl border border-white/5">
+                <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block mb-2">Win Rate</span>
                 <span className="text-2xl font-black text-white">68.4%</span>
               </div>
-              <div className="bg-surface p-6 rounded-2xl border border-white/5">
-                <span className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Accuracy</span>
+              <div className="bg-surface-container p-6 rounded-2xl border border-white/5">
+                <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block mb-2">Accuracy</span>
                 <span className="text-2xl font-black text-white">94.2%</span>
               </div>
-              <div className="bg-surface p-6 rounded-2xl border border-white/5">
-                <span className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Streak</span>
+              <div className="bg-surface-container p-6 rounded-2xl border border-white/5">
+                <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block mb-2">Streak</span>
                 <span className="text-2xl font-black text-white">{Math.min(99, Math.max(1, Math.floor(elo / 150)))} Lvl</span>
               </div>
-              <div className="bg-surface p-6 rounded-2xl border border-white/5">
-                <span className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Puzzles</span>
+              <div className="bg-surface-container p-6 rounded-2xl border border-white/5">
+                <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block mb-2">Puzzles</span>
                 <span className="text-2xl font-black text-white">{puzzlesSolved.toLocaleString() || 1242}</span>
               </div>
             </div>
 
-            <div className="h-44 rounded-2xl overflow-hidden relative border border-white/10 flex items-center justify-center p-6 text-center bg-neutral-900/40">
-              <div className="absolute inset-0 bg-gradient-to-br from-neutral-900/20 to-black/60" />
+            <div className="h-44 rounded-2xl overflow-hidden relative border border-white/10 flex items-center justify-center p-6 text-center bg-surface-container-low">
+              <div className="absolute inset-0 bg-gradient-to-br from-surface-container-low to-black/60" />
               <span className="relative text-[10px] font-black text-white/30 uppercase tracking-[0.5em] leading-relaxed">The path to mastery is silent.</span>
             </div>
           </div>
         </div>
       </main>
 
-      <MobileNavbar />
       <Link href="/puzzles" className="fixed bottom-24 right-6 xl:bottom-10 xl:right-10 w-14 h-14 bg-white text-black rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all z-40">
-        <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
+        <span className="material-symbols-outlined text-2xl">add</span>
       </Link>
-    </div>
+    </>
   );
 }

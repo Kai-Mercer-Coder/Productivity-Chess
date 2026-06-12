@@ -1,9 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Sidebar from "@/components/layouts/Sidebar";
-import { useSidebar } from "@/components/layouts/SidebarContext";
-import MobileNavbar from "@/components/layouts/MobileNavbar";
 
 const categories = [
   {
@@ -51,14 +48,9 @@ const categories = [
 ];
 
 export default function LearnPage() {
-  const { isCollapsed } = useSidebar();
-
   return (
-    <div className="min-h-screen bg-surface text-on-surface selection:bg-primary selection:text-on-primary">
-      <Sidebar />
-      <MobileNavbar />
-
-      <main className={`transition-all duration-300 px-8 pb-12 max-w-screen-2xl mx-auto pt-12 ${isCollapsed ? "md:ml-[68px]" : "md:ml-[220px] lg:ml-[240px] xl:ml-[260px]"}`}>
+    <>
+      <main className="px-8 pb-12 max-w-screen-2xl mx-auto pt-12">
         <header className="mb-16 text-center lg:text-left max-w-3xl">
           <h1 className="text-5xl lg:text-6xl font-black tracking-tighter text-primary mb-4">
             THE MONOLITH ACADEMY
@@ -181,6 +173,6 @@ export default function LearnPage() {
           </div>
         </div>
       </main>
-    </div>
+    </>
   );
 }

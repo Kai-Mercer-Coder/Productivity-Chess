@@ -1,19 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Sidebar from "@/components/layouts/Sidebar";
-import { useSidebar } from "@/components/layouts/SidebarContext";
-import MobileNavbar from "@/components/layouts/MobileNavbar";
 
 export default function EndgamesPage() {
-  const { isCollapsed } = useSidebar();
-
   return (
-    <div className="min-h-screen bg-surface text-on-surface selection:bg-primary selection:text-on-primary">
-      <Sidebar />
-      <MobileNavbar />
-
-      <main className={`transition-all duration-300 px-8 pb-20 max-w-7xl mx-auto pt-12 ${isCollapsed ? "md:ml-[68px]" : "md:ml-[220px] lg:ml-[240px] xl:ml-[260px]"}`}>
+    <>
+      <main className="px-8 pb-20 max-w-7xl mx-auto pt-12">
         <header className="mb-16">
           <nav className="flex items-center gap-2 text-xs text-on-surface-variant mb-4 uppercase tracking-widest font-semibold opacity-60">
             <Link href="/learn" className="hover:text-primary transition-colors">Learn</Link>
@@ -148,6 +140,6 @@ export default function EndgamesPage() {
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent pointer-events-none"></div>
         </section>
       </main>
-    </div>
+    </>
   );
 }

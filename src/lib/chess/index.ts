@@ -5,3 +5,12 @@ export { Classification, classificationValues, WPL_THRESHOLDS, winPercent, compu
 export { MoveHandler } from './MoveHandler';
 export { StockfishEngine, ChessApiEvalEngine } from './MoveEngine';
 export type { ChessApiResponse } from './MoveEngine';
+export {
+  ensureReady as ensureWasmAnalyzerReady,
+  isReady as isWasmAnalyzerReady,
+  analyzeMove,
+  evaluateFen,
+  explainPosition,
+  pieceContributions,
+  pieceValueAt,
+} from './wasm-analyzer';

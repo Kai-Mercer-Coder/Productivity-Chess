@@ -11,25 +11,25 @@ const Navbar = () => {
 
     return (
         <>
-            <nav className="fixed top-6 left-1/2 bg-black border border-black border-t-zinc-700 -translate-x-1/2 w-[calc(100%-3rem)] max-w-7xl z-50 glass-nav rounded-full px-9 py-3 flex justify-between items-center transition-all duration-300">
+            <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-6xl z-50 glass-nav rounded-full px-9 py-3 flex justify-between items-center border border-white/5 shadow-2xl transition-all duration-300">
                 <div className="flex items-center gap-10">
-                    <span className="text-xl font-black tracking-tighter text-white whitespace-nowrap">Productivity Chess</span>
-                    <div className="hidden lg:flex items-center gap-8 text-sm font-medium">
-                        <Link className="text-white" href="/">Overview</Link>
-                        <Link className="text-on-surface-variant hover:text-white transition-colors" href="#">Tournaments</Link>
-                        <Link className="text-on-surface-variant hover:text-white transition-colors" href="#">Academy</Link>
+                    <span className="text-xl font-black tracking-tighter text-white whitespace-nowrap uppercase">Monolith</span>
+                    <div className="hidden lg:flex items-center gap-8">
+                        <Link className="text-[11px] uppercase tracking-widest text-white font-bold" href="/login">Play</Link>
+                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/login">Puzzles</Link>
+                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/login">Analysis</Link>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="hidden sm:flex items-center gap-2">
-                        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" type="button">
-                            <span className="material-symbols-outlined text-on-surface-variant">notifications</span>
+                    <div className="hidden lg:flex items-center gap-4">
+                        <button className="text-white/40 hover:text-white transition-colors p-1" type="button">
+                            <span className="material-symbols-outlined">search</span>
                         </button>
-                        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" type="button">
-                            <span className="material-symbols-outlined text-on-surface-variant">settings</span>
+                        <button className="text-white/40 hover:text-white transition-colors p-1" type="button">
+                            <span className="material-symbols-outlined">notifications</span>
                         </button>
                     </div>
-                    <Link href="/puzzles" className="bg-white text-black px-5 py-2 rounded-full text-sm font-bold active:scale-95 transition-all">Play Now</Link>
+                    <Link href="/login" className="bg-white text-black px-6 py-2 rounded-full font-black text-[11px] uppercase tracking-widest hover:bg-neutral-200 transition-all active:scale-95">Play Now</Link>
                     <button type="button" onClick={() => setProfileOpen(true)}>
                         <img
                             className="h-9 w-9 object-cover rounded-full cursor-pointer"
@@ -88,7 +88,7 @@ const Navbar = () => {
 
                             <div className="space-y-2">
                                 <Link
-                                    href="/dashboard"
+                                    href="/login"
                                     className="block w-full py-3 text-center rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white transition-colors"
                                 >
                                     Dashboard

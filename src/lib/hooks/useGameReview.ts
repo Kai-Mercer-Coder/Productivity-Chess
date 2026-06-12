@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Chess } from "chess.js";
 import { analyse } from "@/lib/chess/analyse";
+import { hfEvaluateFen, LocalStockfishEvalEngine } from "@/lib/chess/MoveEngine";
 import type Report from "@/lib/types/Report";
 import type { EvaluatedPosition } from "@/lib/types/Position";
-import type { EngineLine } from "@/lib/types/Engine";
 
 interface EvalResponse {
   eval: number;
@@ -21,7 +21,9 @@ interface UseGameReviewReturn {
   loading: boolean;
   progress: number;
   total: number;
+  deepLoading: boolean;
   runReview: (pgn: string) => Promise<void>;
+  runDeepAnalysis: (pgn: string) => Promise<void>;
   reset: () => void;
 }
 
@@ -30,6 +32,8 @@ export function useGameReview(): UseGameReviewReturn {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [total, setTotal] = useState(0);
+  const [deepLoading, setDeepLoading] = useState(false);
+  const positionsRef = useRef<EvaluatedPosition[]>([]);
 
   const runReview = useCallback(async (pgn: string) => {
     if (!pgn.trim()) return;
@@ -48,7 +52,7 @@ export function useGameReview(): UseGameReviewReturn {
 
       const startGame = new Chess();
       try {
-        const startEval = await evaluateFen(startGame.fen(), 0);
+        const startEval = await evaluateFen(startGame.fen());
         const startEvalCp = Math.round(startEval.eval * 100);
         const startMate = startEval.mate;
 
@@ -56,7 +60,7 @@ export function useGameReview(): UseGameReviewReturn {
           fen: startGame.fen(),
           move: { san: "", uci: "" },
           topLines: [{
-            id: 1, depth: 17,
+            id: 1, depth: 18,
             evaluation: { type: startMate !== null ? "mate" : "cp", value: startMate ?? startEvalCp },
             moveUCI: startEval.bestmove, moveSAN: startEval.san
           }],
@@ -87,14 +91,14 @@ export function useGameReview(): UseGameReviewReturn {
         const currentFen = replay.fen();
 
         try {
-          const evalData = await evaluateFen(currentFen, i + 1);
+          const evalData = await evaluateFen(currentFen);
           const evalCp = Math.round(evalData.eval * 100);
 
           positions.push({
             fen: currentFen,
             move: { san: allMoves[i].san, uci: allMoves[i].from + allMoves[i].to },
             topLines: [{
-              id: 1, depth: 17,
+              id: 1, depth: 18,
               evaluation: { type: evalData.mate !== null ? "mate" : "cp", value: evalData.mate ?? evalCp },
               moveUCI: evalData.bestmove, moveSAN: evalData.san,
               continuation: evalData.continuationArr || []
@@ -120,6 +124,7 @@ export function useGameReview(): UseGameReviewReturn {
         setProgress(i + 2);
       }
 
+      positionsRef.current = positions;
       const result = await analyse(positions);
       setReport(result);
     } catch (err) {
@@ -129,32 +134,64 @@ export function useGameReview(): UseGameReviewReturn {
     }
   }, []);
 
+  const runDeepAnalysis = useCallback(async (pgn: string) => {
+    if (!pgn.trim() || deepLoading) return;
+    setDeepLoading(true);
+
+    const engine = new LocalStockfishEvalEngine();
+    const updated = [...positionsRef.current];
+
+    try {
+      const game = new Chess();
+      game.loadPgn(pgn.trim());
+      const allMoves = game.history({ verbose: true });
+
+      for (let i = 0; i < updated.length; i++) {
+        const pos = updated[i];
+        const localResult = await engine.evaluatePosition(pos.fen, 5000);
+
+        if (localResult.depth > 0 && localResult.eval !== (pos.topLines[0]?.evaluation.value ?? 0) / 100) {
+          const evalCp = Math.round(localResult.eval * 100);
+          updated[i] = {
+            ...pos,
+            topLines: [{
+              id: 1,
+              depth: localResult.depth,
+              evaluation: {
+                type: localResult.mate !== null ? "mate" : "cp",
+                value: localResult.mate ?? evalCp,
+              },
+              moveUCI: localResult.bestmove,
+              moveSAN: "",
+            }],
+            worker: "local",
+          };
+        }
+      }
+
+      const updatedReport = await analyse(updated);
+      positionsRef.current = updated;
+      setReport(updatedReport);
+    } catch (err) {
+      console.error("Deep analysis failed:", err);
+    } finally {
+      engine.terminate();
+      setDeepLoading(false);
+    }
+  }, [deepLoading]);
+
   const reset = useCallback(() => {
     setReport(null);
     setLoading(false);
     setProgress(0);
     setTotal(0);
+    setDeepLoading(false);
+    positionsRef.current = [];
   }, []);
 
-  return { report, loading, progress, total, runReview, reset };
+  return { report, loading, progress, total, deepLoading, runReview, runDeepAnalysis, reset };
 }
 
-async function evaluateFen(fen: string, index: number): Promise<EvalResponse> {
-  const response = await fetch("https://chess-api.com/v1", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fen, depth: 17 }),
-  });
-
-  if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-  const data = await response.json();
-  return {
-    eval: typeof data.eval === "number" ? data.eval : parseFloat(data.eval || "0"),
-    mate: data.mate ?? null,
-    bestmove: data.bestmove || "",
-    san: data.san || "",
-    continuationArr: data.continuationArr || [],
-    winChance: data.winChance ?? 50,
-  };
+async function evaluateFen(fen: string): Promise<EvalResponse> {
+  return hfEvaluateFen(fen);
 }

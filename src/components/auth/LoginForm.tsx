@@ -2,11 +2,13 @@
 
 import { useSession, signIn, signOut } from "next-auth/react"
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import '../../app/globals.css'
 import Link from "next/link"
 
 const Login = () => {
     const { data: session, status } = useSession()
+    const router = useRouter()
     const [email, setEmail] = useState("")
     const [focused, setFocused] = useState(false)
     const [mounted, setMounted] = useState(false)
@@ -23,6 +25,12 @@ const Login = () => {
             setEmail(session.user.email)
         }
     }, [session])
+
+    useEffect(() => {
+        if (status === 'authenticated') {
+            router.push('/dashboard')
+        }
+    }, [status, router])
 
     if (!mounted) return null
 

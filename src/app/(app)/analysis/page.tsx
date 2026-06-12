@@ -6,9 +6,8 @@ import type { PieceDropHandlerArgs } from "react-chessboard";
 import { Chessboard } from "react-chessboard";
 import { useChessGame } from "@/lib/hooks/useChessGame";
 import { useGameReview } from "@/lib/hooks/useGameReview";
-import Sidebar from "@/components/layouts/Sidebar";
-import { useSidebar } from "@/components/layouts/SidebarContext";
-import MobileNavbar from "@/components/layouts/MobileNavbar";
+
+import GameReviewView from "./components/GameReviewView";
 import ModeSelector from "./components/ModeSelector";
 import {
   accuracyColor,
@@ -19,8 +18,7 @@ type AnalysisMode = "pgn" | "fen" | "blank";
 
 export default function AnalysisPage() {
   const game = useChessGame();
-  const { isCollapsed } = useSidebar();
-  const { report, loading, progress, total, runReview, reset: resetReview } = useGameReview();
+  const { report, loading, progress, total, deepLoading, runReview, runDeepAnalysis, reset: resetReview } = useGameReview();
 
   const [positionLoaded, setPositionLoaded] = useState(false);
   const [mode, setMode] = useState<AnalysisMode>("pgn");
@@ -223,12 +221,7 @@ export default function AnalysisPage() {
         }}
       />
 
-      <Sidebar />
-      <MobileNavbar />
-
-      <main
-        className={`transition-all duration-300 min-h-screen ${isCollapsed ? "md:ml-[68px]" : "md:ml-[220px] lg:ml-[240px] xl:ml-[260px]"}`}
-      >
+      <main>
         <div className="relative z-10 w-full px-4 lg:px-8 pt-6 pb-24 max-w-[1600px] mx-auto">
           {!positionLoaded ? (
             <ModeSelector
@@ -264,327 +257,363 @@ export default function AnalysisPage() {
                     Deep Stockfish 16.1 Cloud
                   </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs font-bold text-primary/60 uppercase tracking-widest">
-                      Report
-                    </span>
-                    <span className="text-white font-bold">
-                      {report ? `${moves.length} moves` : "Live board"}
-                    </span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-end">
+                      <span className="text-xs font-bold text-primary/60 uppercase tracking-widest">
+                        Report
+                      </span>
+                      <span className="text-white font-bold">
+                        {report ? `${moves.length} moves` : "Live board"}
+                      </span>
+                    </div>
+                    {report && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentPgn = pgnInput;
+                          if (currentPgn) runDeepAnalysis(currentPgn);
+                        }}
+                        disabled={deepLoading}
+                        className="text-xs bg-primary/20 border border-primary/30 text-primary px-3 py-1.5 rounded-full hover:bg-primary/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                      >
+                        {deepLoading ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <span className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                            Deep analysing...
+                          </span>
+                        ) : (
+                          "Run Deep Local Analysis"
+                        )}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={reset}
+                      className="w-12 h-12 rounded-full border-2 border-white/10 flex items-center justify-center hover:border-white/30 transition-all text-neutral-400 hover:text-white"
+                    >
+                      <span className="material-symbols-outlined">close</span>
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={reset}
-                    className="w-12 h-12 rounded-full border-2 border-white/10 flex items-center justify-center hover:border-white/30 transition-all text-neutral-400 hover:text-white"
-                  >
-                    <span className="material-symbols-outlined">close</span>
-                  </button>
-                </div>
               </header>
 
-              <div className="grid grid-cols-12 gap-8 items-start">
-                <div className="col-span-1 h-[600px] bg-surface-container-low rounded-xl overflow-hidden flex flex-col relative group">
-                  {currentEval && (
-                    <div className="absolute top-4 left-0 w-full text-center z-10">
-                      <span className="text-xs font-black text-surface-dim bg-white/90 px-2 py-0.5 rounded-full">
-                        {currentEval.display}
-                      </span>
-                    </div>
-                  )}
-                  <div
-                    className="w-full bg-white transition-all duration-700"
-                    style={{ height: `${currentEval?.whitePct ?? 50}%` }}
-                  />
-                  <div className="w-full bg-surface-container-highest flex-1" />
-                  <div className="absolute bottom-4 left-0 w-full text-center">
-                    <span className="material-symbols-outlined text-white/20 text-lg">
-                      electric_bolt
-                    </span>
-                  </div>
-                </div>
-
-                <div className="col-span-7 relative group">
-                  <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-2xl bg-surface-container">
-                    <Chessboard
-                      options={{
-                        id: "analysis-board",
-                        position: game.position,
-                        onPieceDrop: handlePieceDrop,
-                        boardOrientation: "white",
-                        boardStyle: { borderRadius: "0" },
-                        darkSquareStyle: { backgroundColor: "#454747" },
-                        lightSquareStyle: { backgroundColor: "#c6c6c7" },
-                        animationDurationInMs: 400,
-                        allowDragging: true,
-                        showAnimations: true,
-                      }}
-                    />
-                  </div>
-
-                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 bg-surface-container/60 glass-panel rounded-full shadow-2xl border border-white/5">
-                    <button
-                      type="button"
-                      onClick={() => navigateTo(0)}
-                      disabled={navIndex <= 0}
-                      className="p-4 hover:bg-white/10 rounded-full transition-all duration-300 group disabled:opacity-30"
-                    >
-                      <span className="material-symbols-outlined text-white/60 group-hover:text-white">
-                        first_page
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => navigateTo(navIndex - 1)}
-                      disabled={navIndex <= 0}
-                      className="p-4 hover:bg-white/10 rounded-full transition-all duration-300 group disabled:opacity-30"
-                    >
-                      <span className="material-symbols-outlined text-white/60 group-hover:text-white">
-                        chevron_left
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      className="p-6 bg-primary text-surface-dim rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
-                    >
-                      <span
-                        className="material-symbols-outlined"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        play_arrow
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => navigateTo(navIndex + 1)}
-                      disabled={navIndex >= moves.length}
-                      className="p-4 hover:bg-white/10 rounded-full transition-all duration-300 group disabled:opacity-30"
-                    >
-                      <span className="material-symbols-outlined text-white/60 group-hover:text-white">
-                        chevron_right
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => navigateTo(moves.length)}
-                      disabled={navIndex >= moves.length}
-                      className="p-4 hover:bg-white/10 rounded-full transition-all duration-300 group disabled:opacity-30"
-                    >
-                      <span className="material-symbols-outlined text-white/60 group-hover:text-white">
-                        last_page
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="col-span-4 flex flex-col gap-6">
-                  <div className="bg-surface-container rounded-xl p-6 shadow-xl border-b-2 border-white/5">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-xs font-black uppercase tracking-widest text-primary/40">
-                        Engine Metrics
-                      </h3>
-                      <div className="flex gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-[10px] font-bold text-green-500">
-                          {report ? "REVIEW" : "LIVE"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-surface-container-low p-4 rounded-lg">
-                        <p className="text-[10px] text-on-surface-variant font-medium">
-                          Depth
-                        </p>
-                        <p className="text-xl font-bold text-white">24/48</p>
-                      </div>
-                      <div className="bg-surface-container-low p-4 rounded-lg">
-                        <p className="text-[10px] text-on-surface-variant font-medium">
-                          Nodes/s
-                        </p>
-                        <p className="text-xl font-bold text-white">12.4M</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-surface-container rounded-xl flex flex-col flex-1 shadow-xl overflow-hidden">
-                    <div className="p-4 border-b border-white/5 flex justify-between items-center bg-surface-container-high/30">
-                      <span className="text-xs font-black uppercase tracking-widest text-white">
-                        Move History
-                      </span>
-                      <span className="text-[10px] font-bold text-on-surface-variant bg-white/5 px-2 py-1 rounded">
-                        PGN
-                      </span>
-                    </div>
-                    <div className="flex-1 overflow-y-auto max-h-[400px] p-2 space-y-1 custom-scrollbar">
-                      {movePairs.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full gap-3 text-neutral-700 p-8">
-                          <span className="material-symbols-outlined text-3xl">
-                            touch_app
+              {report ? (
+                <GameReviewView
+                  fen={game.position}
+                  report={report}
+                  onReset={reset}
+                  onNavigate={navigateTo}
+                  navIndex={navIndex}
+                  moves={moves}
+                  loading={false}
+                  progress={progress}
+                  total={total}
+                />
+              ) : (
+                <>
+                  <div className="grid grid-cols-12 gap-8 items-start">
+                    <div className="col-span-1 h-[600px] bg-surface-container-low rounded-xl overflow-hidden flex flex-col relative group">
+                      {currentEval && (
+                        <div className="absolute top-4 left-0 w-full text-center z-10">
+                          <span className="text-xs font-black text-surface-dim bg-white/90 px-2 py-0.5 rounded-full">
+                            {currentEval.display}
                           </span>
-                          <span className="text-[11px]">Make a move</span>
                         </div>
-                      ) : (
-                        movePairs.map((pair) => (
-                          <div key={pair.num}>
-                            <div className="grid grid-cols-12 items-center p-2 rounded-lg hover:bg-white/5 transition-colors group">
-                              <div className="col-span-2 text-[10px] font-bold text-on-surface-variant">
-                                {pair.num}.
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  navigateTo(pair.whiteIdx + 1)
-                                }
-                                className={`col-span-4 text-sm font-bold text-left flex items-center gap-1.5 ${
-                                  navIndex === pair.whiteIdx + 1
-                                    ? "text-yellow-400"
-                                    : "text-white"
-                                }`}
-                              >
-                                {pair.white}
-                                <span className="shrink-0">
-                                  {classificationIcon(pair.whiteClass, 14)}
-                                </span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  pair.black &&
-                                  navigateTo(pair.blackIdx + 1)
-                                }
-                                className={`col-span-4 text-sm font-bold text-left flex items-center gap-1.5 ${
-                                  navIndex === pair.blackIdx + 1
-                                    ? "text-yellow-400"
-                                    : "text-white/60"
-                                }`}
-                              >
-                                {pair.black || "-"}
-                                <span className="shrink-0">
-                                  {classificationIcon(pair.blackClass, 14)}
-                                </span>
-                              </button>
-                              {navIndex === pair.whiteIdx + 1 ||
-                              navIndex === pair.blackIdx + 1 ? (
-                                <div className="col-span-2 flex justify-end">
-                                  <span className="material-symbols-outlined text-white/40 text-sm">
-                                    arrow_forward_ios
-                                  </span>
-                                </div>
-                              ) : (
-                                <div className="col-span-2" />
-                              )}
-                            </div>
-                          </div>
-                        ))
                       )}
+                      <div
+                        className="w-full bg-white transition-all duration-700"
+                        style={{ height: `${currentEval?.whitePct ?? 50}%` }}
+                      />
+                      <div className="w-full bg-surface-container-highest flex-1" />
+                      <div className="absolute bottom-4 left-0 w-full text-center">
+                        <span className="material-symbols-outlined text-white/20 text-lg">
+                          electric_bolt
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="col-span-7 relative group">
+                      <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-2xl bg-surface-container">
+                        <Chessboard
+                          options={{
+                            id: "analysis-board",
+                            position: game.position,
+                            onPieceDrop: handlePieceDrop,
+                            boardOrientation: "white",
+                            boardStyle: { borderRadius: "0" },
+                            darkSquareStyle: { backgroundColor: "#454747" },
+                            lightSquareStyle: { backgroundColor: "#c6c6c7" },
+                            animationDurationInMs: 400,
+                            allowDragging: true,
+                            showAnimations: true,
+                          }}
+                        />
+                      </div>
+
+                      <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 bg-surface-container/60 glass-panel rounded-full shadow-2xl border border-white/5">
+                        <button
+                          type="button"
+                          onClick={() => navigateTo(0)}
+                          disabled={navIndex <= 0}
+                          className="p-4 hover:bg-white/10 rounded-full transition-all duration-300 group disabled:opacity-30"
+                        >
+                          <span className="material-symbols-outlined text-white/60 group-hover:text-white">
+                            first_page
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigateTo(navIndex - 1)}
+                          disabled={navIndex <= 0}
+                          className="p-4 hover:bg-white/10 rounded-full transition-all duration-300 group disabled:opacity-30"
+                        >
+                          <span className="material-symbols-outlined text-white/60 group-hover:text-white">
+                            chevron_left
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          className="p-6 bg-primary text-surface-dim rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
+                        >
+                          <span
+                            className="material-symbols-outlined"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            play_arrow
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigateTo(navIndex + 1)}
+                          disabled={navIndex >= moves.length}
+                          className="p-4 hover:bg-white/10 rounded-full transition-all duration-300 group disabled:opacity-30"
+                        >
+                          <span className="material-symbols-outlined text-white/60 group-hover:text-white">
+                            chevron_right
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigateTo(moves.length)}
+                          disabled={navIndex >= moves.length}
+                          className="p-4 hover:bg-white/10 rounded-full transition-all duration-300 group disabled:opacity-30"
+                        >
+                          <span className="material-symbols-outlined text-white/60 group-hover:text-white">
+                            last_page
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="col-span-4 flex flex-col gap-6">
+                      <div className="bg-surface-container rounded-xl p-6 shadow-xl border-b-2 border-white/5">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-xs font-black uppercase tracking-widest text-primary/40">
+                            Engine Metrics
+                          </h3>
+                          <div className="flex gap-2">
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-[10px] font-bold text-green-500">
+                              LIVE
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-surface-container-low p-4 rounded-lg">
+                            <p className="text-[10px] text-on-surface-variant font-medium">
+                              Depth
+                            </p>
+                            <p className="text-xl font-bold text-white">24/48</p>
+                          </div>
+                          <div className="bg-surface-container-low p-4 rounded-lg">
+                            <p className="text-[10px] text-on-surface-variant font-medium">
+                              Nodes/s
+                            </p>
+                            <p className="text-xl font-bold text-white">12.4M</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-surface-container rounded-xl flex flex-col flex-1 shadow-xl overflow-hidden">
+                        <div className="p-4 border-b border-white/5 flex justify-between items-center bg-surface-container-high/30">
+                          <span className="text-xs font-black uppercase tracking-widest text-white">
+                            Move History
+                          </span>
+                          <span className="text-[10px] font-bold text-on-surface-variant bg-white/5 px-2 py-1 rounded">
+                            PGN
+                          </span>
+                        </div>
+                        <div className="flex-1 overflow-y-auto max-h-[400px] p-2 space-y-1 custom-scrollbar">
+                          {movePairs.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-full gap-3 text-neutral-700 p-8">
+                              <span className="material-symbols-outlined text-3xl">
+                                touch_app
+                              </span>
+                              <span className="text-[11px]">Make a move</span>
+                            </div>
+                          ) : (
+                            movePairs.map((pair) => (
+                              <div key={pair.num}>
+                                <div className="grid grid-cols-12 items-center p-2 rounded-lg hover:bg-white/5 transition-colors group">
+                                  <div className="col-span-2 text-[10px] font-bold text-on-surface-variant">
+                                    {pair.num}.
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      navigateTo(pair.whiteIdx + 1)
+                                    }
+                                    className={`col-span-4 text-sm font-bold text-left flex items-center gap-1.5 ${
+                                      navIndex === pair.whiteIdx + 1
+                                        ? "text-yellow-400"
+                                        : "text-white"
+                                    }`}
+                                  >
+                                    {pair.white}
+                                    <span className="shrink-0">
+                                      {classificationIcon(pair.whiteClass, 14)}
+                                    </span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      pair.black &&
+                                      navigateTo(pair.blackIdx + 1)
+                                    }
+                                    className={`col-span-4 text-sm font-bold text-left flex items-center gap-1.5 ${
+                                      navIndex === pair.blackIdx + 1
+                                        ? "text-yellow-400"
+                                        : "text-white/60"
+                                    }`}
+                                  >
+                                    {pair.black || "-"}
+                                    <span className="shrink-0">
+                                      {classificationIcon(pair.blackClass, 14)}
+                                    </span>
+                                  </button>
+                                  {navIndex === pair.whiteIdx + 1 ||
+                                  navIndex === pair.blackIdx + 1 ? (
+                                    <div className="col-span-2 flex justify-end">
+                                      <span className="material-symbols-outlined text-white/40 text-sm">
+                                        arrow_forward_ios
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <div className="col-span-2" />
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          className="py-4 bg-surface-container-high hover:bg-surface-container-highest text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 group"
+                        >
+                          <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">
+                            share
+                          </span>
+                          Export
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (pgnInput.trim()) loadFromPgnReview();
+                          }}
+                          className="py-4 bg-primary text-surface-dim font-bold rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2"
+                        >
+                          <span
+                            className="material-symbols-outlined text-lg"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            smart_toy
+                          </span>
+                          Review
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      className="py-4 bg-surface-container-high hover:bg-surface-container-highest text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 group"
-                    >
-                      <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">
-                        share
-                      </span>
-                      Export
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (pgnInput.trim()) loadFromPgnReview();
-                      }}
-                      className="py-4 bg-primary text-surface-dim font-bold rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2"
-                    >
-                      <span
-                        className="material-symbols-outlined text-lg"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        smart_toy
-                      </span>
-                      {report ? "Re-Review" : "Review"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <section className="mt-24 mb-16 grid grid-cols-3 gap-8">
-                <div className="bg-surface-container rounded-xl p-8 glass-panel border-t border-white/10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="material-symbols-outlined text-primary">
-                      analytics
-                    </span>
-                    <h4 className="text-sm font-black uppercase tracking-widest">
-                      Accuracy
-                    </h4>
-                  </div>
-                  <div className="space-y-3">
-                    {player && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-neutral-400">
-                          White
+                  <section className="mt-24 mb-16 grid grid-cols-3 gap-8">
+                    <div className="bg-surface-container rounded-xl p-8 glass-panel border-t border-white/10">
+                      <div className="flex items-center gap-3 mb-6">
+                        <span className="material-symbols-outlined text-primary">
+                          analytics
                         </span>
-                        <span
-                          className={`text-lg font-black ${accuracyColor(player.acc)}`}
-                        >
-                          {player.acc.toFixed(1)}%
-                        </span>
+                        <h4 className="text-sm font-black uppercase tracking-widest">
+                          Accuracy
+                        </h4>
                       </div>
-                    )}
-                    {opponent && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-neutral-400">
-                          Black
-                        </span>
-                        <span
-                          className={`text-lg font-black ${accuracyColor(opponent.acc)}`}
-                        >
-                          {opponent.acc.toFixed(1)}%
-                        </span>
+                      <div className="space-y-3">
+                        {player && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-neutral-400">
+                              White
+                            </span>
+                            <span
+                              className={`text-lg font-black ${accuracyColor(player.acc)}`}
+                            >
+                              {player.acc.toFixed(1)}%
+                            </span>
+                          </div>
+                        )}
+                        {opponent && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-neutral-400">
+                              Black
+                            </span>
+                            <span
+                              className={`text-lg font-black ${accuracyColor(opponent.acc)}`}
+                            >
+                              {opponent.acc.toFixed(1)}%
+                            </span>
+                          </div>
+                        )}
+                        {!player && !opponent && (
+                          <p className="text-sm text-neutral-500">
+                            Load a game to see accuracy
+                          </p>
+                        )}
                       </div>
-                    )}
-                    {!player && !opponent && (
-                      <p className="text-sm text-neutral-500">
-                        Load a game to see accuracy
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="bg-surface-container rounded-xl p-8 glass-panel border-t border-white/10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="material-symbols-outlined text-primary">
-                      history_edu
-                    </span>
-                    <h4 className="text-sm font-black uppercase tracking-widest">
-                      Opening Theory
-                    </h4>
-                  </div>
-                  <div className="space-y-4">
-                    <p className="text-white font-bold text-lg">
-                      {report?.positions?.[0]?.opening || "Custom Position"}
-                    </p>
-                    <div className="flex gap-2">
-                      <span className="text-[10px] px-2 py-1 bg-white/5 rounded-full border border-white/10">
-                        {report ? "Reviewed" : "Analysis"}
-                      </span>
-                      <span className="text-[10px] px-2 py-1 bg-white/5 rounded-full border border-white/10">
-                        {moves.length > 0 ? `${moves.length} ply` : "Start"}
-                      </span>
                     </div>
-                  </div>
-                </div>
-                <div className="bg-surface-container rounded-xl p-8 glass-panel border-t border-white/10 flex flex-col justify-center">
-                  <div className="text-center">
-                    <p className="text-4xl font-black text-white">
-                      {overallPrecision ? `${overallPrecision}%` : "—"}
-                    </p>
-                    <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mt-2">
-                      Overall Precision
-                    </p>
-                  </div>
-                </div>
-              </section>
+                    <div className="bg-surface-container rounded-xl p-8 glass-panel border-t border-white/10">
+                      <div className="flex items-center gap-3 mb-6">
+                        <span className="material-symbols-outlined text-primary">
+                          history_edu
+                        </span>
+                        <h4 className="text-sm font-black uppercase tracking-widest">
+                          Opening Theory
+                        </h4>
+                      </div>
+                      <div className="space-y-4">
+                        <p className="text-white font-bold text-lg">
+                          {"Custom Position"}
+                        </p>
+                        <div className="flex gap-2">
+                          <span className="text-[10px] px-2 py-1 bg-white/5 rounded-full border border-white/10">
+                            Analysis
+                          </span>
+                          <span className="text-[10px] px-2 py-1 bg-white/5 rounded-full border border-white/10">
+                            {moves.length > 0 ? `${moves.length} ply` : "Start"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-surface-container rounded-xl p-8 glass-panel border-t border-white/10 flex flex-col justify-center">
+                      <div className="text-center">
+                        <p className="text-4xl font-black text-white">
+                          {overallPrecision ? `${overallPrecision}%` : "—"}
+                        </p>
+                        <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mt-2">
+                          Overall Precision
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </>
+              )}
             </>
           )}
         </div>
