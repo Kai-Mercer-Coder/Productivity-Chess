@@ -24,6 +24,11 @@ interface VariantBoardProps {
   variantTitle: string;
 }
 
+function tryApplyMove(pos: Position, source: string, target: string): boolean {
+  if (applyMove(pos, source + target)) return true;
+  return applyMove(pos, source + target + "q");
+}
+
 export default function VariantBoard({ variantId, variantTitle }: VariantBoardProps) {
   const [fen, setFen] = useState("start");
   const [loading, setLoading] = useState(true);
@@ -39,14 +44,8 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
   const posRef = useRef<Position | null>(null);
   const mountedRef = useRef(true);
   const strengthRef = useRef(strength);
-  const movingRef = useRef(false);
-  const selectedRef = useRef<string | null>(null);
-  const legalMovesRef = useRef<string[]>([]);
 
   useEffect(() => { strengthRef.current = strength; }, [strength]);
-  useEffect(() => { movingRef.current = moving; }, [moving]);
-  useEffect(() => { selectedRef.current = selectedSquare; }, [selectedSquare]);
-  useEffect(() => { legalMovesRef.current = legalMovesList; }, [legalMovesList]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -75,7 +74,7 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
     if (!pos) return;
     setFen(positionToFen(pos));
     setLegalMovesList(getAllUciMoves(pos));
-    setLegalDests(getLegalDests(pos));
+    setLegalDests(new Map(getLegalDests(pos)));
     setTurn(getTurn(pos));
     if (isGameOver(pos)) {
       setGameOver(true);
@@ -109,11 +108,11 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
 
   const handleDrop = useCallback((args: PieceDropHandlerArgs): boolean => {
     const pos = posRef.current;
-    if (!pos || gameOver || movingRef.current) return false;
+    if (!pos || gameOver) return false;
+    if (!args.targetSquare) return false;
     if (!isPlayerTurn(pos)) return false;
 
-    const uci = `${args.sourceSquare}${args.targetSquare}q`;
-    if (!applyMove(pos, uci)) return false;
+    if (!tryApplyMove(pos, args.sourceSquare, args.targetSquare)) return false;
 
     syncState();
     setSelectedSquare(null);
@@ -123,15 +122,14 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
 
   const handleSquareClick = useCallback((args: any) => {
     const pos = posRef.current;
-    if (!pos || gameOver || movingRef.current) return;
+    if (!pos || gameOver) return;
     if (!isPlayerTurn(pos)) return;
 
     const square = args.square as string;
-    const sel = selectedRef.current;
+    const sel = selectedSquare;
 
     if (sel) {
-      const uci = `${sel}${square}q`;
-      if (applyMove(pos, uci)) {
+      if (tryApplyMove(pos, sel, square)) {
         syncState();
         setSelectedSquare(null);
         triggerAiMove();
@@ -139,13 +137,13 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
       }
     }
 
-    const moves = legalMovesRef.current.filter(m => m.startsWith(square));
+    const moves = getAllUciMoves(pos).filter(m => m.startsWith(square));
     if (moves.length > 0) {
       setSelectedSquare(square);
     } else {
       setSelectedSquare(null);
     }
-  }, [gameOver]);
+  }, [gameOver, selectedSquare]);
 
   const squareStyles = selectedSquare && !gameOver
     ? (legalDests.get(selectedSquare) || []).reduce((acc, dest) => {
