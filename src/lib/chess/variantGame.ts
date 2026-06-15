@@ -1,121 +1,149 @@
-import Module from 'ffish-es6';
-import type { FairyStockfish, Board as FfishBoard } from 'ffish-es6';
-
-let ffish: FairyStockfish | null = null;
-let loadPromise: Promise<FairyStockfish> | null = null;
-
-async function getFfish(): Promise<FairyStockfish> {
-  if (ffish) return ffish;
-  if (!loadPromise) {
-    loadPromise = Module({
-      locateFile: (path: string) => '/' + path,
-    }).then((instance: FairyStockfish) => {
-      ffish = instance;
-      return instance;
-    });
-  }
-  return loadPromise;
-}
+import { Chess, Position, Board, SquareSet, Material, parseUci, makeUci, makeSquare, compat, isDrop, variant, fen } from 'chessops';
+import type { Move, Role, Setup, Square } from 'chessops';
 
 export interface VariantConfig {
   id: string;
   title: string;
-  uciVariant: string;
   icon: string;
 }
 
 export const VARIANT_CONFIGS: Record<string, VariantConfig> = {
-  chess960: { id: 'chess960', title: 'Chess 960', uciVariant: 'chess960', icon: 'shuffle' },
-  giveaway: { id: 'giveaway', title: 'Giveaway', uciVariant: 'giveaway', icon: 'heart_broken' },
-  crazyhouse: { id: 'crazyhouse', title: 'Crazyhouse', uciVariant: 'crazyhouse', icon: 'cyclone' },
-  atomic: { id: 'atomic', title: 'Atomic', uciVariant: 'atomic', icon: 'explosion' },
+  chess960: { id: 'chess960', title: 'Chess 960', icon: 'shuffle' },
+  giveaway: { id: 'giveaway', title: 'Giveaway', icon: 'heart_broken' },
+  crazyhouse: { id: 'crazyhouse', title: 'Crazyhouse', icon: 'cyclone' },
+  atomic: { id: 'atomic', title: 'Atomic', icon: 'explosion' },
 };
 
 const PIECE_VALUES: Record<string, number> = {
   pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0,
 };
 
-export async function createBoard(variantId: string): Promise<FfishBoard> {
-  const cfg = VARIANT_CONFIGS[variantId];
-  if (!cfg) throw new Error(`Unknown variant: ${variantId}`);
-  const fs = await getFfish();
-  const board = new fs.Board(cfg.uciVariant);
-  return board;
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
-export function boardToFen(board: FfishBoard): string {
-  return board.fen();
+function sq(file: number, rank: number): Square {
+  return (file + rank * 8) as Square;
 }
 
-export function applyMove(board: FfishBoard, uci: string): boolean {
-  return board.push(uci);
-}
-
-export function getLegalMoves(board: FfishBoard): string[] {
-  return board.legalMoves().split(' ').filter(Boolean);
-}
-
-export function isGameOver(board: FfishBoard): boolean {
-  return board.isGameOver();
-}
-
-export function getResult(board: FfishBoard): string {
-  return board.result();
-}
-
-export function isPlayerTurn(board: FfishBoard, playerColor: 'white' | 'black'): boolean {
-  const isWhiteTurn = board.turn();
-  return (playerColor === 'white' && isWhiteTurn) || (playerColor === 'black' && !isWhiteTurn);
-}
-
-export function getTurn(board: FfishBoard): 'white' | 'black' {
-  return board.turn() ? 'white' : 'black';
-}
-
-function evaluateMove(move: string, board: FfishBoard): number {
-  let score = 0;
-  const isCapture = board.isCapture(move);
-  if (isCapture) {
-    const target = move.slice(2, 4);
-    const fen = board.fen();
-    const fenRows = fen.split(' ')[0].split('/');
-    const file = target.charCodeAt(0) - 97;
-    const rank = 8 - parseInt(target[1]);
-    const row = fenRows[rank];
-    let idx = 0;
-    for (const ch of row) {
-      if (ch >= '1' && ch <= '8') {
-        idx += parseInt(ch);
-        continue;
-      }
-      if (idx === file) {
-        const pieceChar = ch.toLowerCase();
-        const pieceName = pieceChar === 'p' ? 'pawn' : pieceChar === 'n' ? 'knight' : pieceChar === 'b' ? 'bishop' : pieceChar === 'r' ? 'rook' : pieceChar === 'q' ? 'queen' : pieceChar === 'k' ? 'king' : 'pawn';
-        score += (PIECE_VALUES[pieceName] || 0) * 100;
-        break;
-      }
-      idx++;
+function generateChess960Setup(): Setup {
+  const board = Board.empty();
+  const darkFiles = [1, 3, 5, 7];
+  const lightFiles = [0, 2, 4, 6];
+  const rank = new Array<Role | null>(8).fill(null);
+  rank[darkFiles[Math.floor(Math.random() * 4)]] = 'bishop';
+  rank[lightFiles[Math.floor(Math.random() * 4)]] = 'bishop';
+  const remaining = [0, 1, 2, 3, 4, 5, 6, 7].filter(i => rank[i] === null);
+  const shuffled = shuffleArray(remaining);
+  rank[shuffled[0]] = 'queen';
+  rank[shuffled[1]] = 'knight';
+  rank[shuffled[2]] = 'knight';
+  const lastThree = [shuffled[3], shuffled[4], shuffled[5]].sort((a, b) => a - b);
+  rank[lastThree[0]] = 'rook';
+  rank[lastThree[1]] = 'king';
+  rank[lastThree[2]] = 'rook';
+  let castlingRights = SquareSet.empty();
+  for (let f = 0; f < 8; f++) {
+    const sqW = sq(f, 0);
+    const sqB = sq(f, 7);
+    board.set(sqW, { role: rank[f]!, color: 'white' });
+    board.set(sqB, { role: rank[f]!, color: 'black' });
+    board.set(sq(f, 1), { role: 'pawn', color: 'white' });
+    board.set(sq(f, 6), { role: 'pawn', color: 'black' });
+    if (rank[f] === 'rook') {
+      castlingRights = castlingRights.with(sqW).with(sqB);
     }
+  }
+  return { board, pockets: Material.empty(), turn: 'white', castlingRights, epSquare: undefined, remainingChecks: undefined, halfmoves: 0, fullmoves: 1 };
+}
+
+export function createPosition(variantId: string): Position {
+  switch (variantId) {
+    case 'chess960': {
+      const setup = generateChess960Setup();
+      return Chess.fromSetup(setup).unwrap();
+    }
+    case 'giveaway': return variant.Antichess.default();
+    case 'crazyhouse': return variant.Crazyhouse.default();
+    case 'atomic': return variant.Atomic.default();
+    default: throw new Error(`Unknown variant: ${variantId}`);
+  }
+}
+
+export function positionToFen(pos: Position): string {
+  return fen.makeFen(pos.toSetup());
+}
+
+export function applyMove(pos: Position, uci: string): boolean {
+  const move = parseUci(uci);
+  if (!move) return false;
+  if (!pos.isLegal(move)) return false;
+  try { pos.play(move); return true; } catch { return false; }
+}
+
+export function getAllUciMoves(pos: Position): string[] {
+  const moves: string[] = [];
+  const ctx = pos.ctx();
+  for (const [from, toSet] of pos.allDests(ctx)) {
+    for (const to of toSet) {
+      moves.push(makeUci({ from, to }));
+    }
+  }
+  return moves;
+}
+
+export function isGameOver(pos: Position): boolean {
+  return pos.isEnd();
+}
+
+export function getResult(pos: Position): string {
+  const outcome = pos.outcome();
+  if (!outcome) return '*';
+  if (outcome.winner === 'white') return '1-0';
+  if (outcome.winner === 'black') return '0-1';
+  return '1/2-1/2';
+}
+
+export function isPlayerTurn(pos: Position): boolean {
+  return pos.turn === 'white';
+}
+
+export function getTurn(pos: Position): 'white' | 'black' {
+  return pos.turn;
+}
+
+export function getLegalDests(pos: Position): Map<string, string[]> {
+  return compat.chessgroundDests(pos);
+}
+
+function evaluateMove(pos: Position, move: Move): number {
+  let score = Math.random() * 50;
+  if (!isDrop(move)) {
+    const target = pos.board.get(move.to);
+    if (target) score += (PIECE_VALUES[target.role] || 0) * 100;
   }
   return score;
 }
 
-export function pickAiMove(legalMoves: string[], board: FfishBoard, strength: number): string {
-  if (legalMoves.length === 0) return '';
-  if (legalMoves.length === 1) return legalMoves[0];
-  if (strength <= 1) return legalMoves[Math.floor(Math.random() * legalMoves.length)];
-
-  const scored = legalMoves.map(m => ({
-    move: m,
-    score: evaluateMove(m, board) + Math.random() * 50,
-  }));
-
-  scored.sort((a, b) => b.score - a.score);
-  const topN = Math.max(1, Math.ceil((10 - strength) / 10 * scored.length));
+export function pickAiMove(pos: Position, strength: number): string {
+  const ctx = pos.ctx();
+  const allDests = pos.allDests(ctx);
+  const moves: { uci: string; score: number }[] = [];
+  for (const [from, toSet] of allDests) {
+    for (const to of toSet) {
+      const move: Move = { from, to };
+      moves.push({ uci: makeUci(move), score: evaluateMove(pos, move) });
+    }
+  }
+  if (moves.length === 0) return '';
+  if (moves.length === 1) return moves[0].uci;
+  moves.sort((a, b) => b.score - a.score);
+  const topN = Math.max(1, Math.ceil((10 - strength) / 10 * moves.length));
   const idx = Math.floor(Math.random() * topN);
-  return scored[idx].move;
-}
-
-export function cleanupBoard(board: FfishBoard): void {
-  board.delete();
+  return moves[idx].uci;
 }

@@ -6,18 +6,18 @@ import type { PieceDropHandlerArgs } from "react-chessboard";
 import { customPieces } from "@/components/chess/customPieces";
 import { boardTheme } from "@/lib/chess/boardTheme";
 import {
-  createBoard,
-  cleanupBoard,
-  boardToFen,
+  createPosition,
+  positionToFen,
   applyMove,
-  getLegalMoves,
+  getAllUciMoves,
   isGameOver,
   getResult,
   isPlayerTurn,
   getTurn,
+  getLegalDests,
   pickAiMove,
 } from "@/lib/chess/variantGame";
-import type { Board } from "ffish-es6";
+import type { Position } from "chessops";
 
 interface VariantBoardProps {
   variantId: string;
@@ -28,6 +28,7 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
   const [fen, setFen] = useState("start");
   const [loading, setLoading] = useState(true);
   const [legalMovesList, setLegalMovesList] = useState<string[]>([]);
+  const [legalDests, setLegalDests] = useState<Map<string, string[]>>(new Map());
   const [gameOver, setGameOver] = useState(false);
   const [result, setResult] = useState("*");
   const [turn, setTurn] = useState<"white" | "black">("white");
@@ -35,7 +36,7 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
   const [moving, setMoving] = useState(false);
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
 
-  const boardRef = useRef<Board | null>(null);
+  const posRef = useRef<Position | null>(null);
   const mountedRef = useRef(true);
   const strengthRef = useRef(strength);
   const movingRef = useRef(false);
@@ -50,18 +51,15 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
   useEffect(() => {
     mountedRef.current = true;
     initGame();
-    return () => {
-      mountedRef.current = false;
-      if (boardRef.current) cleanupBoard(boardRef.current);
-    };
+    return () => { mountedRef.current = false; };
   }, [variantId]);
 
-  async function initGame() {
+  function initGame() {
     setLoading(true);
     try {
-      const board = await createBoard(variantId);
-      if (!mountedRef.current) { cleanupBoard(board); return; }
-      boardRef.current = board;
+      const pos = createPosition(variantId);
+      if (!mountedRef.current) return;
+      posRef.current = pos;
       syncState();
       setMoving(false);
       setSelectedSquare(null);
@@ -73,15 +71,15 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
   }
 
   function syncState() {
-    const board = boardRef.current;
-    if (!board) return;
-    setFen(boardToFen(board));
-    const moves = getLegalMoves(board);
-    setLegalMovesList(moves);
-    setTurn(getTurn(board));
-    if (isGameOver(board)) {
+    const pos = posRef.current;
+    if (!pos) return;
+    setFen(positionToFen(pos));
+    setLegalMovesList(getAllUciMoves(pos));
+    setLegalDests(getLegalDests(pos));
+    setTurn(getTurn(pos));
+    if (isGameOver(pos)) {
       setGameOver(true);
-      setResult(getResult(board));
+      setResult(getResult(pos));
     } else {
       setGameOver(false);
       setResult("*");
@@ -89,14 +87,11 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
   }
 
   function doAiMove() {
-    const board = boardRef.current;
-    if (!board || !mountedRef.current) return;
-    if (isGameOver(board)) { syncState(); return; }
-    const moves = getLegalMoves(board);
-    if (moves.length === 0) { syncState(); return; }
-    const bestMove = pickAiMove(moves, board, strengthRef.current);
-    if (bestMove) {
-      applyMove(board, bestMove);
+    const pos = posRef.current;
+    if (!pos || !mountedRef.current) return;
+    if (isGameOver(pos)) { syncState(); return; }
+    const bestMove = pickAiMove(pos, strengthRef.current);
+    if (bestMove && applyMove(pos, bestMove)) {
       syncState();
     }
     setSelectedSquare(null);
@@ -113,12 +108,12 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
   }
 
   const handleDrop = useCallback((args: PieceDropHandlerArgs): boolean => {
-    const board = boardRef.current;
-    if (!board || gameOver || movingRef.current) return false;
-    if (!isPlayerTurn(board, "white")) return false;
+    const pos = posRef.current;
+    if (!pos || gameOver || movingRef.current) return false;
+    if (!isPlayerTurn(pos)) return false;
 
     const uci = `${args.sourceSquare}${args.targetSquare}q`;
-    if (!applyMove(board, uci)) return false;
+    if (!applyMove(pos, uci)) return false;
 
     syncState();
     setSelectedSquare(null);
@@ -127,16 +122,16 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
   }, [gameOver]);
 
   const handleSquareClick = useCallback((args: any) => {
-    const board = boardRef.current;
-    if (!board || gameOver || movingRef.current) return;
-    if (!isPlayerTurn(board, "white")) return;
+    const pos = posRef.current;
+    if (!pos || gameOver || movingRef.current) return;
+    if (!isPlayerTurn(pos)) return;
 
     const square = args.square as string;
     const sel = selectedRef.current;
 
     if (sel) {
       const uci = `${sel}${square}q`;
-      if (applyMove(board, uci)) {
+      if (applyMove(pos, uci)) {
         syncState();
         setSelectedSquare(null);
         triggerAiMove();
@@ -153,12 +148,10 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
   }, [gameOver]);
 
   const squareStyles = selectedSquare && !gameOver
-    ? legalMovesList
-        .filter(m => m.startsWith(selectedSquare))
-        .reduce((acc, m) => {
-          acc[m.slice(2, 4)] = { background: boardTheme.legalMove, boxShadow: `inset 0 0 0 3px ${boardTheme.legalMove}` };
-          return acc;
-        }, {} as Record<string, React.CSSProperties>)
+    ? (legalDests.get(selectedSquare) || []).reduce((acc, dest) => {
+        acc[dest] = { background: boardTheme.legalMove, boxShadow: `inset 0 0 0 3px ${boardTheme.legalMove}` };
+        return acc;
+      }, {} as Record<string, React.CSSProperties>)
     : {};
 
   if (loading) {
@@ -171,8 +164,7 @@ export default function VariantBoard({ variantId, variantTitle }: VariantBoardPr
 
   const resultText = result === "1-0" ? "White wins"
     : result === "0-1" ? "Black wins"
-    : result === "1/2-1/2" ? "Draw"
-    : "";
+    : result === "1/2-1/2" ? "Draw" : "";
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 h-full min-h-[70vh]">
