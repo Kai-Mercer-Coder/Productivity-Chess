@@ -102,7 +102,7 @@ export default function VariantsPage() {
                 </p>
               </div>
               <Link
-                href="/under-construction"
+                href={`/variants/${v.id}`}
                 className="inline-flex items-center gap-2 text-white font-black text-xs tracking-widest uppercase group-hover:translate-x-2 transition-transform duration-300"
               >
                 <span>Select Variant</span>
