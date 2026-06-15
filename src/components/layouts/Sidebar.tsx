@@ -12,6 +12,7 @@ const navItems = [
   { href: "/puzzles", label: "Puzzles", icon: "extension" },
   { href: "/analysis", label: "Analysis", icon: "analytics" },
   { href: "/learn", label: "Learn", icon: "school" },
+  { href: "/variants", label: "Variants", icon: "shuffle" },
   { href: "/stats", label: "Stats", icon: "query_stats" },
 ];
 
