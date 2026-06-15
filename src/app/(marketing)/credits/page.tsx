@@ -2,9 +2,11 @@ import Link from "next/link";
 
 const libraries = [
   { name: "Stockfish", url: "https://stockfishchess.org/", desc: "Open-source chess engine used for local and cloud analysis" },
+  { name: "Lichess", url: "https://lichess.org/", desc: "Puzzle database and piece design inspiration" },
   { name: "WintrChess", url: "#", desc: "Chess analysis and evaluation tools" },
   { name: "react-chessboard", url: "#", desc: "Interactive chessboard component for React" },
   { name: "positional_chess", url: "https://github.com/dev-arcturus/positional_chess", desc: "Positional chess evaluation and analysis library" },
+  { name: "en-croissant", url: "https://github.com/franciscoBSalgueiro/en-croissant", desc: "Offline chess platform — move and capture sound effects" },
   { name: "Next.js", url: "https://nextjs.org/", desc: "React framework for production-grade applications" },
   { name: "Tailwind CSS", url: "https://tailwindcss.com/", desc: "Utility-first CSS framework" },
   { name: "next-auth", url: "https://next-auth.js.org/", desc: "Authentication for Next.js" },
