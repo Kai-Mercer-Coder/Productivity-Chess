@@ -1,30 +1,49 @@
 # Chess Tactics Training
 
-A full-stack chess training app with Glicko2-based rating, interactive puzzles, game analysis, and a recharts-powered dashboard. Built with Next.js 15+, Supabase, and Stockfish.
+A full-stack chess training app with **328,000+ free puzzles**, unlimited game analysis, opening training, and Glicko2-based rating. Built with Next.js 16, Supabase, and Stockfish.
 
 ## Features
 
-- **Puzzles** — 328K+ chess tactics puzzles cached in IndexedDB (Dexie.js), served from CSV shards by Elo range. Each solve updates your Glicko2 rating (elo, RD, volatility) via a server API.
-- **Play & Analysis** — Full chess board with Stockfish engine integration (local + API fallback), move evaluation, engine lines, book moves from eco.json, and post-game analysis with centipawn loss classification.
+- **Puzzles (328K+)** — The full [lichess-org/chess-tactics-browser](https://github.com/lichess-org/chess-tactics-browser) database cached client-side in IndexedDB (Dexie.js). Puzzles are served from CSV shards by Elo range (400–2800+). Each solve updates your Glicko2 rating (elo, RD, volatility) via a server API. Preloading, shard caching, and LRU eviction ensure smooth browsing. **100% free — no paywall, no daily limits.**
+
+- **Play vs Engine** — Free play against Stockfish with adjustable Elo (800–3200). Live move evaluation, centipawn loss diff, engine lines, book moves, hints, and move analysis coach. Supports undo, premoves, auto-promotion, and a configurable settings panel (board colors, animation speed).
+
+- **Unlimited Game Review** — After each play session, review every move with coach commentary, centipawn-loss classification (Book/Excellent/Good/Inaccuracy/Mistake/Blunder/Dubious/Missed Win), and per-move engine evaluation. Powered by local Stockfish WASM with a shared singleton engine.
+
+- **Opening Trainer** — Learn and revise opening lines with an interactive board. The Sicilian Najdorf main line is included with hints. Two modes: **Learn** (hints always shown) and **Revise** (hints hidden until you get it wrong). Wrong moves use the puzzle-style revert animation (1.2s). Progress is saved to localStorage.
+
+- **Engine Evaluation** — Six-source evaluation fallback chain: Tablebase (≤7 pieces) → Lichess Cloud → ChessDB → chess-api → HuggingFace → local Stockfish WASM. Local engine reports live at depth 8+, caps at depth 18, with iterative deepening.
+
+- **Analysis Board** — Full chess analysis with click-to-move, drag-to-move, legal move highlights, engine evaluation, PGN/FEN import/export, and position navigation. Board flips between white and black orientation. Inputs are sanitized against payload injection.
+
+- **Custom Chess Pieces** — 12 inline SVG piece components (WintrChess art style) rendered across all boards — no external image dependencies, no base64 bloat.
+
+- **Sound Effects** — Move and capture sounds play on every legal move across play, puzzles, analysis, and opening training boards.
+
 - **Dashboard** — Recharts area chart for rating trend, puzzles-solved-per-week histogram, and stat cards (Elo, puzzles solved, level) pulled live from your NextAuth session.
+
 - **Auth** — Supabase + NextAuth with JWT-embedded user stats (elo, RD, volatility, puzzles_solved). No Supabase reads on session fetch — the JWT callback hydrates the token once on sign-in, and the session callback reads from the JWT only.
+
 - **Onboarding** — New users select a skill level (400–2000 Elo) which sets their starting rating via a POST API route.
-- **User Profile** — Full-screen framer-motion overlay showing Elo, RD, puzzles solved, and level.
+
+- **User Profile** — Full-screen overlay showing Elo, RD, puzzles solved, and level.
+
+- **Themes** — Unified grey-white board theme (`#e1e1e1` light, `#8A909A` dark) with `rgba(0,0,0,0.2)` legal move indicators, applied consistently across all chessboards in the app.
 
 ## Tech Stack
 
 | Layer | Tech |
 |-------|------|
-| Framework | [Next.js 15+](https://nextjs.org) (App Router) |
+| Framework | [Next.js 16](https://nextjs.org) (App Router, Turbopack) |
 | Auth | [NextAuth.js](https://next-auth.js.org) (v5) + [Supabase](https://supabase.com) |
 | Database | [Supabase](https://supabase.com) (Postgres) |
 | Chess | [chess.js](https://github.com/jhlywa/chess.js), [react-chessboard](https://github.com/Clariity/react-chessboard), [chess-tactics](https://github.com/evan-eschwege/chess-tactics), [@chess-openings/eco.json](https://github.com/chess-openings/eco.json) |
-| Engine | Local [Stockfish](https://github.com/lichess-org/stockfish.js) via [wintrchess](https://github.com/devsh9/wintrchess) + Chess API fallback |
+| Engine | Local [Stockfish 18 WASM](https://github.com/lichess-org/stockfish.wasm) via [wintrchess](https://github.com/devsh9/wintrchess) + Lichess Cloud, ChessDB, chess-api, HuggingFace and Tablebase fallbacks |
 | Rating | [glicko2](https://github.com/mmai/glicko2) npm library |
 | Cache | [Dexie.js](https://dexie.org) (IndexedDB) — 40 MB limit, 328K puzzles |
 | Charts | [Recharts](https://recharts.org) |
-| UI | [Tailwind CSS](https://tailwindcss.com), [MUI](https://mui.com), [lucide-react](https://lucide.dev) icons, [framer-motion](https://motion.dev) |
-| Styling | [Tailwind CSS](https://tailwindcss.com) with [Tailwind Scrollbar](https://github.com/karasnik/tailwind-scrollbar) |
+| UI | [Tailwind CSS](https://tailwindcss.com), [MUI](https://mui.com), [lucide-react](https://lucide.dev) icons, [motion](https://motion.dev) (framer-motion) |
+| Styling | [Tailwind CSS](https://tailwindcss.com) with [Tailwind Scrollbar](https://github.com/karasnik/tailwind-scrollbar), [Lenis](https://github.com/studio-freight/lenis) smooth scroll |
 | Linting | [Biome](https://biomejs.dev) |
 
 ## Architecture
@@ -32,30 +51,41 @@ A full-stack chess training app with Glicko2-based rating, interactive puzzles, 
 ```
 src/
 ├── app/
-│   ├── (app)/          — Main app routes (play, puzzles, analysis)
-│   │   ├── play/       — Free play with Stockfish + move analysis
-│   │   ├── puzzles/    — Tactics puzzles with Glicko2 rating
-│   │   └── analysis/   — Post-game review & evaluation
-│   ├── (auth)/login/   — Sign-in page (Supabase credentials)
-│   ├── (dashboard)/    — Dashboard with rating charts & stats
-│   ├── (marketing)/    — Landing page
+│   ├── (app)/
+│   │   ├── play/            — Free play vs Stockfish with live eval
+│   │   ├── puzzles/         — 328K tactics puzzles with Glicko2 rating
+│   │   ├── analysis/        — Post-game review, engine eval, PGN analysis
+│   │   ├── learn/           — Opening trainer, middle-games, endgames
+│   │   │   ├── openings/    — Opening line dashboard + training page
+│   │   │   ├── middle-games/
+│   │   │   └── endgames/
+│   │   ├── stats/           — Detailed stats page
+│   │   └── dashboard/       — Dashboard with rating charts
+│   ├── (auth)/login/        — Sign-in page (Supabase credentials)
+│   ├── (marketing)/         — Landing page, privacy, terms, credits
+│   ├── under-construction/  — Placeholder for future features
 │   └── api/
-│       ├── auth/       — NextAuth route handler + callbacks
-│       ├── puzzles/    — Puzzle shard serving & selection
-│       ├── updateStats/— Glicko2 rating update endpoint
+│       ├── auth/            — NextAuth route handler + callbacks
+│       ├── puzzles/         — Puzzle shard serving & selection
+│       ├── puzzlecount/     — Puzzle count endpoint
+│       ├── updateStats/     — Glicko2 rating update endpoint
 │       └── user/onboarding/ — Initial Elo setter for new users
 ├── components/
-│   ├── dashboard/      — DashboardPage, stat cards, charts
-│   ├── layouts/        — Sidebar, Navbar, MobileNavbar
-│   └── profile/        — UserProfileOverlay, OnboardingOverlay
+│   ├── chess/               — ChessBoard wrapper, customPieces, EvalBar, etc.
+│   ├── dashboard/           — DashboardPage, stat cards, charts
+│   ├── layouts/             — Sidebar, Navbar, MobileNavbar
+│   ├── openings/            — OpeningTrainer component
+│   └── marketing/           — LandingPage, feature sections
 ├── lib/
-│   ├── puzzles/        — Puzzle shard caching (Dexie), usePuzzle hook
-│   ├── rating/         — Glicko2 wrapper (updatePuzzleRating, getExpectedScore)
-│   ├── supabase/       — Admin & client Supabase helpers
-│   ├── chess/          — Chess utilities, move handling
-│   ├── hooks/          — Shared hooks (useBookMoves, useEvaluation, etc.)
-│   └── types/          — TypeScript declarations
-└── types/              — Global type declarations (glicko2)
+│   ├── chess/               — MoveEngine (eval sources), sounds, boardTheme, coach
+│   ├── db/                  — IndexedDB game storage
+│   ├── puzzles/             — Puzzle shard caching (Dexie), usePuzzle hook
+│   ├── rating/              — Glicko2 wrapper (updatePuzzleRating, getExpectedScore)
+│   ├── supabase/            — Admin & client Supabase helpers
+│   ├── hooks/               — Shared hooks (useBoardInteraction, useChessBoard, etc.)
+│   └── types/               — TypeScript declarations
+├── data/                    — Opening lines data
+└── hooks/                   — useOpeningProgress (localStorage)
 ```
 
 ### Data Flow (Puzzle → Rating)
@@ -65,6 +95,14 @@ src/
 3. User solves (or fails) → `POST /api/updateStats` reads stats from JWT, computes new Glicko2 rating, writes result to Supabase, returns updated stats.
 4. Client calls `session.update()` → NextAuth `jwt` callback merges new stats into the token (no DB roundtrip).
 5. Dashboard renders rating trend from session data — all client-side, no extra API calls.
+
+### Evaluation Fallback Chain
+
+```
+Tablebase (≤7 pieces) → Lichess Cloud → ChessDB → chess-api → HuggingFace → Local Stockfish WASM
+```
+
+Each source is tried in order with appropriate timeouts (3–8s). Cloud sources are parallelized for lowest latency. Local Stockfish uses a shared WASM worker singleton with exponential backoff auto-restart.
 
 ### Puzzle Caching
 
