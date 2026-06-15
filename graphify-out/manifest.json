@@ -34,191 +34,6 @@
     "ast_hash": "8864226a1686ad5e21dfec894f81fa19",
     "semantic_hash": ""
   },
-  "src/app/(Routes)/dashboard/page.tsx": {
-    "mtime": 1775985871.4735627,
-    "ast_hash": "4c14c422fb03c84a00bbf4c5c4b21434",
-    "semantic_hash": ""
-  },
-  "src/app/(Routes)/login/page.tsx": {
-    "mtime": 1780570192.238336,
-    "ast_hash": "5d651b7768f8ccadbf0898f9289b7934",
-    "semantic_hash": ""
-  },
-  "src/app/(SubRoutes)/analysis/page.tsx": {
-    "mtime": 1780909535.86092,
-    "ast_hash": "28908297690a8b8be43c6ad3fcda7b14",
-    "semantic_hash": ""
-  },
-  "src/app/(SubRoutes)/play/Stuff/App.tsx": {
-    "mtime": 1780897500.162679,
-    "ast_hash": "6ff5b3931c6643677c2d7f27336c3a25",
-    "semantic_hash": ""
-  },
-  "src/app/(SubRoutes)/play/Stuff/types.ts": {
-    "mtime": 1775399787.0,
-    "ast_hash": "4b21180f5fa79a5dc5fadb87bdd7f967",
-    "semantic_hash": ""
-  },
-  "src/app/(SubRoutes)/play/page.tsx": {
-    "mtime": 1780901800.276739,
-    "ast_hash": "23e4a8679280ac6fee92671a5f24e880",
-    "semantic_hash": ""
-  },
-  "src/app/(SubRoutes)/puzzles/page.tsx": {
-    "mtime": 1780896997.597636,
-    "ast_hash": "7137797d4cac4008209086601de9bad3",
-    "semantic_hash": ""
-  },
-  "src/app/(SubRoutes)/puzzles/usePuzzle.ts": {
-    "mtime": 1780572262.3412786,
-    "ast_hash": "74f76e93c3d91893e6147a2f15704cc0",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/Base_Functions/MoveEngine.ts": {
-    "mtime": 1776309075.7501986,
-    "ast_hash": "5385c75e162706358c6074e0ead2a3f1",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/Base_Functions/MoveHandler.ts": {
-    "mtime": 1775399787.0,
-    "ast_hash": "777d96d93e67101273a1961d0902f6d3",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/Base_Functions/index.ts": {
-    "mtime": 1780897206.29407,
-    "ast_hash": "bb742a9b21c2ae28bd9313c375193ad8",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/Base_Functions/useBoardStyles.ts": {
-    "mtime": 1780896535.755754,
-    "ast_hash": "c0b0dcda0b3ab6c391d8e111867d0ead",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/Base_Functions/useChessGame.ts": {
-    "mtime": 1780896626.2872198,
-    "ast_hash": "40fa500a6359098703d6d0ccc46676a6",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/components/BoardComponents.tsx": {
-    "mtime": 1776309075.5761948,
-    "ast_hash": "8b130a52016444fc1848c4e22c17d8af",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/components/EngineControls.tsx": {
-    "mtime": 1780897133.9796805,
-    "ast_hash": "cf961a5ef6c82b5526eba5cd5cccbaab",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/components/EvalBar.tsx": {
-    "mtime": 1775399787.0,
-    "ast_hash": "31979f3e79f92d5b0d9337d239a7a041",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/components/GameHistory.tsx": {
-    "mtime": 1780897058.791648,
-    "ast_hash": "1b04fd3e47b7758b6d02b2672d594b84",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/components/Hints.tsx": {
-    "mtime": 1776258762.3397205,
-    "ast_hash": "07c149bada931252e1b852e6a310b168",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/components/MoveAnalysis.tsx": {
-    "mtime": 1775399787.0,
-    "ast_hash": "db32499fe9784d6f240760e037bd8007",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/components/SettingsPanel.tsx": {
-    "mtime": 1775399787.0,
-    "ast_hash": "db7f5fc0fd891122167ec638bbbaed67",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/components/index.ts": {
-    "mtime": 1780897207.1895275,
-    "ast_hash": "9a7227e0440b688bc0068c9ef4cc4b75",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/hooks/index.ts": {
-    "mtime": 1780897207.9050312,
-    "ast_hash": "2e3ef8832500b7462d6bdcc42d560a0b",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/hooks/useBookMoves.ts": {
-    "mtime": 1775399787.0,
-    "ast_hash": "645e0114822cf8934714fef80cd398bf",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/hooks/useEngine.ts": {
-    "mtime": 1780896997.598642,
-    "ast_hash": "95a176923df3ce4df112c5fae1145468",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/hooks/useEvaluation.ts": {
-    "mtime": 1776258620.7936506,
-    "ast_hash": "e70beecaec416ff7734ffd6bd2de09a5",
-    "semantic_hash": ""
-  },
-  "src/app/Base_Logic/index.ts": {
-    "mtime": 1780897208.412637,
-    "ast_hash": "11510625b1f4a4854edb0d81e9ab90dc",
-    "semantic_hash": ""
-  },
-  "src/app/Components/Dashboard.tsx": {
-    "mtime": 1776006741.5410545,
-    "ast_hash": "8d8ee1fc18487c6dc1fcc9480bb791df",
-    "semantic_hash": ""
-  },
-  "src/app/Components/Home.tsx": {
-    "mtime": 1780462702.015699,
-    "ast_hash": "3b34cc7dea4ea119806a37c7e744de77",
-    "semantic_hash": ""
-  },
-  "src/app/Components/Login.tsx": {
-    "mtime": 1775986524.3882775,
-    "ast_hash": "b63cabf99d4540cd6105c31850e5ed0d",
-    "semantic_hash": ""
-  },
-  "src/app/Components/LoginButton.tsx": {
-    "mtime": 1775957867.8840044,
-    "ast_hash": "fe9fd841d3053b4ad8d6a848344cbdcd",
-    "semantic_hash": ""
-  },
-  "src/app/Components/ui/MinSidebar.tsx": {
-    "mtime": 1780896436.6440961,
-    "ast_hash": "13bdb1714a0bbd5ef892c454a2250e24",
-    "semantic_hash": ""
-  },
-  "src/app/Components/ui/Navbar.tsx": {
-    "mtime": 1776786017.0961888,
-    "ast_hash": "be4bfdaf364b591cd91d4aac65f4076b",
-    "semantic_hash": ""
-  },
-  "src/app/Components/ui/Sidebar.tsx": {
-    "mtime": 1780902091.1254756,
-    "ast_hash": "be84943f23bf2d010a182c8b50a4b1d0",
-    "semantic_hash": ""
-  },
-  "src/app/Components/ui/card.tsx": {
-    "mtime": 1775957867.8854706,
-    "ast_hash": "b1aa95fa9bc4c7d6104bc51a85fdcae2",
-    "semantic_hash": ""
-  },
-  "src/app/Components/ui/charts.tsx": {
-    "mtime": 1775957867.886471,
-    "ast_hash": "ef3b86b8db9cb440b4685452eb3028d5",
-    "semantic_hash": ""
-  },
-  "src/app/Components/ui/drawer.tsx": {
-    "mtime": 1775993575.4651134,
-    "ast_hash": "f600974381e404057962b0b1f9e4a633",
-    "semantic_hash": ""
-  },
-  "src/app/Components/ui/progress.tsx": {
-    "mtime": 1775957867.8877769,
-    "ast_hash": "5affcf53d8b5663258128e1841b69dc5",
-    "semantic_hash": ""
-  },
   "src/app/api/auth/[...nextauth]/route.ts": {
     "mtime": 1776005941.4832442,
     "ast_hash": "97d556625bff68a80afc090d441ad569",
@@ -239,34 +54,9 @@
     "ast_hash": "72c11d2315183373936c553cff19084b",
     "semantic_hash": ""
   },
-  "src/app/lib/utils.ts": {
-    "mtime": 1775957867.8959627,
-    "ast_hash": "6d247e271f1b3f9dec2bfd456b13a166",
-    "semantic_hash": ""
-  },
   "src/app/page.tsx": {
     "mtime": 1780461838.765184,
     "ast_hash": "0b986eb03f669d2f7e9f462e18a54947",
-    "semantic_hash": ""
-  },
-  "src/app/utils/client.ts": {
-    "mtime": 1775957867.8994703,
-    "ast_hash": "0ec5c051c6701d8190f351e31f59deeb",
-    "semantic_hash": ""
-  },
-  "src/app/utils/server.ts": {
-    "mtime": 1776776460.8491664,
-    "ast_hash": "ec2f6fa777a5eef08e0b8a071fd8a0b3",
-    "semantic_hash": ""
-  },
-  "src/lib/puzzleCache.ts": {
-    "mtime": 1780571104.1890404,
-    "ast_hash": "b6c81daa86cbc9f01d74d8ac89db32ba",
-    "semantic_hash": ""
-  },
-  "src/lib/puzzleShards.ts": {
-    "mtime": 1776777071.647379,
-    "ast_hash": "64d212885655c6713bee1a1df21bcc39",
     "semantic_hash": ""
   },
   "tsconfig.json": {
@@ -304,11 +94,6 @@
     "ast_hash": "9162add00befbcdb432430f405c4ad8d",
     "semantic_hash": ""
   },
-  "src/app/Components/Login.txt": {
-    "mtime": 1775986524.3882775,
-    "ast_hash": "b63cabf99d4540cd6105c31850e5ed0d",
-    "semantic_hash": ""
-  },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\.opencode\\opencode.json": {
     "mtime": 1780910846.127098,
     "ast_hash": "1efe24ecf938911d4f23e4b1c6ec91f7",
@@ -330,14 +115,14 @@
     "semantic_hash": "d922fd917f506dfb4379de0bbd27ca7e"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\next.config.ts": {
-    "mtime": 1780462487.5679815,
-    "ast_hash": "6698da6d7692cc8b87dd7cf26a746df2",
-    "semantic_hash": "6698da6d7692cc8b87dd7cf26a746df2"
+    "mtime": 1781256854.8714187,
+    "ast_hash": "c75fe50179ffa1b5d9d957a512f07a1b",
+    "semantic_hash": "c75fe50179ffa1b5d9d957a512f07a1b"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\package.json": {
-    "mtime": 1780980272.023805,
-    "ast_hash": "e3643a2d29572a015d95398d8a32901d",
-    "semantic_hash": "e3643a2d29572a015d95398d8a32901d"
+    "mtime": 1781063684.7513251,
+    "ast_hash": "b617fbf69e421c4b6c7ab2f58eeb8c90",
+    "semantic_hash": "b617fbf69e421c4b6c7ab2f58eeb8c90"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\postcss.config.mjs": {
     "mtime": 1775957867.8778763,
@@ -349,290 +134,50 @@
     "ast_hash": "8864226a1686ad5e21dfec894f81fa19",
     "semantic_hash": "8864226a1686ad5e21dfec894f81fa19"
   },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(Routes)\\dashboard\\page.tsx": {
-    "mtime": 1775985871.4735627,
-    "ast_hash": "4c14c422fb03c84a00bbf4c5c4b21434",
-    "semantic_hash": "4c14c422fb03c84a00bbf4c5c4b21434"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(Routes)\\login\\page.tsx": {
-    "mtime": 1780570192.238336,
-    "ast_hash": "5d651b7768f8ccadbf0898f9289b7934",
-    "semantic_hash": "5d651b7768f8ccadbf0898f9289b7934"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(SubRoutes)\\analysis\\page.tsx": {
-    "mtime": 1781009611.8774047,
-    "ast_hash": "241773466d9ed8e017c30cd3102fbd79",
-    "semantic_hash": "241773466d9ed8e017c30cd3102fbd79"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(SubRoutes)\\play\\Stuff\\App.tsx": {
-    "mtime": 1780897500.162679,
-    "ast_hash": "6ff5b3931c6643677c2d7f27336c3a25",
-    "semantic_hash": "6ff5b3931c6643677c2d7f27336c3a25"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(SubRoutes)\\play\\Stuff\\types.ts": {
-    "mtime": 1775399787.0,
-    "ast_hash": "4b21180f5fa79a5dc5fadb87bdd7f967",
-    "semantic_hash": "4b21180f5fa79a5dc5fadb87bdd7f967"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(SubRoutes)\\play\\page.tsx": {
-    "mtime": 1780901800.276739,
-    "ast_hash": "23e4a8679280ac6fee92671a5f24e880",
-    "semantic_hash": "23e4a8679280ac6fee92671a5f24e880"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(SubRoutes)\\puzzles\\page.tsx": {
-    "mtime": 1780896997.597636,
-    "ast_hash": "7137797d4cac4008209086601de9bad3",
-    "semantic_hash": "7137797d4cac4008209086601de9bad3"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(SubRoutes)\\puzzles\\usePuzzle.ts": {
-    "mtime": 1780572262.3412786,
-    "ast_hash": "74f76e93c3d91893e6147a2f15704cc0",
-    "semantic_hash": "74f76e93c3d91893e6147a2f15704cc0"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\Base_Functions\\MoveEngine.ts": {
-    "mtime": 1776309075.7501986,
-    "ast_hash": "5385c75e162706358c6074e0ead2a3f1",
-    "semantic_hash": "5385c75e162706358c6074e0ead2a3f1"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\Base_Functions\\MoveHandler.ts": {
-    "mtime": 1775399787.0,
-    "ast_hash": "777d96d93e67101273a1961d0902f6d3",
-    "semantic_hash": "777d96d93e67101273a1961d0902f6d3"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\Base_Functions\\index.ts": {
-    "mtime": 1780897206.29407,
-    "ast_hash": "bb742a9b21c2ae28bd9313c375193ad8",
-    "semantic_hash": "bb742a9b21c2ae28bd9313c375193ad8"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\Base_Functions\\useBoardStyles.ts": {
-    "mtime": 1780896535.755754,
-    "ast_hash": "c0b0dcda0b3ab6c391d8e111867d0ead",
-    "semantic_hash": "c0b0dcda0b3ab6c391d8e111867d0ead"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\Base_Functions\\useChessGame.ts": {
-    "mtime": 1780896626.2872198,
-    "ast_hash": "40fa500a6359098703d6d0ccc46676a6",
-    "semantic_hash": "40fa500a6359098703d6d0ccc46676a6"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\components\\BoardComponents.tsx": {
-    "mtime": 1776309075.5761948,
-    "ast_hash": "8b130a52016444fc1848c4e22c17d8af",
-    "semantic_hash": "8b130a52016444fc1848c4e22c17d8af"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\components\\EngineControls.tsx": {
-    "mtime": 1780897133.9796805,
-    "ast_hash": "cf961a5ef6c82b5526eba5cd5cccbaab",
-    "semantic_hash": "cf961a5ef6c82b5526eba5cd5cccbaab"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\components\\EvalBar.tsx": {
-    "mtime": 1775399787.0,
-    "ast_hash": "31979f3e79f92d5b0d9337d239a7a041",
-    "semantic_hash": "31979f3e79f92d5b0d9337d239a7a041"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\components\\GameHistory.tsx": {
-    "mtime": 1780897058.791648,
-    "ast_hash": "1b04fd3e47b7758b6d02b2672d594b84",
-    "semantic_hash": "1b04fd3e47b7758b6d02b2672d594b84"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\components\\Hints.tsx": {
-    "mtime": 1776258762.3397205,
-    "ast_hash": "07c149bada931252e1b852e6a310b168",
-    "semantic_hash": "07c149bada931252e1b852e6a310b168"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\components\\MoveAnalysis.tsx": {
-    "mtime": 1775399787.0,
-    "ast_hash": "db32499fe9784d6f240760e037bd8007",
-    "semantic_hash": "db32499fe9784d6f240760e037bd8007"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\components\\SettingsPanel.tsx": {
-    "mtime": 1775399787.0,
-    "ast_hash": "db7f5fc0fd891122167ec638bbbaed67",
-    "semantic_hash": "db7f5fc0fd891122167ec638bbbaed67"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\components\\index.ts": {
-    "mtime": 1780897207.1895275,
-    "ast_hash": "9a7227e0440b688bc0068c9ef4cc4b75",
-    "semantic_hash": "9a7227e0440b688bc0068c9ef4cc4b75"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\hooks\\index.ts": {
-    "mtime": 1780897207.9050312,
-    "ast_hash": "2e3ef8832500b7462d6bdcc42d560a0b",
-    "semantic_hash": "2e3ef8832500b7462d6bdcc42d560a0b"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\hooks\\useBookMoves.ts": {
-    "mtime": 1775399787.0,
-    "ast_hash": "645e0114822cf8934714fef80cd398bf",
-    "semantic_hash": "645e0114822cf8934714fef80cd398bf"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\hooks\\useEngine.ts": {
-    "mtime": 1780896997.598642,
-    "ast_hash": "95a176923df3ce4df112c5fae1145468",
-    "semantic_hash": "95a176923df3ce4df112c5fae1145468"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\hooks\\useEvaluation.ts": {
-    "mtime": 1776258620.7936506,
-    "ast_hash": "e70beecaec416ff7734ffd6bd2de09a5",
-    "semantic_hash": "e70beecaec416ff7734ffd6bd2de09a5"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\hooks\\useGameReview.ts": {
-    "mtime": 1780980519.4783175,
-    "ast_hash": "039777fc3c42e9092e134472fd85078c",
-    "semantic_hash": "039777fc3c42e9092e134472fd85078c"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Base_Logic\\index.ts": {
-    "mtime": 1780897208.412637,
-    "ast_hash": "11510625b1f4a4854edb0d81e9ab90dc",
-    "semantic_hash": "11510625b1f4a4854edb0d81e9ab90dc"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\Dashboard.tsx": {
-    "mtime": 1776006741.5410545,
-    "ast_hash": "8d8ee1fc18487c6dc1fcc9480bb791df",
-    "semantic_hash": "8d8ee1fc18487c6dc1fcc9480bb791df"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\Home.tsx": {
-    "mtime": 1780462702.015699,
-    "ast_hash": "3b34cc7dea4ea119806a37c7e744de77",
-    "semantic_hash": "3b34cc7dea4ea119806a37c7e744de77"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\LenisProvider.tsx": {
-    "mtime": 1780995502.6152678,
-    "ast_hash": "55db9b1308bd2eef07ebe4561bec6073",
-    "semantic_hash": "55db9b1308bd2eef07ebe4561bec6073"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\Login.tsx": {
-    "mtime": 1775986524.3882775,
-    "ast_hash": "b63cabf99d4540cd6105c31850e5ed0d",
-    "semantic_hash": "b63cabf99d4540cd6105c31850e5ed0d"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\LoginButton.tsx": {
-    "mtime": 1775957867.8840044,
-    "ast_hash": "fe9fd841d3053b4ad8d6a848344cbdcd",
-    "semantic_hash": "fe9fd841d3053b4ad8d6a848344cbdcd"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\ui\\MinSidebar.tsx": {
-    "mtime": 1780896436.6440961,
-    "ast_hash": "13bdb1714a0bbd5ef892c454a2250e24",
-    "semantic_hash": "13bdb1714a0bbd5ef892c454a2250e24"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\ui\\Navbar.tsx": {
-    "mtime": 1776786017.0961888,
-    "ast_hash": "be4bfdaf364b591cd91d4aac65f4076b",
-    "semantic_hash": "be4bfdaf364b591cd91d4aac65f4076b"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\ui\\Sidebar.tsx": {
-    "mtime": 1780902091.1254756,
-    "ast_hash": "be84943f23bf2d010a182c8b50a4b1d0",
-    "semantic_hash": "be84943f23bf2d010a182c8b50a4b1d0"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\ui\\card.tsx": {
-    "mtime": 1775957867.8854706,
-    "ast_hash": "b1aa95fa9bc4c7d6104bc51a85fdcae2",
-    "semantic_hash": "b1aa95fa9bc4c7d6104bc51a85fdcae2"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\ui\\charts.tsx": {
-    "mtime": 1775957867.886471,
-    "ast_hash": "ef3b86b8db9cb440b4685452eb3028d5",
-    "semantic_hash": "ef3b86b8db9cb440b4685452eb3028d5"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\ui\\drawer.tsx": {
-    "mtime": 1775993575.4651134,
-    "ast_hash": "f600974381e404057962b0b1f9e4a633",
-    "semantic_hash": "f600974381e404057962b0b1f9e4a633"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\ui\\progress.tsx": {
-    "mtime": 1775957867.8877769,
-    "ast_hash": "5affcf53d8b5663258128e1841b69dc5",
-    "semantic_hash": "5affcf53d8b5663258128e1841b69dc5"
-  },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\api\\auth\\[...nextauth]\\route.ts": {
-    "mtime": 1776005941.4832442,
-    "ast_hash": "97d556625bff68a80afc090d441ad569",
-    "semantic_hash": "97d556625bff68a80afc090d441ad569"
+    "mtime": 1781254395.2685757,
+    "ast_hash": "2c8a649e4d3718b459992bff5bd5e399",
+    "semantic_hash": "2c8a649e4d3718b459992bff5bd5e399"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\api\\puzzles\\route.ts": {
-    "mtime": 1780570923.5001335,
-    "ast_hash": "c498b12d144736fcf89988302639cdc9",
-    "semantic_hash": "c498b12d144736fcf89988302639cdc9"
+    "mtime": 1781013172.5235367,
+    "ast_hash": "6f3dc997ae3588e8ca75a33d074d02c9",
+    "semantic_hash": "6f3dc997ae3588e8ca75a33d074d02c9"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\api\\updateStats\\route.ts": {
-    "mtime": 1776784938.808062,
-    "ast_hash": "dae11d463cd195a2cf3bc7237fb031c9",
-    "semantic_hash": "dae11d463cd195a2cf3bc7237fb031c9"
+    "mtime": 1781254465.7151473,
+    "ast_hash": "16cd4fc20e39f0cea806d4177d36e24d",
+    "semantic_hash": "16cd4fc20e39f0cea806d4177d36e24d"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\layout.tsx": {
-    "mtime": 1780995517.1422026,
-    "ast_hash": "a5c8261c6a6410a83da76a59b821c25d",
-    "semantic_hash": "a5c8261c6a6410a83da76a59b821c25d"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\lib\\utils.ts": {
-    "mtime": 1775957867.8959627,
-    "ast_hash": "6d247e271f1b3f9dec2bfd456b13a166",
-    "semantic_hash": "6d247e271f1b3f9dec2bfd456b13a166"
+    "mtime": 1781156986.5559022,
+    "ast_hash": "725ee018aa6f09359e5724b8035ed425",
+    "semantic_hash": "725ee018aa6f09359e5724b8035ed425"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\page.tsx": {
-    "mtime": 1780461838.765184,
-    "ast_hash": "0b986eb03f669d2f7e9f462e18a54947",
-    "semantic_hash": "0b986eb03f669d2f7e9f462e18a54947"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\utils\\client.ts": {
-    "mtime": 1775957867.8994703,
-    "ast_hash": "0ec5c051c6701d8190f351e31f59deeb",
-    "semantic_hash": "0ec5c051c6701d8190f351e31f59deeb"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\utils\\server.ts": {
-    "mtime": 1776776460.8491664,
-    "ast_hash": "ec2f6fa777a5eef08e0b8a071fd8a0b3",
-    "semantic_hash": "ec2f6fa777a5eef08e0b8a071fd8a0b3"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\analyse.ts": {
-    "mtime": 1780916818.471958,
-    "ast_hash": "06cae06b851f08919c45033445f1e9ff",
-    "semantic_hash": "06cae06b851f08919c45033445f1e9ff"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\board.ts": {
-    "mtime": 1780918666.412467,
-    "ast_hash": "cb8aeb056867817343e47ac1f834f16b",
-    "semantic_hash": "cb8aeb056867817343e47ac1f834f16b"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\classification.ts": {
-    "mtime": 1780915101.0866692,
-    "ast_hash": "477291c8871f20064619b0e62e3c3ac3",
-    "semantic_hash": "477291c8871f20064619b0e62e3c3ac3"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\coach.ts": {
-    "mtime": 1781001343.1737328,
-    "ast_hash": "c62fddaae20a531600c9038fb09b600f",
-    "semantic_hash": "c62fddaae20a531600c9038fb09b600f"
+    "mtime": 1781012966.0236218,
+    "ast_hash": "ae4ddcc1c51c5f10be461de8f5640ca4",
+    "semantic_hash": "ae4ddcc1c51c5f10be461de8f5640ca4"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\index.ts": {
-    "mtime": 1780914044.6932118,
-    "ast_hash": "0f3d0fff07fecc2c5d99533fe14e7aad",
-    "semantic_hash": "0f3d0fff07fecc2c5d99533fe14e7aad"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\puzzleCache.ts": {
-    "mtime": 1780571104.1890404,
-    "ast_hash": "b6c81daa86cbc9f01d74d8ac89db32ba",
-    "semantic_hash": "b6c81daa86cbc9f01d74d8ac89db32ba"
-  },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\puzzleShards.ts": {
-    "mtime": 1776777071.647379,
-    "ast_hash": "64d212885655c6713bee1a1df21bcc39",
-    "semantic_hash": "64d212885655c6713bee1a1df21bcc39"
+    "mtime": 1781018405.343073,
+    "ast_hash": "8c309c71c16496893039742cad04fdbc",
+    "semantic_hash": "8c309c71c16496893039742cad04fdbc"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\types\\Classification.ts": {
-    "mtime": 1780913521.1589434,
-    "ast_hash": "154f5c452c311091d7f7364248923b3f",
-    "semantic_hash": "154f5c452c311091d7f7364248923b3f"
+    "mtime": 1781017859.0783992,
+    "ast_hash": "33320934f281887eb761cb409ba825b6",
+    "semantic_hash": "33320934f281887eb761cb409ba825b6"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\types\\Engine.ts": {
-    "mtime": 1780980440.6713512,
-    "ast_hash": "16777f3aaf04fdf01b56d65f859bf3a4",
-    "semantic_hash": "16777f3aaf04fdf01b56d65f859bf3a4"
+    "mtime": 1781011037.1989803,
+    "ast_hash": "ac6fae5ff539b295b010d24a439fa602",
+    "semantic_hash": "ac6fae5ff539b295b010d24a439fa602"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\types\\Position.ts": {
-    "mtime": 1780913522.092161,
-    "ast_hash": "bfa58cad1007c41e5ceedfe4c5329679",
-    "semantic_hash": "bfa58cad1007c41e5ceedfe4c5329679"
+    "mtime": 1781014009.003182,
+    "ast_hash": "f7890f1c7607ad9c5874f91f2f280bb1",
+    "semantic_hash": "f7890f1c7607ad9c5874f91f2f280bb1"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\types\\Report.ts": {
     "mtime": 1780915101.08349,
@@ -670,13 +215,428 @@
     "semantic_hash": "771faa62feb60b7de901a397aebb29b0"
   },
   "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\README.md": {
-    "mtime": 1775957867.8730931,
-    "ast_hash": "9162add00befbcdb432430f405c4ad8d",
-    "semantic_hash": "9162add00befbcdb432430f405c4ad8d"
+    "mtime": 1781089305.8230274,
+    "ast_hash": "e3212770e306c6520e08e05b5076537d",
+    "semantic_hash": "e3212770e306c6520e08e05b5076537d"
   },
-  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\Components\\Login.txt": {
-    "mtime": 1775986524.3882775,
-    "ast_hash": "b63cabf99d4540cd6105c31850e5ed0d",
-    "semantic_hash": "b63cabf99d4540cd6105c31850e5ed0d"
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\public\\stockfish\\stockfish-18-lite-single.js": {
+    "mtime": 1781155648.4341207,
+    "ast_hash": "0fc2150497e1135a514e22cb062a5087",
+    "semantic_hash": "0fc2150497e1135a514e22cb062a5087"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\analysis\\components\\AnalysisView.tsx": {
+    "mtime": 1781012936.25518,
+    "ast_hash": "3767f39ba9027513b6d7e3a5902c3023",
+    "semantic_hash": "3767f39ba9027513b6d7e3a5902c3023"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\analysis\\components\\GameReviewView.tsx": {
+    "mtime": 1781257754.9321806,
+    "ast_hash": "209e354bf42fb08651b2cd0a8e9c91fc",
+    "semantic_hash": "209e354bf42fb08651b2cd0a8e9c91fc"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\analysis\\components\\ModeSelector.tsx": {
+    "mtime": 1781012958.7230713,
+    "ast_hash": "76c89f9593d31324190cee3933bd3f82",
+    "semantic_hash": "76c89f9593d31324190cee3933bd3f82"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\analysis\\components\\MoveHistory.tsx": {
+    "mtime": 1781012923.2019036,
+    "ast_hash": "29d84b5eb985435981674c12f9e1703f",
+    "semantic_hash": "29d84b5eb985435981674c12f9e1703f"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\analysis\\components\\classificationVisuals.tsx": {
+    "mtime": 1781017479.4933803,
+    "ast_hash": "e38592c85da3363ed795607617f69b32",
+    "semantic_hash": "e38592c85da3363ed795607617f69b32"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\analysis\\page.tsx": {
+    "mtime": 1781256910.7755103,
+    "ast_hash": "212d4f6dea800486981cbe46407fc70f",
+    "semantic_hash": "212d4f6dea800486981cbe46407fc70f"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\layout.tsx": {
+    "mtime": 1781256860.9106586,
+    "ast_hash": "b41e011154f062a3ba6dade1e11ea4fd",
+    "semantic_hash": "b41e011154f062a3ba6dade1e11ea4fd"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\learn\\endgames\\page.tsx": {
+    "mtime": 1781256967.389511,
+    "ast_hash": "2d708eca99762648b4e3f51505d3e3c9",
+    "semantic_hash": "2d708eca99762648b4e3f51505d3e3c9"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\learn\\middle-games\\page.tsx": {
+    "mtime": 1781256978.231531,
+    "ast_hash": "a979df7a2b6b56932c3f4aa5369355a5",
+    "semantic_hash": "a979df7a2b6b56932c3f4aa5369355a5"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\learn\\page.tsx": {
+    "mtime": 1781256950.9801936,
+    "ast_hash": "f9893d1b1eff41ebd506b9e3e6cb2065",
+    "semantic_hash": "f9893d1b1eff41ebd506b9e3e6cb2065"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\play\\App.tsx": {
+    "mtime": 1781256871.0568018,
+    "ast_hash": "d305741d35ba487366a8669909fef4ad",
+    "semantic_hash": "d305741d35ba487366a8669909fef4ad"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\play\\page.tsx": {
+    "mtime": 1781012923.4033556,
+    "ast_hash": "a4788b7d70f6ba0f4541ce336de8b6c4",
+    "semantic_hash": "a4788b7d70f6ba0f4541ce336de8b6c4"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\play\\types.ts": {
+    "mtime": 1781012929.7855892,
+    "ast_hash": "adaa775a93b114a901ae2eed7432db0e",
+    "semantic_hash": "adaa775a93b114a901ae2eed7432db0e"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\puzzles\\components\\PuzzleInfoBar.tsx": {
+    "mtime": 1781062092.2488322,
+    "ast_hash": "d9c3eb0e72d55d5eadbe949652d86d56",
+    "semantic_hash": "d9c3eb0e72d55d5eadbe949652d86d56"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\puzzles\\components\\PuzzleMoveHistory.tsx": {
+    "mtime": 1781062092.265572,
+    "ast_hash": "4b683005cf437ab27d0561cd3cf66e60",
+    "semantic_hash": "4b683005cf437ab27d0561cd3cf66e60"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\puzzles\\components\\PuzzleSettingsModal.tsx": {
+    "mtime": 1781062092.2488322,
+    "ast_hash": "3c985e89ca339474bec2e38484f29374",
+    "semantic_hash": "3c985e89ca339474bec2e38484f29374"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\puzzles\\components\\PuzzleSolvedFooter.tsx": {
+    "mtime": 1781062092.2488322,
+    "ast_hash": "cbec8657fadc58d152e9e8d75c151e40",
+    "semantic_hash": "cbec8657fadc58d152e9e8d75c151e40"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\puzzles\\components\\StatusOverlay.tsx": {
+    "mtime": 1781062103.9457,
+    "ast_hash": "f736ead7dc40dcd3ebdfd32f7031728d",
+    "semantic_hash": "f736ead7dc40dcd3ebdfd32f7031728d"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\puzzles\\components\\index.ts": {
+    "mtime": 1781062092.2488322,
+    "ast_hash": "2b1c1c271c47f848840b6d18992a36af",
+    "semantic_hash": "2b1c1c271c47f848840b6d18992a36af"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\puzzles\\constants.ts": {
+    "mtime": 1781062092.265572,
+    "ast_hash": "cfa4b94035c0965c52121153e2c15a93",
+    "semantic_hash": "cfa4b94035c0965c52121153e2c15a93"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(app)\\puzzles\\page.tsx": {
+    "mtime": 1781256932.612261,
+    "ast_hash": "80f1ee65344fe93e97bb2608717ea716",
+    "semantic_hash": "80f1ee65344fe93e97bb2608717ea716"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(auth)\\login\\page.tsx": {
+    "mtime": 1781013300.2788165,
+    "ast_hash": "6a3323e9f6e78c96e7f4a09ad7d22748",
+    "semantic_hash": "6a3323e9f6e78c96e7f4a09ad7d22748"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(dashboard)\\dashboard\\page.tsx": {
+    "mtime": 1781012922.4449246,
+    "ast_hash": "78d390274b27084b5da0b6d43b214730",
+    "semantic_hash": "78d390274b27084b5da0b6d43b214730"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(dashboard)\\layout.tsx": {
+    "mtime": 1781256861.5192552,
+    "ast_hash": "469ad3324a285bcf059a488eac2d0316",
+    "semantic_hash": "469ad3324a285bcf059a488eac2d0316"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(marketing)\\page.tsx": {
+    "mtime": 1781012959.2376547,
+    "ast_hash": "278d7ee1394ac8f2f5a71cfae3b9cbf5",
+    "semantic_hash": "278d7ee1394ac8f2f5a71cfae3b9cbf5"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(marketing)\\privacy\\page.tsx": {
+    "mtime": 1781140188.4883597,
+    "ast_hash": "b86c742c1e11b81c41a3ee59961acbfd",
+    "semantic_hash": "b86c742c1e11b81c41a3ee59961acbfd"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\(marketing)\\terms\\page.tsx": {
+    "mtime": 1781140199.293795,
+    "ast_hash": "dc8a9ac61df312c0f582038cf3cfea36",
+    "semantic_hash": "dc8a9ac61df312c0f582038cf3cfea36"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\app\\api\\user\\onboarding\\route.ts": {
+    "mtime": 1781254465.7151473,
+    "ast_hash": "7796dd9260d57bf12bfd6a623b095622",
+    "semantic_hash": "7796dd9260d57bf12bfd6a623b095622"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\auth\\LoginButton.tsx": {
+    "mtime": 1781012777.290905,
+    "ast_hash": "e7a49022f296193315b3d3ac1b8909e8",
+    "semantic_hash": "e7a49022f296193315b3d3ac1b8909e8"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\auth\\LoginForm.tsx": {
+    "mtime": 1781254160.6297169,
+    "ast_hash": "6c236d3e068a74036c3c804ac1e89593",
+    "semantic_hash": "6c236d3e068a74036c3c804ac1e89593"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\auth\\index.ts": {
+    "mtime": 1781012788.3249075,
+    "ast_hash": "329b5be33c5b079e09445bad6ee041a2",
+    "semantic_hash": "329b5be33c5b079e09445bad6ee041a2"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\chess\\ChessBoard.tsx": {
+    "mtime": 1781012478.8136952,
+    "ast_hash": "f88852ce4a07ff4c2b9a9dde66aa1aca",
+    "semantic_hash": "f88852ce4a07ff4c2b9a9dde66aa1aca"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\chess\\EngineControls.tsx": {
+    "mtime": 1781012515.5862224,
+    "ast_hash": "cf961a5ef6c82b5526eba5cd5cccbaab",
+    "semantic_hash": "cf961a5ef6c82b5526eba5cd5cccbaab"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\chess\\EvalBar.tsx": {
+    "mtime": 1781012497.0035489,
+    "ast_hash": "31979f3e79f92d5b0d9337d239a7a041",
+    "semantic_hash": "31979f3e79f92d5b0d9337d239a7a041"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\chess\\GameHistory.tsx": {
+    "mtime": 1781012536.6241174,
+    "ast_hash": "1b04fd3e47b7758b6d02b2672d594b84",
+    "semantic_hash": "1b04fd3e47b7758b6d02b2672d594b84"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\chess\\Hints.tsx": {
+    "mtime": 1781012555.9552364,
+    "ast_hash": "ae5aea80f7bff9d539665b679d0594b4",
+    "semantic_hash": "ae5aea80f7bff9d539665b679d0594b4"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\chess\\MoveAnalysis.tsx": {
+    "mtime": 1781012580.7504659,
+    "ast_hash": "4e485fb670940dd46f4ea8f6370e2b84",
+    "semantic_hash": "4e485fb670940dd46f4ea8f6370e2b84"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\chess\\SettingsPanel.tsx": {
+    "mtime": 1781012610.792531,
+    "ast_hash": "db7f5fc0fd891122167ec638bbbaed67",
+    "semantic_hash": "db7f5fc0fd891122167ec638bbbaed67"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\chess\\index.ts": {
+    "mtime": 1781012626.9166481,
+    "ast_hash": "05167d172bb6da09e055240f9c767345",
+    "semantic_hash": "05167d172bb6da09e055240f9c767345"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\dashboard\\DashboardPage.tsx": {
+    "mtime": 1781256904.5708778,
+    "ast_hash": "69420390ca3a2d4cae3c105dd878ad3b",
+    "semantic_hash": "69420390ca3a2d4cae3c105dd878ad3b"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\layouts\\LenisProvider.tsx": {
+    "mtime": 1781012701.0501897,
+    "ast_hash": "55db9b1308bd2eef07ebe4561bec6073",
+    "semantic_hash": "55db9b1308bd2eef07ebe4561bec6073"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\layouts\\MobileNavbar.tsx": {
+    "mtime": 1781257229.1727405,
+    "ast_hash": "48af1f1793df14dc5c32c0bae6304d2e",
+    "semantic_hash": "48af1f1793df14dc5c32c0bae6304d2e"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\layouts\\Navbar.tsx": {
+    "mtime": 1781254145.3446586,
+    "ast_hash": "55913e4f7d9099948c331486f7563227",
+    "semantic_hash": "55913e4f7d9099948c331486f7563227"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\layouts\\Sidebar.tsx": {
+    "mtime": 1781257216.8582199,
+    "ast_hash": "3685a4f0fc6a959cdc33d9232ffec1e1",
+    "semantic_hash": "3685a4f0fc6a959cdc33d9232ffec1e1"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\layouts\\SidebarContext.tsx": {
+    "mtime": 1781090330.6268747,
+    "ast_hash": "364e4b5e0e070d6ceb92a2099de15bdd",
+    "semantic_hash": "364e4b5e0e070d6ceb92a2099de15bdd"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\layouts\\SidebarLayout.tsx": {
+    "mtime": 1781256860.2774115,
+    "ast_hash": "77c4a1e008da5f713f71fd4bdbb640a1",
+    "semantic_hash": "77c4a1e008da5f713f71fd4bdbb640a1"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\layouts\\index.ts": {
+    "mtime": 1781012712.1541557,
+    "ast_hash": "cf3cf95cd698f947f70149e61834d424",
+    "semantic_hash": "cf3cf95cd698f947f70149e61834d424"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\marketing\\LandingPage.tsx": {
+    "mtime": 1781254149.984372,
+    "ast_hash": "7f167ed4147f3c3a72b6a6239aeea3d9",
+    "semantic_hash": "7f167ed4147f3c3a72b6a6239aeea3d9"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\profile\\OnboardingOverlay.tsx": {
+    "mtime": 1781069308.36813,
+    "ast_hash": "aa9c9862670db74cf8f331ab22e0371e",
+    "semantic_hash": "aa9c9862670db74cf8f331ab22e0371e"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\components\\profile\\UserProfileOverlay.tsx": {
+    "mtime": 1781068157.1021633,
+    "ast_hash": "78b805f3aed1dd1772eeb30470f506af",
+    "semantic_hash": "78b805f3aed1dd1772eeb30470f506af"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\auth.ts": {
+    "mtime": 1781254392.070104,
+    "ast_hash": "00166f7fe205f69e47ac5d26badbd55a",
+    "semantic_hash": "00166f7fe205f69e47ac5d26badbd55a"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\CoachService.ts": {
+    "mtime": 1781017943.5439618,
+    "ast_hash": "4ea4d079df786118ef8beeb880fe3358",
+    "semantic_hash": "4ea4d079df786118ef8beeb880fe3358"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\GameStage.ts": {
+    "mtime": 1781017264.045968,
+    "ast_hash": "2c160b68eb2aed05051a8072cbea621a",
+    "semantic_hash": "2c160b68eb2aed05051a8072cbea621a"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\MoveEngine.ts": {
+    "mtime": 1781259615.6755881,
+    "ast_hash": "ed89cacf01a82bdb32aafcc73519ef0e",
+    "semantic_hash": "ed89cacf01a82bdb32aafcc73519ef0e"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\MoveHandler.ts": {
+    "mtime": 1781012292.2280633,
+    "ast_hash": "30d25ebcb0618ddc5a93dcdcb5491755",
+    "semantic_hash": "30d25ebcb0618ddc5a93dcdcb5491755"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\analyse.ts": {
+    "mtime": 1781018352.8119125,
+    "ast_hash": "81591fcec5e8bf62fb468d420710da07",
+    "semantic_hash": "81591fcec5e8bf62fb468d420710da07"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\board.ts": {
+    "mtime": 1781017859.0883284,
+    "ast_hash": "4f3ff7949cb3772fb996a6035c192916",
+    "semantic_hash": "4f3ff7949cb3772fb996a6035c192916"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\classification.ts": {
+    "mtime": 1781018291.530834,
+    "ast_hash": "ff4d0269c247e7fc952ca98624b8ae94",
+    "semantic_hash": "ff4d0269c247e7fc952ca98624b8ae94"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\coach.ts": {
+    "mtime": 1781251155.089959,
+    "ast_hash": "6f95be2f2217832cb1f9f0d45fa10507",
+    "semantic_hash": "6f95be2f2217832cb1f9f0d45fa10507"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\index.ts": {
+    "mtime": 1781249570.764953,
+    "ast_hash": "7036ece469b024449537387078c137b2",
+    "semantic_hash": "7036ece469b024449537387078c137b2"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\wasm-analyzer.ts": {
+    "mtime": 1781249507.9456115,
+    "ast_hash": "5741b792b06b0ea4d4e78328f3f6b084",
+    "semantic_hash": "5741b792b06b0ea4d4e78328f3f6b084"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\chess\\wasm-rs\\engine_rs.js": {
+    "mtime": 1781249541.1667163,
+    "ast_hash": "27fad8205a8870313eb7b28cc2debcb8",
+    "semantic_hash": "27fad8205a8870313eb7b28cc2debcb8"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\hooks\\index.ts": {
+    "mtime": 1781012465.215283,
+    "ast_hash": "b67bd6a0dba58a905a42f9c372ef890c",
+    "semantic_hash": "b67bd6a0dba58a905a42f9c372ef890c"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\hooks\\useBoardStyles.ts": {
+    "mtime": 1781012343.3569698,
+    "ast_hash": "c0b0dcda0b3ab6c391d8e111867d0ead",
+    "semantic_hash": "c0b0dcda0b3ab6c391d8e111867d0ead"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\hooks\\useBookMoves.ts": {
+    "mtime": 1781012398.0692024,
+    "ast_hash": "cc54d21a40b99b7239025f9bc9035747",
+    "semantic_hash": "cc54d21a40b99b7239025f9bc9035747"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\hooks\\useChessBoard.ts": {
+    "mtime": 1781014049.2716181,
+    "ast_hash": "1c79e4942ba2407fb665478f18e883d5",
+    "semantic_hash": "1c79e4942ba2407fb665478f18e883d5"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\hooks\\useChessGame.ts": {
+    "mtime": 1781012310.3679347,
+    "ast_hash": "9099335f1f8470f9c8bfa59cc502e253",
+    "semantic_hash": "9099335f1f8470f9c8bfa59cc502e253"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\hooks\\useCoachService.ts": {
+    "mtime": 1781259619.4977987,
+    "ast_hash": "0ae942f10db1cc7903de04dbc8bff5cb",
+    "semantic_hash": "0ae942f10db1cc7903de04dbc8bff5cb"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\hooks\\useEngine.ts": {
+    "mtime": 1781259611.6039793,
+    "ast_hash": "a933ede1557ca4a40c88b4bf072de6b2",
+    "semantic_hash": "a933ede1557ca4a40c88b4bf072de6b2"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\hooks\\useEvaluation.ts": {
+    "mtime": 1781012361.2081797,
+    "ast_hash": "482f791436d663eb204ba66f453a8327",
+    "semantic_hash": "482f791436d663eb204ba66f453a8327"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\hooks\\useGameReview.ts": {
+    "mtime": 1781155890.8401155,
+    "ast_hash": "b64cbc244ff57ce89050a440594c6aa3",
+    "semantic_hash": "b64cbc244ff57ce89050a440594c6aa3"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\puzzles\\PuzzleCache.ts": {
+    "mtime": 1781061249.0498543,
+    "ast_hash": "2af90458f22019211a0297f1a4bc4e27",
+    "semantic_hash": "2af90458f22019211a0297f1a4bc4e27"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\puzzles\\PuzzleShards.ts": {
+    "mtime": 1781065251.789714,
+    "ast_hash": "e723f44510ee6f1aa2611f629038481f",
+    "semantic_hash": "e723f44510ee6f1aa2611f629038481f"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\puzzles\\index.ts": {
+    "mtime": 1781061240.3324404,
+    "ast_hash": "a06e9b1d9e7509f81daf9766dff9ccf0",
+    "semantic_hash": "a06e9b1d9e7509f81daf9766dff9ccf0"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\puzzles\\usePuzzle.ts": {
+    "mtime": 1781069740.184323,
+    "ast_hash": "f00d052c0735b7fac5870a2903edaa0d",
+    "semantic_hash": "f00d052c0735b7fac5870a2903edaa0d"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\rating\\GlickoRating.ts": {
+    "mtime": 1781063820.390199,
+    "ast_hash": "3e3c29530f49d0f92a7d1fa8d54f7dd8",
+    "semantic_hash": "3e3c29530f49d0f92a7d1fa8d54f7dd8"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\supabase\\createClient.ts": {
+    "mtime": 1781012305.3460686,
+    "ast_hash": "53167015ec97a3db24e360dbabc23469",
+    "semantic_hash": "53167015ec97a3db24e360dbabc23469"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\supabase\\createServerClient.ts": {
+    "mtime": 1781012306.8616934,
+    "ast_hash": "2ecb9b7591249cc4490719645133e131",
+    "semantic_hash": "2ecb9b7591249cc4490719645133e131"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\supabase\\index.ts": {
+    "mtime": 1781012313.5113935,
+    "ast_hash": "08636c2769085f2bb1a7250ec39ff320",
+    "semantic_hash": "08636c2769085f2bb1a7250ec39ff320"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\utils\\cn.ts": {
+    "mtime": 1781012304.6439307,
+    "ast_hash": "3e2d6786f2ea2e1e61bddbf257f273d2",
+    "semantic_hash": "3e2d6786f2ea2e1e61bddbf257f273d2"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\lib\\utils\\index.ts": {
+    "mtime": 1781012313.866334,
+    "ast_hash": "65bb532df2d4a8f12a738ccfcd78b434",
+    "semantic_hash": "65bb532df2d4a8f12a738ccfcd78b434"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\proxy.ts": {
+    "mtime": 1781259124.6004825,
+    "ast_hash": "238ed798c6dfcf1d22a97b763e17aaed",
+    "semantic_hash": "238ed798c6dfcf1d22a97b763e17aaed"
+  },
+  "C:\\Users\\Jatin Singh\\OneDrive\\Documents\\Random\\my-app\\src\\types\\glicko2.d.ts": {
+    "mtime": 1781063805.0406027,
+    "ast_hash": "cc9ff68a61ed27dc47d0e20ca7815ed3",
+    "semantic_hash": "cc9ff68a61ed27dc47d0e20ca7815ed3"
   }
 }
