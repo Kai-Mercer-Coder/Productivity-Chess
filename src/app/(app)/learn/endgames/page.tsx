@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useGameStats } from "@/lib/hooks/useGameStats";
 
 export default function EndgamesPage() {
+  const stats = useGameStats();
   return (
     <>
       <main className="px-8 pb-20 max-w-7xl mx-auto pt-12">
@@ -21,7 +23,7 @@ export default function EndgamesPage() {
         </header>
 
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Link href="#" className="group relative bg-surface-container border border-outline-variant/10 rounded-xl overflow-hidden hover:bg-surface-container-high transition-all duration-500 p-8 flex flex-col justify-between min-h-[420px] active:scale-[0.98]">
+          <Link href="/under-construction" className="group relative bg-surface-container border border-outline-variant/10 rounded-xl overflow-hidden hover:bg-surface-container-high transition-all duration-500 p-8 flex flex-col justify-between min-h-[420px] active:scale-[0.98]">
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
               <span className="material-symbols-outlined text-8xl" style={{ fontVariationSettings: "'wght' 200" }}>chess_pawn</span>
             </div>
@@ -50,7 +52,7 @@ export default function EndgamesPage() {
             </div>
           </Link>
 
-          <Link href="#" className="group relative bg-primary rounded-xl overflow-hidden shadow-2xl p-8 flex flex-col justify-between min-h-[420px] active:scale-[0.98]">
+          <Link href="/under-construction" className="group relative bg-primary rounded-xl overflow-hidden shadow-2xl p-8 flex flex-col justify-between min-h-[420px] active:scale-[0.98]">
             <div className="absolute top-0 right-0 p-8 text-surface/10">
               <span className="material-symbols-outlined text-8xl" style={{ fontVariationSettings: "'wght' 200" }}>chess_rook</span>
             </div>
@@ -79,7 +81,7 @@ export default function EndgamesPage() {
             </div>
           </Link>
 
-          <Link href="#" className="group relative bg-surface-container border border-outline-variant/10 rounded-xl overflow-hidden hover:bg-surface-container-high transition-all duration-500 p-8 flex flex-col justify-between min-h-[420px] active:scale-[0.98]">
+          <Link href="/under-construction" className="group relative bg-surface-container border border-outline-variant/10 rounded-xl overflow-hidden hover:bg-surface-container-high transition-all duration-500 p-8 flex flex-col justify-between min-h-[420px] active:scale-[0.98]">
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
               <span className="material-symbols-outlined text-8xl" style={{ fontVariationSettings: "'wght' 200" }}>memory</span>
             </div>
@@ -111,19 +113,19 @@ export default function EndgamesPage() {
 
         <section className="mt-24 grid grid-cols-1 md:grid-cols-4 gap-8 py-12 border-y border-outline-variant/10">
           <div>
-            <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-2">Completion</p>
-            <p className="text-2xl font-black text-primary">64%</p>
+            <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-2">Win Rate</p>
+            <p className="text-2xl font-black text-primary">{stats.winRate.toFixed(0)}%</p>
           </div>
           <div>
-            <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-2">Active Courses</p>
-            <p className="text-2xl font-black text-primary">03</p>
+            <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-2">Games Played</p>
+            <p className="text-2xl font-black text-primary">{stats.totalGames}</p>
           </div>
           <div>
-            <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-2">Practice Time</p>
-            <p className="text-2xl font-black text-primary">124h</p>
+            <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-2">Avg. Accuracy</p>
+            <p className="text-2xl font-black text-primary">{stats.averageAccuracy.toFixed(0)}%</p>
           </div>
           <div className="flex items-center justify-end">
-            <Link href="#" className="px-8 py-4 bg-surface-container-highest rounded-full text-primary font-bold hover:bg-primary hover:text-surface transition-all duration-300">
+            <Link href="/under-construction" className="px-8 py-4 bg-surface-container-highest rounded-full text-primary font-bold hover:bg-primary hover:text-surface transition-all duration-300">
               Full Curriculum
             </Link>
           </div>

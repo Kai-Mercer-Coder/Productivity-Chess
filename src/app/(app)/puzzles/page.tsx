@@ -4,11 +4,17 @@ import { Chess, type Square } from "chess.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PieceDropHandlerArgs } from "react-chessboard";
 import { Chessboard } from "react-chessboard";
+import { customPieces } from "@/components/chess/customPieces";
+import { boardTheme } from "@/lib/chess/boardTheme";
 import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 
 import { useChessGame } from "@/lib/hooks/useChessGame";
+import { useBoardInteraction } from "@/lib/hooks";
 import { preloadShardsForElo } from "@/lib/puzzles/PuzzleShards";
 import { usePuzzle } from "@/lib/puzzles/usePuzzle";
+import { usePuzzleStorage } from "@/lib/hooks/usePuzzleStorage";
+import type { PuzzleSolveRecord } from "@/lib/db/gameDB";
 import {
   PuzzleInfoBar,
   PuzzleMoveHistory,
@@ -17,17 +23,49 @@ import {
   StatusOverlay,
 } from "./components";
 
+function StreakDots({ attempts }: { attempts: PuzzleSolveRecord[] }) {
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap justify-center">
+      {attempts.map((a, i) => {
+        let color: string;
+        if (a.hinted) {
+          color = "bg-white";
+        } else if (a.correct) {
+          color = "bg-green-500";
+        } else {
+          color = "bg-red-500";
+        }
+        return (
+          <div
+            key={a.id ?? i}
+            className={`w-2.5 h-2.5 rounded-full ${color} transition-all duration-300`}
+            title={`${a.correct ? "Solved" : "Failed"}${a.hinted ? " (hint used)" : ""}`}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 export default function PuzzlePage() {
   const game = useChessGame();
-  const puzzle = usePuzzle({ tryMove: game.makeMove, loadFen: game.loadFen });
+  const puzzle = usePuzzle({ tryMove: game.makeMove, loadFen: game.loadFen, undo: game.undo });
   const { data: session, update } = useSession();
+  const puzzleStorage = usePuzzleStorage();
 
   const [difficulty, setDifficulty] = useState<"normal" | "hard">("normal");
   const [selectedTheme, setSelectedTheme] = useState("all");
   const [showSettings, setShowSettings] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [userElo, setUserElo] = useState(1200);
+  const [unrated, setUnrated] = useState(false);
+  const [recentAttempts, setRecentAttempts] = useState<PuzzleSolveRecord[]>([]);
   const submittedRef = useRef(false);
+  const wrongToastRef = useRef<number | null>(null);
+  const puzzleIdRef = useRef<string | null>(null);
+  const hadWrongMoveRef = useRef(false);
+  const recordedRef = useRef(false);
+  const latestAttemptsRef = useRef<PuzzleSolveRecord[]>([]);
 
   const fetchAndLoadRef = useRef(puzzle.fetchAndLoad);
   useEffect(() => {
@@ -36,6 +74,7 @@ export default function PuzzlePage() {
 
   useEffect(() => {
     fetchAndLoadRef.current({ userElo });
+    puzzleStorage.getRecentAttempts(50, 4).then(setRecentAttempts);
   }, []);
 
   useEffect(() => {
@@ -46,14 +85,59 @@ export default function PuzzlePage() {
   }, [session]);
 
   useEffect(() => {
+    if (!puzzle.puzzle) return;
+    puzzleIdRef.current = puzzle.puzzle.fen;
+    hadWrongMoveRef.current = false;
+    recordedRef.current = false;
+  }, [puzzle.puzzle]);
+
+  useEffect(() => {
+    if (puzzle.status === "wrong") {
+      hadWrongMoveRef.current = true;
+      if (!recordedRef.current && puzzleIdRef.current && puzzle.puzzle) {
+        recordedRef.current = true;
+        puzzleStorage.recordAttempt(puzzleIdRef.current, puzzle.puzzle.fen, false, puzzle.usedHint || undefined).then(() => {
+          puzzleStorage.getRecentAttempts(50, 4).then(setRecentAttempts);
+        });
+      }
+      if (wrongToastRef.current) return;
+      wrongToastRef.current = 1;
+      toast.error("Incorrect", { autoClose: 1200 });
+    } else if (puzzle.status === "playing") {
+      wrongToastRef.current = null;
+    }
+  }, [puzzle.status, puzzle.puzzle]);
+
+  useEffect(() => {
     if (puzzle.status !== "solved" || !puzzle.puzzle) return;
     if (submittedRef.current) return;
     submittedRef.current = true;
+
+    const perfect = !hadWrongMoveRef.current;
+
+    if (!recordedRef.current) {
+      puzzleStorage.recordAttempt(
+        puzzleIdRef.current ?? puzzle.puzzle.fen,
+        puzzle.puzzle.fen,
+        perfect,
+        puzzle.usedHint || undefined,
+      ).then(() => {
+        puzzleStorage.getRecentAttempts(50, 4).then((a) => {
+          setRecentAttempts(a);
+          latestAttemptsRef.current = a;
+        });
+      });
+    } else {
+      puzzleStorage.getRecentAttempts(50, 4).then(setRecentAttempts);
+    }
+
+    if (unrated) return;
+
     fetch("/api/updateStats", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        solved: true,
+        solved: perfect,
         puzzleRating: puzzle.puzzle.rating,
         usedHint: puzzle.usedHint,
       }),
@@ -61,15 +145,10 @@ export default function PuzzlePage() {
       .then((r) => r.json())
       .then((data) => {
         if (data.newElo) setUserElo(data.newElo);
-        update({
-          elo: data.newElo,
-          delta_value: data.newDelta,
-          volatility: data.newVol,
-          puzzles_solved: data.puzzlesSolved,
-        });
+        update({ elo: data.newElo, delta_value: data.newDelta, volatility: data.newVol });
       })
       .catch(() => {});
-  }, [puzzle.status, puzzle.puzzle]);
+  }, [puzzle.status, puzzle.puzzle, unrated]);
 
   const handlePieceDrop = useCallback(
     (args: PieceDropHandlerArgs): boolean => {
@@ -83,8 +162,6 @@ export default function PuzzlePage() {
     [puzzle.handlePlayerMove],
   );
 
-  const history = game.chessGame.history();
-
   const totalPlayerMoves = puzzle.puzzle
     ? Math.ceil((puzzle.puzzle.moves.length - 1) / 2)
     : 0;
@@ -96,48 +173,19 @@ export default function PuzzlePage() {
     setShowSolution(false);
     setShowSettings(false);
     submittedRef.current = false;
+    wrongToastRef.current = null;
+    puzzleIdRef.current = null;
+    hadWrongMoveRef.current = false;
+    recordedRef.current = false;
     preloadShardsForElo(userElo, 3);
     puzzle.fetchAndLoad({ theme: selectedTheme, hard: difficulty === "hard", userElo });
   };
 
-  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
-  const [legalMoveSquares, setLegalMoveSquares] = useState<string[]>([]);
-
-  const handleSquareClick = useCallback(
-    (args: any) => {
-      const square = typeof args === "string" ? args : args?.square;
-      if (puzzle.status !== "playing" || !square) return;
-      if (square === selectedSquare) {
-        setSelectedSquare(null);
-        setLegalMoveSquares([]);
-        return;
-      }
-      const piece = game.chessGame.get(square as Square);
-      if (piece && piece.color === (puzzle.playerColor === "b" ? "b" : "w")) {
-        setSelectedSquare(square);
-        const moves = game.chessGame.moves({ square: square as Square, verbose: true });
-        setLegalMoveSquares(moves.map((m) => m.to));
-      } else {
-        setSelectedSquare(null);
-        setLegalMoveSquares([]);
-      }
-    },
-    [puzzle.status, puzzle.playerColor, game.chessGame, selectedSquare],
-  );
-
-  const handlePieceDrag = useCallback(
-    (args: any) => {
-      const square = args?.square;
-      if (puzzle.status !== "playing" || !square) return;
-      const piece = game.chessGame.get(square as Square);
-      if (piece && piece.color === (puzzle.playerColor === "b" ? "b" : "w")) {
-        setSelectedSquare(square);
-        const moves = game.chessGame.moves({ square: square as Square, verbose: true });
-        setLegalMoveSquares(moves.map((m) => m.to));
-      }
-    },
-    [puzzle.status, puzzle.playerColor, game.chessGame],
-  );
+  const interaction = useBoardInteraction({
+    chessGame: game.chessGame,
+    onMove: (from, to) => puzzle.handlePlayerMove(from as Square, to as Square),
+    enabled: puzzle.status === "playing",
+  });
 
   const squareStyles: Record<string, React.CSSProperties> = {};
   if (puzzle.hintSquares) {
@@ -149,20 +197,7 @@ export default function PuzzlePage() {
       backgroundColor: "rgba(255,255,0,0.35)",
     };
   }
-  for (const sq of legalMoveSquares) {
-    if (!squareStyles[sq]) {
-      squareStyles[sq] = {
-        background: "radial-gradient(circle, rgba(255,255,255,0.35) 22%, transparent 22%)",
-        borderRadius: "50%",
-      };
-    }
-  }
-  if (selectedSquare && !squareStyles[selectedSquare]) {
-    squareStyles[selectedSquare] = {
-      background: "radial-gradient(circle, rgba(255,255,255,0.15) 50%, transparent 50%)",
-      borderRadius: "50%",
-    };
-  }
+  Object.assign(squareStyles, interaction.squareStyles);
 
   return (
     <div className="min-h-screen bg-black text-white font-sans antialiased selection:bg-white selection:text-black relative">
@@ -190,18 +225,15 @@ export default function PuzzlePage() {
                     options={{
                       id: "puzzle-board",
                       position: game.position,
-                      onPieceDrop: (args) => {
-                        setSelectedSquare(null);
-                        setLegalMoveSquares([]);
-                        return handlePieceDrop(args);
-                      },
-                      onSquareClick: handleSquareClick,
-                      onPieceDrag: handlePieceDrag,
+                      pieces: customPieces,
+                      onPieceDrop: interaction.handlePieceDrop,
+                      onSquareClick: interaction.handleSquareClick,
+                      onPieceDrag: interaction.handlePieceDrag,
                       boardOrientation:
                         puzzle.playerColor === "b" ? "black" : "white",
                       allowDragging: puzzle.status === "playing",
-                      darkSquareStyle: { backgroundColor: "#353535" },
-                      lightSquareStyle: { backgroundColor: "#ffffff" },
+                      darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
+                      lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
                       animationDurationInMs: 400,
                       showAnimations: true,
                       squareStyles,
@@ -216,6 +248,28 @@ export default function PuzzlePage() {
                     currentPlayerMove={currentPlayerMove}
                     totalPlayerMoves={totalPlayerMoves}
                   />
+                </div>
+
+                <div className="mt-6 w-full max-w-[700px] flex items-center justify-between">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <div
+                      onClick={() => setUnrated((u) => !u)}
+                      className={`w-9 h-5 flex items-center rounded-full px-0.5 transition-colors duration-200 ${
+                        unrated ? "bg-neutral-600" : "bg-white"
+                      }`}
+                    >
+                      <div
+                        className={`w-4 h-4 rounded-full bg-black transition-transform duration-200 ${
+                          unrated ? "translate-x-0" : "translate-x-4"
+                        }`}
+                      />
+                    </div>
+                    <span className="text-[11px] font-medium text-neutral-400">
+                      Unrated
+                    </span>
+                  </label>
+
+                  <StreakDots attempts={recentAttempts} />
                 </div>
               </section>
 
@@ -249,7 +303,6 @@ export default function PuzzlePage() {
                 </div>
 
                 <PuzzleMoveHistory
-                  history={history}
                   puzzle={puzzle.puzzle}
                   moveIndex={puzzle.moveIndex}
                   onToggleSettings={() => setShowSettings(true)}

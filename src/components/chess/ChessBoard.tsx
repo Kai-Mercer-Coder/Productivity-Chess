@@ -3,6 +3,8 @@ import type { PieceSymbol } from 'chess.js';
 import type { PieceDropHandlerArgs, PieceRenderObject } from 'react-chessboard';
 import React from 'react';
 import type { PromotionMove } from '@/lib/types/Engine';
+import { customPieces } from '@/components/chess/customPieces';
+import { boardTheme } from '@/lib/chess/boardTheme';
 
 
 interface PromotionDialogProps {
@@ -66,5 +68,11 @@ interface BoardProps {
 }
 
 export const ChessBoard: React.FC<BoardProps> = ({ options, ...rest }) => (
-    <Chessboard options={{ ...rest, ...options }} />
+    <Chessboard options={{
+        pieces: customPieces,
+        darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
+        lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
+        ...rest,
+        ...options,
+    }} />
 );

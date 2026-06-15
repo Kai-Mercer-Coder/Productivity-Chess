@@ -13,12 +13,9 @@ export type AppSettings = {
     showBookMoves: boolean;
 
     // Heatmaps
-    isPinned: boolean;
     isOverdefended: boolean;
     isUnderdefended: boolean;
-    isVulnerable: boolean;
     showCheckHighlights: boolean;
-    showForks: boolean;
 };
 
 interface SettingsPanelProps {
@@ -160,12 +157,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 Highlight the physical chess board dynamically to spot tactics faster.
                             </p>
                             <Toggle label="Highlight Checks" description="Glow squares with pieces delivering check" checked={localSettings.showCheckHighlights} onChange={(v) => updateSetting('showCheckHighlights', v)} />
-                            <Toggle label="Highlight Pins" description="Visualize active pins and their line of sight" checked={localSettings.isPinned} onChange={(v) => updateSetting('isPinned', v)} />
-                            <Toggle label="Highlight Forks" description="Highlight pieces attacking multiple targets simultaneously" checked={localSettings.showForks} onChange={(v) => updateSetting('showForks', v)} />
-                            <hr className="border-neutral-800 my-4" />
                             <Toggle label="Highlight Overdefended" description="Pieces with more defenders than attackers" checked={localSettings.isOverdefended} onChange={(v) => updateSetting('isOverdefended', v)} />
                             <Toggle label="Highlight Underdefended" description="Pieces with fewer defenders than attackers" checked={localSettings.isUnderdefended} onChange={(v) => updateSetting('isUnderdefended', v)} />
-                            <Toggle label="Highlight Vulnerable" description="Pieces with neither defenders nor attackers" checked={localSettings.isVulnerable} onChange={(v) => updateSetting('isVulnerable', v)} />
                         </div>
                     )}
 

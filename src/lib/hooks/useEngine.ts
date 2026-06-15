@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StockfishEngine } from '@/lib/chess/MoveEngine';
 import type { MoveEngine } from '@/lib/types/Engine';
 
-export function useEngine(game: any) {
-    const [elo, setElo] = useState(1350);
+export function useEngine(game: any, initialElo = 1350) {
+    const [elo, setElo] = useState(initialElo);
     const [isRandom, setIsRandom] = useState(false);
     const [isThinking, setIsThinking] = useState(false);
-    const [engine, setEngine] = useState<MoveEngine>(() => new StockfishEngine('/stockfish/stockfish-18-lite-single.js', 1350));
+    const [engine, setEngine] = useState<MoveEngine>(() => new StockfishEngine('/stockfish/stockfish-18-lite-single.js', initialElo));
+
+    useEffect(() => {
+        setElo(initialElo);
+        engine?.setElo?.(initialElo);
+    }, [initialElo, engine]);
 
     const handleEloChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newElo = parseInt(e.target.value, 10);

@@ -26,10 +26,7 @@ export interface MoveEngine {
 }
 
 export interface AnalysisState {
-  isPinned: boolean;
   isOverdefended: boolean;
   isUnderdefended: boolean;
-  isVulnerable: boolean;
   showCheckHighlights: boolean;
-  showForks: boolean;
 }

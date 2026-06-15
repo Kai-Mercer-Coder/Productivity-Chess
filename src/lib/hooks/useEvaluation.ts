@@ -6,6 +6,12 @@ interface PendingAnalysis {
     side: 'w' | 'b';
 }
 
+export interface PositionEval {
+    evaluation: { type: 'cp' | 'mate'; value: number };
+    bestmove: string;
+    bestmoveSan: string;
+}
+
 export function useEvaluation(chessGame: any, position: string) {
     const [currentEval, setCurrentEval] = useState<number>(0);
     const [rawScore, setRawScore] = useState<number>(0);
@@ -16,6 +22,7 @@ export function useEvaluation(chessGame: any, position: string) {
     const [diff, setDiff] = useState<number | null>(null);
 
     const evalEngineRef = useRef<ChessApiEvalEngine | null>(null);
+    const positionResultsRef = useRef<Map<string, PositionEval>>(new Map());
     const moveAnalysisRef = useRef<{
         pending: Record<string, PendingAnalysis>;
         id: number;
@@ -35,14 +42,12 @@ export function useEvaluation(chessGame: any, position: string) {
                 setRawScore(evalNum);
                 const rawEval = normalizeEval(evalNum);
 
-                // EMA smoothing: 70% previous + 30% new (adjust alpha for more/less smoothing)
                 const alpha = 0.3;
                 const smoothed = smoothedEval === 0 ? rawEval : smoothedEval + alpha * (rawEval - smoothedEval);
                 setSmoothedEval(smoothed);
-                setCurrentEval(smoothed);  // Use smoothed value
+                setCurrentEval(smoothed);
                 setMateIn(mate ?? null);
 
-                // Store hint data only if it's player's turn (White)
                 if (data.turn === 'w') {
                     setHintData(data);
                 } else {
@@ -50,8 +55,15 @@ export function useEvaluation(chessGame: any, position: string) {
                 }
             }
 
+            positionResultsRef.current.set(fen, {
+                evaluation: {
+                    type: mate !== null ? 'mate' : 'cp',
+                    value: mate ?? Math.round(evalNum * 100),
+                },
+                bestmove: data.bestmove || '',
+                bestmoveSan: data.san || '',
+            });
 
-            // Check if we were specifically waiting for this FEN to complete move analysis
             const pending = moveAnalysisRef.current.pending[fen];
             if (pending) {
                 const { evalBeforeMove: oldEval, side } = pending;
@@ -83,6 +95,14 @@ export function useEvaluation(chessGame: any, position: string) {
         setDiff(null);
     };
 
+    const getPositionEval = (fen: string): PositionEval | undefined => {
+        return positionResultsRef.current.get(fen);
+    };
+
+    const clearPositionHistory = () => {
+        positionResultsRef.current.clear();
+    };
+
     return {
         currentEval,
         rawScore,
@@ -90,6 +110,8 @@ export function useEvaluation(chessGame: any, position: string) {
         diff,
         hintData,
         registerMoveForAnalysis,
-        clearAnalysis
+        clearAnalysis,
+        getPositionEval,
+        clearPositionHistory,
     };
 }

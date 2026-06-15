@@ -1,12 +1,31 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { Chess } from "chess.js";
-import type { PieceDropHandlerArgs } from "react-chessboard";
+import { useBoardInteraction } from "@/lib/hooks";
+
+const CONTROL_CHARS = /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g;
+const FEN_ALLOWED = /[^a-zA-Z0-9\s\/\-kqKQ]+/g;
+const PGN_STRIP = /[^a-zA-Z0-9\s\.\-\+\=\#\!\?\/\(\)\:\*\"\']/g;
+
+function sanitize(input: string): string {
+  return input.replace(CONTROL_CHARS, "").normalize("NFKC");
+}
+
+function sanitizePgn(input: string): string {
+  return sanitize(input).replace(PGN_STRIP, "").slice(0, 10000);
+}
+
+function sanitizeFen(input: string): string {
+  return sanitize(input).replace(FEN_ALLOWED, "").slice(0, 200);
+}
 import { Chessboard } from "react-chessboard";
 import { useChessGame } from "@/lib/hooks/useChessGame";
 import { useGameReview } from "@/lib/hooks/useGameReview";
+import { customPieces } from "@/components/chess/customPieces";
+import { boardTheme } from "@/lib/chess/boardTheme";
 
+import { LocalStockfishEvalEngine, type LocalEvalResult } from "@/lib/chess/MoveEngine";
 import GameReviewView from "./components/GameReviewView";
 import ModeSelector from "./components/ModeSelector";
 import {
@@ -20,10 +39,21 @@ export default function AnalysisPage() {
   const game = useChessGame();
   const { report, loading, progress, total, deepLoading, runReview, runDeepAnalysis, reset: resetReview } = useGameReview();
 
+  const [exportOpen, setExportOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+  const [liveEval, setLiveEval] = useState<number | null>(null);
+  const [liveMate, setLiveMate] = useState<number | null>(null);
+  const [engineResult, setEngineResult] = useState<LocalEvalResult | null>(null);
+  const [multiPvCount, setMultiPvCount] = useState(3);
+  const [showArrows, setShowArrows] = useState(true);
+  const evalEngineRef = useRef<LocalStockfishEvalEngine | null>(null);
   const [positionLoaded, setPositionLoaded] = useState(false);
   const [mode, setMode] = useState<AnalysisMode>("pgn");
-  const [pgnInput, setPgnInput] = useState("");
-  const [fenInput, setFenInput] = useState("");
+  const [pgnInput, setPgnInputRaw] = useState("");
+  const [fenInput, setFenInputRaw] = useState("");
+  const setPgnInput = useCallback((v: string) => setPgnInputRaw(sanitizePgn(v)), []);
+  const setFenInput = useCallback((v: string) => setFenInputRaw(sanitizeFen(v)), []);
   const [moves, setMoves] = useState<string[]>([]);
   const [navIndex, setNavIndex] = useState(0);
   const [startFen, setStartFen] = useState("");
@@ -45,24 +75,54 @@ export default function AnalysisPage() {
     [moves, game, startFen],
   );
 
-  const handlePieceDrop = useCallback(
-    (args: PieceDropHandlerArgs): boolean => {
-      const { sourceSquare, targetSquare } = args;
-      if (!targetSquare || sourceSquare === targetSquare) return false;
-      if (navIndex < moves.length) {
-        setMoves((prev) => prev.slice(0, navIndex));
+  const interaction = useBoardInteraction({
+    chessGame: game.chessGame,
+    onMove: useCallback(
+      (from, to) => {
+        if (navIndex < moves.length) {
+          setMoves((prev) => prev.slice(0, navIndex));
+        }
+        const result = game.makeMove(from, to);
+        if (result) {
+          const allMoves = game.chessGame.history();
+          const newSan = allMoves[allMoves.length - 1];
+          setMoves((prev) => [...prev, newSan]);
+          setNavIndex((prev) => prev + 1);
+        }
+        return result;
+      },
+      [game, moves, navIndex],
+    ),
+  });
+
+  useEffect(() => {
+    const engine = new LocalStockfishEvalEngine();
+    engine.setMultiPV(multiPvCount);
+    evalEngineRef.current = engine;
+    return () => { engine.terminate(); };
+  }, [multiPvCount]);
+
+  useEffect(() => {
+    if (!positionLoaded || report) return;
+    const engine = evalEngineRef.current;
+    if (!engine) return;
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const result = await engine.evaluatePosition(game.position, 10000, (update) => {
+        if (!cancelled) {
+          setEngineResult(update);
+          setLiveEval(update.eval);
+          setLiveMate(update.mate);
+        }
+      });
+      if (!cancelled) {
+        setEngineResult(result);
+        setLiveEval(result.eval);
+        setLiveMate(result.mate);
       }
-      const result = game.makeMove(sourceSquare, targetSquare);
-      if (result) {
-        const allMoves = game.chessGame.history();
-        const newSan = allMoves[allMoves.length - 1];
-        setMoves((prev) => [...prev, newSan]);
-        setNavIndex((prev) => prev + 1);
-      }
-      return result;
-    },
-    [game, moves, navIndex],
-  );
+    }, 200);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [game.position, positionLoaded, report]);
 
   const loadFromPgn = useCallback(() => {
     if (!pgnInput.trim()) return;
@@ -132,24 +192,40 @@ export default function AnalysisPage() {
   }, [resetReview]);
 
   const currentEval = useMemo(() => {
-    if (!report || navIndex < 0 || navIndex >= report.positions.length)
-      return null;
-    const pos = report.positions[navIndex];
-    const line = pos?.topLines?.[0];
-    if (!line) return null;
-    if (line.evaluation.type === "mate") {
-      return line.evaluation.value > 0
-        ? { display: `#${line.evaluation.value}`, whitePct: 95 }
-        : { display: `#${Math.abs(line.evaluation.value)}`, whitePct: 5 };
+    if (report && navIndex >= 0 && navIndex < report.positions.length) {
+      const pos = report.positions[navIndex];
+      const line = pos?.topLines?.[0];
+      if (line) {
+        if (line.evaluation.type === "mate") {
+          return line.evaluation.value > 0
+            ? { display: `#${line.evaluation.value}`, whitePct: 95 }
+            : { display: `#${Math.abs(line.evaluation.value)}`, whitePct: 5 };
+        }
+        const cp = line.evaluation.value;
+        const clamped = Math.max(-1000, Math.min(1000, cp));
+        const whitePct = 50 + (clamped / 1000) * 45;
+        return {
+          display: cp > 0 ? `+${(cp / 100).toFixed(1)}` : (cp / 100).toFixed(1),
+          whitePct,
+        };
+      }
     }
-    const cp = line.evaluation.value;
-    const clamped = Math.max(-1000, Math.min(1000, cp));
-    const whitePct = 50 + (clamped / 1000) * 45;
-    return {
-      display: cp > 0 ? `+${(cp / 100).toFixed(1)}` : (cp / 100).toFixed(1),
-      whitePct,
-    };
-  }, [report, navIndex]);
+    if (liveMate) {
+      return liveMate > 0
+        ? { display: `#${liveMate}`, whitePct: 95 }
+        : { display: `#${Math.abs(liveMate)}`, whitePct: 5 };
+    }
+    if (liveEval !== null) {
+      const cp = liveEval * 100;
+      const clamped = Math.max(-1000, Math.min(1000, cp));
+      const whitePct = 50 + (clamped / 1000) * 45;
+      return {
+        display: liveEval > 0 ? `+${liveEval.toFixed(2)}` : liveEval.toFixed(2),
+        whitePct,
+      };
+    }
+    return null;
+  }, [report, navIndex, liveEval, liveMate]);
 
   const movePairs = useMemo(() => {
     const pairs: {
@@ -210,6 +286,34 @@ export default function AnalysisPage() {
     return ((player.acc + opponent.acc) / 2).toFixed(1);
   }, [player, opponent]);
 
+  const arrows = useMemo(() => {
+    if (!showArrows || !engineResult || !engineResult.pv.length) return [];
+    const result: { startSquare: string; endSquare: string; color: string }[] = [];
+    const firstMove = engineResult.pv[0];
+    if (firstMove && firstMove.length >= 4) {
+      result.push({
+        startSquare: firstMove.substring(0, 2),
+        endSquare: firstMove.substring(2, 4),
+        color: "#a3e635",
+      });
+    }
+    if (multiPvCount > 1) {
+      for (let i = 1; i < engineResult.multiPv.length; i++) {
+        const line = engineResult.multiPv[i];
+        if (!line.pv.length) continue;
+        const m = line.pv[0];
+        if (m && m.length >= 4) {
+          result.push({
+            startSquare: m.substring(0, 2),
+            endSquare: m.substring(2, 4),
+            color: "#facc15",
+          });
+        }
+      }
+    }
+    return result;
+  }, [engineResult, showArrows, multiPvCount]);
+
   return (
     <div className="min-h-screen bg-black text-white font-sans antialiased selection:bg-white selection:text-black relative">
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-neutral-900 via-black to-black pointer-events-none" />
@@ -254,7 +358,7 @@ export default function AnalysisPage() {
                     <span className="text-primary/40">Studio</span>
                   </h1>
                   <p className="text-on-surface-variant/60 font-medium text-sm tracking-wide uppercase mt-1">
-                    Deep Stockfish 16.1 Cloud
+                    Deep Stockfish 18 NNUE Cloud
                   </p>
                 </div>
                   <div className="flex items-center gap-4">
@@ -337,11 +441,15 @@ export default function AnalysisPage() {
                           options={{
                             id: "analysis-board",
                             position: game.position,
-                            onPieceDrop: handlePieceDrop,
+                            pieces: customPieces,
+                            onPieceDrop: interaction.handlePieceDrop,
+                            onSquareClick: interaction.handleSquareClick,
+                            squareStyles: interaction.squareStyles,
+                            arrows,
                             boardOrientation: "white",
                             boardStyle: { borderRadius: "0" },
-                            darkSquareStyle: { backgroundColor: "#454747" },
-                            lightSquareStyle: { backgroundColor: "#c6c6c7" },
+                            darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
+                            lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
                             animationDurationInMs: 400,
                             allowDragging: true,
                             showAnimations: true,
@@ -408,28 +516,78 @@ export default function AnalysisPage() {
                       <div className="bg-surface-container rounded-xl p-6 shadow-xl border-b-2 border-white/5">
                         <div className="flex justify-between items-center mb-4">
                           <h3 className="text-xs font-black uppercase tracking-widest text-primary/40">
-                            Engine Metrics
+                            Stockfish 18 NNUE
                           </h3>
                           <div className="flex gap-2">
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                             <span className="text-[10px] font-bold text-green-500">
-                              LIVE
+                              {engineResult?.depth ? `depth ${engineResult.depth}` : "LIVE"}
                             </span>
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-surface-container-low p-4 rounded-lg">
-                            <p className="text-[10px] text-on-surface-variant font-medium">
-                              Depth
-                            </p>
-                            <p className="text-xl font-bold text-white">24/48</p>
+
+                        <div className="flex items-center justify-between mb-4">
+                          <label className="flex items-center gap-2 text-xs text-on-surface-variant cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={showArrows}
+                              onChange={(e) => setShowArrows(e.target.checked)}
+                              className="w-3.5 h-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                            />
+                            Show arrows
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-on-surface-variant">MultiPV</span>
+                            <button
+                              type="button"
+                              onClick={() => setMultiPvCount((p) => Math.max(1, p - 1))}
+                              className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-xs font-bold transition-all"
+                            >
+                              -
+                            </button>
+                            <span className="text-sm font-bold text-white w-4 text-center">{multiPvCount}</span>
+                            <button
+                              type="button"
+                              onClick={() => setMultiPvCount((p) => Math.min(10, p + 1))}
+                              className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-xs font-bold transition-all"
+                            >
+                              +
+                            </button>
                           </div>
-                          <div className="bg-surface-container-low p-4 rounded-lg">
-                            <p className="text-[10px] text-on-surface-variant font-medium">
-                              Nodes/s
-                            </p>
-                            <p className="text-xl font-bold text-white">12.4M</p>
-                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          {engineResult && engineResult.multiPv.length > 0 ? (
+                            engineResult.multiPv.slice(0, multiPvCount).map((line, i) => {
+                              const displayEval = line.mate !== null
+                                ? `#${line.mate > 0 ? line.mate : Math.abs(line.mate)}`
+                                : `${line.eval > 0 ? "+" : ""}${line.eval.toFixed(2)}`;
+                              const pvMoves = line.pv.slice(0, 5).join(" ");
+                              return (
+                                <div
+                                  key={i}
+                                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs ${
+                                    i === 0 ? "bg-primary/10 border border-primary/20" : "bg-white/5"
+                                  }`}
+                                >
+                                  <span className="w-4 text-[10px] font-bold text-on-surface-variant shrink-0">
+                                    {i + 1}
+                                  </span>
+                                  <span className="font-bold text-yellow-400 shrink-0 w-14 tabular-nums">
+                                    {displayEval}
+                                  </span>
+                                  <span className="text-white/80 font-mono truncate">
+                                    {pvMoves}
+                                  </span>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <div className="flex items-center justify-center py-4 text-on-surface-variant text-xs">
+                              <span className="material-symbols-outlined text-sm mr-1">psychiatry</span>
+                              Evaluating...
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -510,7 +668,8 @@ export default function AnalysisPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <button
                           type="button"
-                          className="py-4 bg-surface-container-high hover:bg-surface-container-highest text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 group"
+                          onClick={() => setExportOpen(true)}
+                          className="py-4 bg-surface-container-high hover:bg-surface-container-highest text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 group cursor-pointer"
                         >
                           <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">
                             share
@@ -536,88 +695,54 @@ export default function AnalysisPage() {
                     </div>
                   </div>
 
-                  <section className="mt-24 mb-16 grid grid-cols-3 gap-8">
-                    <div className="bg-surface-container rounded-xl p-8 glass-panel border-t border-white/10">
-                      <div className="flex items-center gap-3 mb-6">
-                        <span className="material-symbols-outlined text-primary">
-                          analytics
-                        </span>
-                        <h4 className="text-sm font-black uppercase tracking-widest">
-                          Accuracy
-                        </h4>
-                      </div>
-                      <div className="space-y-3">
-                        {player && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-neutral-400">
-                              White
-                            </span>
-                            <span
-                              className={`text-lg font-black ${accuracyColor(player.acc)}`}
-                            >
-                              {player.acc.toFixed(1)}%
-                            </span>
-                          </div>
-                        )}
-                        {opponent && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-neutral-400">
-                              Black
-                            </span>
-                            <span
-                              className={`text-lg font-black ${accuracyColor(opponent.acc)}`}
-                            >
-                              {opponent.acc.toFixed(1)}%
-                            </span>
-                          </div>
-                        )}
-                        {!player && !opponent && (
-                          <p className="text-sm text-neutral-500">
-                            Load a game to see accuracy
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="bg-surface-container rounded-xl p-8 glass-panel border-t border-white/10">
-                      <div className="flex items-center gap-3 mb-6">
-                        <span className="material-symbols-outlined text-primary">
-                          history_edu
-                        </span>
-                        <h4 className="text-sm font-black uppercase tracking-widest">
-                          Opening Theory
-                        </h4>
-                      </div>
-                      <div className="space-y-4">
-                        <p className="text-white font-bold text-lg">
-                          {"Custom Position"}
-                        </p>
-                        <div className="flex gap-2">
-                          <span className="text-[10px] px-2 py-1 bg-white/5 rounded-full border border-white/10">
-                            Analysis
-                          </span>
-                          <span className="text-[10px] px-2 py-1 bg-white/5 rounded-full border border-white/10">
-                            {moves.length > 0 ? `${moves.length} ply` : "Start"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-surface-container rounded-xl p-8 glass-panel border-t border-white/10 flex flex-col justify-center">
-                      <div className="text-center">
-                        <p className="text-4xl font-black text-white">
-                          {overallPrecision ? `${overallPrecision}%` : "—"}
-                        </p>
-                        <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mt-2">
-                          Overall Precision
-                        </p>
-                      </div>
-                    </div>
-                  </section>
                 </>
               )}
             </>
           )}
         </div>
       </main>
+
+      {exportOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => { setExportOpen(false); setCopied(false); }} />
+          <div ref={exportRef} className="relative z-10 w-full max-w-2xl mx-6 bg-surface-container rounded-2xl border border-white/10 shadow-2xl p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-black tracking-tight text-primary">Export PGN</h3>
+              <button
+                type="button"
+                onClick={() => { setExportOpen(false); setCopied(false); }}
+                className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="bg-surface-container-low rounded-xl p-6 mb-6 max-h-64 overflow-y-auto">
+              <pre className="text-xs font-mono text-on-surface-variant whitespace-pre-wrap break-all leading-relaxed select-all">
+                {(() => {
+                  try {
+                    const pgn = pgnInput || game.chessGame.pgn();
+                    return pgn || "No moves played yet.";
+                  } catch { return "No moves played yet."; }
+                })()}
+              </pre>
+            </div>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const text = pgnInput || game.chessGame.pgn() || "";
+                  await navigator.clipboard.writeText(text);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                } catch {}
+              }}
+              className="w-full py-4 rounded-xl bg-primary text-on-primary font-bold hover:opacity-90 transition-all active:scale-[0.98] cursor-pointer"
+            >
+              {copied ? "Copied!" : "Copy PGN"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

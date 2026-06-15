@@ -1,28 +1,45 @@
 "use client";
 
+import { useMemo } from "react";
+import { Chess } from "chess.js";
 import { IoSettingsOutline } from "react-icons/io5";
 import type { PuzzleRow } from "@/lib/puzzles/PuzzleCache";
 
+function toSanMoves(fen: string, uciMoves: string[]): string[] {
+  const chess = new Chess(fen);
+  return uciMoves.map((uci) => {
+    try {
+      const from = uci.substring(0, 2) as any;
+      const to = uci.substring(2, 4) as any;
+      const promotion = uci.length > 4 ? (uci[4] as any) : undefined;
+      const move = chess.move({ from, to, promotion });
+      return move.san;
+    } catch {
+      return uci;
+    }
+  });
+}
+
 export function PuzzleMoveHistory({
-  history,
   puzzle,
   moveIndex,
   onToggleSettings,
 }: {
-  history: string[];
   puzzle: PuzzleRow | null;
   moveIndex: number;
   onToggleSettings: () => void;
 }) {
-  const allMoves = puzzle?.moves ?? [];
-  const maxDisplayMoves = Math.max(history.length, allMoves.length);
+  const sanMoves = useMemo(
+    () => (puzzle ? toSanMoves(puzzle.fen, puzzle.moves) : []),
+    [puzzle?.fen, puzzle?.moves],
+  );
 
   const movePairs: { num: number; white: string; black: string }[] = [];
-  for (let i = 0; i < maxDisplayMoves; i += 2) {
+  for (let i = 0; i < sanMoves.length; i += 2) {
     movePairs.push({
       num: Math.floor(i / 2) + 1,
-      white: allMoves[i] ?? history[i] ?? "",
-      black: allMoves[i + 1] ?? history[i + 1] ?? "",
+      white: sanMoves[i] ?? "",
+      black: sanMoves[i + 1] ?? "",
     });
   }
 
@@ -73,14 +90,28 @@ export function PuzzleMoveHistory({
                 {pair.num}.
               </span>
               <span
-                className={`flex-1 ${allMoves.indexOf(pair.white) === moveIndex - 1 ? "text-yellow-400 font-semibold" : allMoves.indexOf(pair.white) < moveIndex ? "text-white" : "text-neutral-600"}`}
+                className={`flex-1 ${(() => {
+                  const idx = (pair.num - 1) * 2;
+                  return idx === moveIndex - 1
+                    ? "text-yellow-400 font-semibold"
+                    : idx < moveIndex
+                      ? "text-white"
+                      : "text-neutral-600";
+                })()}`}
               >
-                {pair.white ? formatMove(pair.white) : ""}
+                {pair.white}
               </span>
               <span
-                className={`flex-1 text-right ${allMoves.indexOf(pair.black) === moveIndex - 1 ? "text-yellow-400 font-semibold" : allMoves.indexOf(pair.black) < moveIndex ? "text-white" : "text-neutral-500"}`}
+                className={`flex-1 text-right ${(() => {
+                  const idx = (pair.num - 1) * 2 + 1;
+                  return idx === moveIndex - 1
+                    ? "text-yellow-400 font-semibold"
+                    : idx < moveIndex
+                      ? "text-white"
+                      : "text-neutral-500";
+                })()}`}
               >
-                {pair.black ? formatMove(pair.black) : pair.white ? "..." : ""}
+                {pair.black || (pair.white ? "..." : "")}
               </span>
             </div>
           ))
@@ -88,8 +119,4 @@ export function PuzzleMoveHistory({
       </div>
     </div>
   );
-}
-
-function formatMove(m: string): string {
-  return m.length >= 4 ? `${m.substring(0, 2)}–${m.substring(2, 4)}` : m;
 }

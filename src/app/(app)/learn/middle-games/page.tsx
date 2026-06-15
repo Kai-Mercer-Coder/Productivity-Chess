@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useGameStats } from "@/lib/hooks/useGameStats";
 
 export default function MiddleGamesPage() {
+  const stats = useGameStats();
   return (
     <>
       <main className="px-8 pb-20 max-w-7xl mx-auto pt-12">
@@ -21,7 +23,7 @@ export default function MiddleGamesPage() {
         </header>
 
         <div className="grid grid-cols-12 gap-6">
-          <Link href="#" className="col-span-12 md:col-span-8 bg-surface-container rounded-xl p-10 flex flex-col justify-between group hover:bg-surface-container-high transition-all duration-500 min-h-[450px]">
+          <Link href="/under-construction" className="col-span-12 md:col-span-8 bg-surface-container rounded-xl p-10 flex flex-col justify-between group hover:bg-surface-container-high transition-all duration-500 min-h-[450px]">
             <div>
               <div className="flex items-center justify-between mb-8">
                 <span className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest">Advanced Strategy</span>
@@ -42,7 +44,7 @@ export default function MiddleGamesPage() {
             </div>
           </Link>
 
-          <Link href="#" className="col-span-12 md:col-span-4 bg-surface-container-low rounded-xl p-8 flex flex-col group hover:bg-surface-container transition-all">
+          <Link href="/under-construction" className="col-span-12 md:col-span-4 bg-surface-container-low rounded-xl p-8 flex flex-col group hover:bg-surface-container transition-all">
             <div className="mb-auto">
               <div className="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center mb-6">
                 <span className="material-symbols-outlined text-primary text-3xl">grid_view</span>
@@ -63,7 +65,7 @@ export default function MiddleGamesPage() {
             </div>
           </Link>
 
-          <Link href="#" className="col-span-12 md:col-span-4 bg-surface-container-highest rounded-xl p-8 flex flex-col justify-between group border border-primary/5 hover:border-primary/20 transition-all min-h-[350px]">
+          <Link href="/under-construction" className="col-span-12 md:col-span-4 bg-surface-container-highest rounded-xl p-8 flex flex-col justify-between group border border-primary/5 hover:border-primary/20 transition-all min-h-[350px]">
             <div>
               <h3 className="text-xl font-bold text-primary mb-2">Calculation Mastery</h3>
               <p className="text-on-surface-variant text-sm opacity-60 mb-8 italic">The Engine Within</p>
@@ -82,7 +84,7 @@ export default function MiddleGamesPage() {
                 </li>
               </ul>
             </div>
-            <span className="block w-full py-4 rounded-xl border border-outline-variant text-primary font-bold hover:bg-primary hover:text-on-primary transition-all text-center">Resume Session</span>
+            <span className="block w-full py-4 rounded-xl border border-outline-variant text-primary hover:bg-primary hover:text-on-primary transition-all text-center text-sm cursor-pointer">Resume Session</span>
           </Link>
 
           <div className="col-span-12 md:col-span-8 bg-surface-container-low rounded-xl p-8 flex flex-col md:flex-row gap-8 items-center overflow-hidden relative">
@@ -93,12 +95,12 @@ export default function MiddleGamesPage() {
               </p>
               <div className="flex gap-4">
                 <div className="px-4 py-2 bg-surface-container rounded-lg border border-outline-variant/10">
-                  <p className="text-[10px] text-on-surface-variant/50 uppercase tracking-widest">Active Learners</p>
-                  <p className="text-primary font-black text-lg">12.4K</p>
+                  <p className="text-[10px] text-on-surface-variant/50 uppercase tracking-widest">Games Played</p>
+                  <p className="text-primary font-black text-lg">{stats.totalGames}</p>
                 </div>
                 <div className="px-4 py-2 bg-surface-container rounded-lg border border-outline-variant/10">
                   <p className="text-[10px] text-on-surface-variant/50 uppercase tracking-widest">Puzzles Solved</p>
-                  <p className="text-primary font-black text-lg">890K</p>
+                  <p className="text-primary font-black text-lg">{stats.localPuzzleCount}</p>
                 </div>
               </div>
             </div>
@@ -117,12 +119,12 @@ export default function MiddleGamesPage() {
               <p className="text-on-surface-variant text-sm">Browse all middle game topics by popularity or difficulty.</p>
             </div>
             <div className="flex gap-2">
-              <button className="px-6 py-2 rounded-full border border-outline-variant text-on-surface-variant text-sm font-bold hover:bg-surface-container transition-all">Filter</button>
-              <button className="px-6 py-2 rounded-full bg-primary text-on-primary text-sm font-bold">Sort: Newest</button>
+              <button className="px-6 py-2 rounded-full border border-outline-variant text-on-surface-variant text-xs hover:bg-surface-container transition-all cursor-pointer">Filter</button>
+              <button className="px-6 py-2 rounded-full bg-primary text-on-primary text-xs cursor-pointer">Sort: Newest</button>
             </div>
           </div>
           <div className="space-y-4">
-            <Link href="#" className="flex flex-col md:flex-row items-center gap-6 p-6 bg-surface-container-low hover:bg-surface-container rounded-xl transition-all group">
+            <Link href="/under-construction" className="flex flex-col md:flex-row items-center gap-6 p-6 bg-surface-container-low hover:bg-surface-container rounded-xl transition-all group">
               <div className="w-16 h-16 rounded-xl bg-surface-container-highest flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-primary text-3xl">psychology</span>
               </div>
@@ -138,7 +140,7 @@ export default function MiddleGamesPage() {
                 <span className="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">arrow_forward</span>
               </div>
             </Link>
-            <Link href="#" className="flex flex-col md:flex-row items-center gap-6 p-6 bg-surface-container-low hover:bg-surface-container rounded-xl transition-all group">
+            <Link href="/under-construction" className="flex flex-col md:flex-row items-center gap-6 p-6 bg-surface-container-low hover:bg-surface-container rounded-xl transition-all group">
               <div className="w-16 h-16 rounded-xl bg-surface-container-highest flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-primary text-3xl">hub</span>
               </div>

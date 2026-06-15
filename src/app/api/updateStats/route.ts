@@ -15,8 +15,6 @@ export async function POST(req: Request) {
     const currentElo = (session.user as any)?.elo ?? 1200;
     const currentRd = (session.user as any)?.delta_value ?? 200;
     const currentVol = (session.user as any)?.volatility ?? 0.06;
-    const puzzlesSolved = (session.user as any)?.puzzles_solved ?? 0;
-
     const result = updatePuzzleRating(
         currentElo,
         currentRd,
@@ -26,28 +24,43 @@ export async function POST(req: Request) {
         usedHint ?? false
     );
 
-    const newPuzzlesSolved = solved ? puzzlesSolved + 1 : puzzlesSolved;
-
     const supabase = createAdminClient();
-    const { error: updateError } = await supabase
+
+    const { data: existingUser, error: fetchError } = await supabase
+        .from("users")
+        .select("email, elo, delta_value, volatility")
+        .eq("email", email)
+        .maybeSingle();
+
+    if (fetchError) {
+        console.error("Supabase fetch before update error:", fetchError);
+        return NextResponse.json({ error: fetchError.message, details: fetchError.details, code: fetchError.code }, { status: 400 });
+    }
+
+    if (!existingUser) {
+        console.error("User not found in DB:", email);
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const { data: updateData, error: updateError } = await supabase
         .from("users")
         .update({
             elo: result.newRating,
             delta_value: result.newRd,
             volatility: result.newVol,
-            puzzles_solved: newPuzzlesSolved,
         })
         .eq("email", email);
 
     if (updateError) {
-        return NextResponse.json({ error: updateError.message }, { status: 400 });
+        console.error("Supabase update error:", updateError);
+        return NextResponse.json({ error: updateError.message, details: updateError.details, code: updateError.code }, { status: 400 });
     }
 
     return NextResponse.json({
         newElo: result.newRating,
         newDelta: result.newRd,
         newVol: result.newVol,
-        puzzlesSolved: newPuzzlesSolved,
+        puzzlesSolved: 0,
         delta: result.delta,
     });
 }

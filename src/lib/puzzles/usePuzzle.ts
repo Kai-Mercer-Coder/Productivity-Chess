@@ -20,9 +20,10 @@ export interface FetchOptions {
 interface UsePuzzleOptions {
     tryMove: (from: Square, to: Square, promotion?: PieceSymbol) => boolean;
     loadFen: (fen: string) => boolean;
+    undo: () => void;
 }
 
-export function usePuzzle({ tryMove, loadFen }: UsePuzzleOptions) {
+export function usePuzzle({ tryMove, loadFen, undo }: UsePuzzleOptions) {
     const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
     const [moveIndex, setMoveIndex] = useState(1);
     const [status, setStatus] = useState<PuzzleStatus>('idle');
@@ -34,7 +35,9 @@ export function usePuzzle({ tryMove, loadFen }: UsePuzzleOptions) {
     const moveIndexRef = useRef(1);
     const statusRef = useRef<PuzzleStatus>('idle');
     const usedHintRef = useRef(false);
+    const optionsRef = useRef({ tryMove, loadFen, undo });
 
+    useEffect(() => { optionsRef.current = { tryMove, loadFen, undo }; }, [tryMove, loadFen, undo]);
     useEffect(() => { puzzleRef.current = puzzle; }, [puzzle]);
     useEffect(() => { moveIndexRef.current = moveIndex; }, [moveIndex]);
     useEffect(() => { statusRef.current = status; }, [status]);
@@ -60,7 +63,7 @@ export function usePuzzle({ tryMove, loadFen }: UsePuzzleOptions) {
             return;
         }
 
-        loadFen(data.fen);
+        optionsRef.current.loadFen(data.fen);
 
         const pColor: 'w' | 'b' = data.fen.split(' ')[1] === 'w' ? 'b' : 'w';
         setPlayerColor(pColor);
@@ -80,11 +83,11 @@ export function usePuzzle({ tryMove, loadFen }: UsePuzzleOptions) {
         setTimeout(() => {
             if (newPuzzle.moves.length > 0) {
                 const m = newPuzzle.moves[0];
-                tryMove(m.substring(0, 2) as Square, m.substring(2, 4) as Square, m.length > 4 ? m[4] as PieceSymbol : undefined);
+                optionsRef.current.tryMove(m.substring(0, 2) as Square, m.substring(2, 4) as Square, m.length > 4 ? m[4] as PieceSymbol : undefined);
             }
             setStatus('playing');
         }, 500);
-    }, [loadFen, tryMove,]);
+    }, []);
 
     const handlePlayerMove = useCallback(
         (from: Square, to: Square, promotion?: PieceSymbol): boolean => {
@@ -93,13 +96,18 @@ export function usePuzzle({ tryMove, loadFen }: UsePuzzleOptions) {
 
             const expectedMove = p.moves[moveIndexRef.current];
             if (from !== expectedMove.substring(0, 2) || to !== expectedMove.substring(2, 4)) {
+                optionsRef.current.tryMove(from, to, promotion);
                 setStatus('wrong');
-                setTimeout(() => setStatus('playing'), 900);
-                return false;
+                setTimeout(() => {
+                    optionsRef.current.undo();
+                    setHintSquares(null);
+                    setStatus('playing');
+                }, 1200);
+                return true;
             }
 
             const promo = expectedMove.length > 4 ? expectedMove[4] as PieceSymbol : promotion;
-            if (!tryMove(from, to, promo)) return false;
+            if (!optionsRef.current.tryMove(from, to, promo)) return false;
 
             setHintSquares(null);
             const nextIdx = moveIndexRef.current + 1;
@@ -113,7 +121,7 @@ export function usePuzzle({ tryMove, loadFen }: UsePuzzleOptions) {
 
             setTimeout(() => {
                 const opMove = p.moves[nextIdx];
-                tryMove(
+                optionsRef.current.tryMove(
                     opMove.substring(0, 2) as Square,
                     opMove.substring(2, 4) as Square,
                     opMove.length > 4 ? opMove[4] as PieceSymbol : undefined
@@ -124,7 +132,7 @@ export function usePuzzle({ tryMove, loadFen }: UsePuzzleOptions) {
 
             return true;
         },
-        [tryMove]
+        []
     );
 
     const getHint = useCallback(() => {

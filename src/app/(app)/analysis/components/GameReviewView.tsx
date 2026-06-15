@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
+import { customPieces } from "@/components/chess/customPieces";
+import { boardTheme } from "@/lib/chess/boardTheme";
 import type { CoachExplanation } from "@/lib/chess/CoachService";
 import { useCoachService } from "@/lib/hooks/useCoachService";
 import { getCoachMessage } from "@/lib/chess/coach";
@@ -270,10 +272,11 @@ function GameReviewView({
               options={{
                 id: "review-board",
                 position: fen,
+                pieces: customPieces,
                 boardOrientation: "white",
                 boardStyle: { borderRadius: "0.5rem" },
-                darkSquareStyle: { backgroundColor: "#353535" },
-                lightSquareStyle: { backgroundColor: "#ffffff" },
+                darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
+                lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
                 allowDragging: false,
                 showAnimations: true,
                 animationDurationInMs: 300,

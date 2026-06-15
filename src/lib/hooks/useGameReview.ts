@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Chess } from "chess.js";
 import { analyse } from "@/lib/chess/analyse";
-import { hfEvaluateFen, LocalStockfishEvalEngine } from "@/lib/chess/MoveEngine";
+import { hfEvaluateFen, LocalStockfishEvalEngine, type LocalEvalResult } from "@/lib/chess/MoveEngine";
 import type Report from "@/lib/types/Report";
 import type { EvaluatedPosition } from "@/lib/types/Position";
 
@@ -192,6 +192,28 @@ export function useGameReview(): UseGameReviewReturn {
   return { report, loading, progress, total, deepLoading, runReview, runDeepAnalysis, reset };
 }
 
+let sharedLocalEngine: LocalStockfishEvalEngine | null = null;
+
+function getSharedEngine(): LocalStockfishEvalEngine {
+  if (!sharedLocalEngine) {
+    sharedLocalEngine = new LocalStockfishEvalEngine();
+  }
+  return sharedLocalEngine;
+}
+
 async function evaluateFen(fen: string): Promise<EvalResponse> {
-  return hfEvaluateFen(fen);
+  const cloudResult = await hfEvaluateFen(fen);
+  if (cloudResult.eval !== 0 || cloudResult.bestmove) return cloudResult;
+
+  const localEngine = getSharedEngine();
+  const result = await localEngine.evaluatePosition(fen, 3000);
+  const evalCp = Math.round(result.eval * 100);
+  return {
+    eval: result.eval,
+    mate: result.mate,
+    bestmove: result.bestmove,
+    san: "",
+    continuationArr: result.pv.slice(1),
+    winChance: 50 + (evalCp / 200),
+  };
 }

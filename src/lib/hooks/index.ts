@@ -1,9 +1,12 @@
 export { useChessGame } from './useChessGame';
 export { useBoardStyles } from './useBoardStyles';
+export { useBoardInteraction } from './useBoardInteraction';
 export { useEvaluation } from './useEvaluation';
 export { useEngine } from './useEngine';
 export { useBookMoves } from './useBookMoves';
 export { useGameReview } from './useGameReview';
 export { useChessBoard } from './useChessBoard';
+export { useWasmHeatmap } from './useWasmHeatmap';
 export type { ChessBoardConfig, ChessBoardReturn } from './useChessBoard';
 export type { BookMove } from './useBookMoves';
+export type { WasmHeatmapKind, WasmHeatmapConfig } from './useWasmHeatmap';

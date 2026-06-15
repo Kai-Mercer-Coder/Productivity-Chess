@@ -13,16 +13,14 @@ import { useEngine } from './useEngine';
 import { useBookMoves } from './useBookMoves';
 import type { ChessApiResponse } from '@/lib/chess/MoveEngine';
 import type { BookMove } from './useBookMoves';
+import { playCaptureSound, playMoveSound } from '@/lib/chess/sounds';
 
 export interface ChessBoardConfig {
   enablePremove?: boolean;
   autoPromoteToQueen?: boolean;
-  isPinned?: boolean;
   isOverdefended?: boolean;
   isUnderdefended?: boolean;
-  isVulnerable?: boolean;
   showCheckHighlights?: boolean;
-  showForks?: boolean;
   elo?: number;
   playerColor?: 'w' | 'b';
 }
@@ -67,27 +65,27 @@ export interface ChessBoardReturn {
   handleUndo: () => void;
   registerMoveForAnalysis: (fen: string, evalBeforeMove: number, side: 'w' | 'b') => void;
   terminate: () => void;
+  getPositionEval: (fen: string) => { evaluation: { type: 'cp' | 'mate'; value: number }; bestmove: string; bestmoveSan: string } | undefined;
+  clearGameData: () => void;
 }
 
 export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
   const {
     enablePremove = true,
     autoPromoteToQueen = false,
-    isPinned = false,
     isOverdefended = false,
     isUnderdefended = false,
-    isVulnerable = false,
     showCheckHighlights = false,
-    showForks = false,
+    elo: initialElo,
     playerColor = 'w',
   } = config;
 
   const game = useChessGame();
-  const { currentEval, rawScore, mateIn, diff, hintData, registerMoveForAnalysis, clearAnalysis } = useEvaluation(
+  const { currentEval, rawScore, mateIn, diff, hintData, registerMoveForAnalysis, clearAnalysis, getPositionEval, clearPositionHistory } = useEvaluation(
     game.chessGame,
     game.position,
   );
-  const { elo, isThinking, handleEloChange, makeEngineMove: rawEngineMove, terminate: terminateEngine } = useEngine(game);
+  const { elo, isThinking, handleEloChange, makeEngineMove: rawEngineMove, terminate: terminateEngine } = useEngine(game, initialElo);
   const { openingName, bookMoves } = useBookMoves(game.position);
 
   const moveHandlerRef = useRef(new MoveHandler(game.chessGame));
@@ -97,12 +95,9 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
 
   const visualStyles = useBoardStyles({
     chessGame: game.chessGame,
-    isPinned,
     isOverdefended,
     isUnderdefended,
-    isVulnerable,
     showCheckHighlights,
-    showForks,
     optionSquares: game.optionSquares,
   });
 
@@ -146,6 +141,10 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
         game.setPremoves([...game.premovesRef.current]);
         return true;
       }
+
+      let isCapture = false;
+      try { isCapture = !!game.chessGame.get(targetSquare as any); } catch {}
+      if (isCapture) playCaptureSound(); else playMoveSound();
 
       if (moveHandlerRef.current.executeMove(sourceSquare, targetSquare, 'q')) {
         const newFen = game.chessGame.fen();
@@ -283,5 +282,10 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
     handleUndo,
     registerMoveForAnalysis,
     terminate: terminateEngine,
+    getPositionEval,
+    clearGameData: () => {
+      clearAnalysis();
+      clearPositionHistory();
+    },
   };
 }

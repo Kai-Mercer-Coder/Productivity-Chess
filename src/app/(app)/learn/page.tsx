@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { SiEthereum, SiSolana } from "react-icons/si";
 
 const categories = [
   {
@@ -27,7 +28,7 @@ const categories = [
       "Complex Exchange Logic",
       "Prophylactic Thinking",
     ],
-    cta: "Explore Middle Games",
+    cta: "Explore Middlegame",
     elevated: true,
     gradient: true,
   },
@@ -72,7 +73,7 @@ export default function LearnPage() {
               >
               <div className="h-64 relative overflow-hidden bg-surface-container-lowest">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <span className="material-symbols-outlined text-8xl text-primary/10 group-hover:text-primary/20 transition-all duration-500 scale-110 group-hover:scale-125">
+                  <span className="material-symbols-outlined text-8xl text-primary/10 group-hover:text-primary/20 transition-all duration-500 scale-[3] group-hover:scale-[3.5]">
                     {cat.icon}
                   </span>
                 </div>
@@ -109,12 +110,12 @@ export default function LearnPage() {
                 </div>
 
                 {cat.gradient ? (
-                  <button className="w-full py-5 rounded-full bg-gradient-to-r from-white to-neutral-300 text-black font-black shadow-lg shadow-white/5 hover:shadow-white/10 active:scale-95 transition-all flex items-center justify-center gap-2">
+                  <button className="w-full py-5 rounded-full bg-gradient-to-r from-white to-neutral-300 text-black shadow-lg shadow-white/5 hover:shadow-white/10 active:scale-95 transition-all flex items-center justify-center gap-2">
                     {cat.cta}
                     <span className="material-symbols-outlined">bolt</span>
                   </button>
                 ) : (
-                  <button className="w-full py-5 rounded-full border border-primary/20 text-primary font-bold hover:bg-primary hover:text-black transition-all duration-300 flex items-center justify-center gap-2 group-hover:border-primary/50">
+                  <button className="w-full py-5 rounded-full border border-primary/20 text-primary hover:bg-primary hover:text-black transition-all duration-300 flex items-center justify-center gap-2 group-hover:border-primary/50">
                     {cat.cta}
                     <span className="material-symbols-outlined">
                       arrow_forward
@@ -125,7 +126,7 @@ export default function LearnPage() {
             </section>
             );
 
-            const href = cat.title === "Middle Games" ? "/learn/middle-games" : cat.title === "Endgames" ? "/learn/endgames" : null;
+            const href = cat.title === "Middle Games" ? "/learn/middle-games" : cat.title === "Endgames" ? "/learn/endgames" : cat.title === "Openings" ? "/learn/openings" : null;
             return href ? (
               <Link key={cat.title} href={href}>
                 {card}
@@ -157,16 +158,25 @@ export default function LearnPage() {
                   BTC Address
                 </div>
                 <div className="bg-surface-container-highest p-3 rounded-lg text-[10px] font-mono break-all border border-outline-variant/20">
-                  bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+                  bc1q6tmdn26zspfvpql9lhjzc9anuwwp322eunpzmk
                 </div>
               </div>
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-primary/50">
-                  <span className="material-symbols-outlined text-sm">eth</span>
+                  <SiEthereum className="text-sm" />
                   ETH Address
                 </div>
                 <div className="bg-surface-container-highest p-3 rounded-lg text-[10px] font-mono break-all border border-outline-variant/20">
-                  0x71C7656EC7ab88b098defB751B7401B5f6d8976F
+                  0xB13C6d8986F9F0567e95952458e4Fd39c29F3f2d
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-primary/50">
+                  <SiSolana className="text-sm" />
+                  SOL Address
+                </div>
+                <div className="bg-surface-container-highest p-3 rounded-lg text-[10px] font-mono break-all border border-outline-variant/20">
+                  FpnmSaSy4HRC2QCRXse3jVen6j62DeKL236z5paUTqNh
                 </div>
               </div>
             </div>

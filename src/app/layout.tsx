@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import LenisProvider from "@/components/layouts/LenisProvider";
 import { SidebarProvider } from "@/components/layouts/SidebarContext";
 import OnboardingOverlay from "@/components/profile/OnboardingOverlay";
+import NetworkToaster from "@/components/NetworkToaster";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,7 +37,7 @@ export default function RootLayout({
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
           <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
         </head>
-        <body className="min-h-full flex flex-col"><LenisProvider><SidebarProvider>{children}<OnboardingOverlay /></SidebarProvider></LenisProvider></body>
+        <body className="min-h-full flex flex-col"><LenisProvider><SidebarProvider>{children}<OnboardingOverlay /><NetworkToaster /></SidebarProvider></LenisProvider></body>
       </html>
     </SessionProvider>
   );

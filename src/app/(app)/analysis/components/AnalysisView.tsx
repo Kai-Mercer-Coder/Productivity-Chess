@@ -2,6 +2,8 @@
 
 import { Chessboard } from "react-chessboard";
 import type { PieceDropHandlerArgs } from "react-chessboard";
+import { customPieces } from "@/components/chess/customPieces";
+import { boardTheme } from "@/lib/chess/boardTheme";
 import MoveHistory from "./MoveHistory";
 
 function AnalysisView({
@@ -34,11 +36,12 @@ function AnalysisView({
               options={{
                 id: "analysis-board",
                 position: fen,
+                pieces: customPieces,
                 onPieceDrop,
                 boardOrientation: orientation,
                 boardStyle: { borderRadius: "0.5rem" },
-                darkSquareStyle: { backgroundColor: "#353535" },
-                lightSquareStyle: { backgroundColor: "#ffffff" },
+                darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
+                lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
                 animationDurationInMs: 400,
                 allowDragging: true,
                 showAnimations: true,

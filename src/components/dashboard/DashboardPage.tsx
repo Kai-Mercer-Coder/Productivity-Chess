@@ -5,28 +5,42 @@ import { useSession } from "next-auth/react";
 import '../../app/style.css';
 import Lenis from 'lenis';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { useGameStats } from '@/lib/hooks/useGameStats';
 
-const performanceData = [
-  { date: 'Oct 01', rating: 1200 },
-  { date: 'Oct 05', rating: 1220 },
-  { date: 'Oct 10', rating: 1180 },
-  { date: 'Oct 15', rating: 1250 },
-  { date: 'Oct 20', rating: 1240 },
-  { date: 'Today', rating: 1260 },
-];
-
-const encounters = [
-  { name: 'Magnus_C', rating: 2850, time: '10 mins ago', mode: 'Blitz', result: '1 - 0', label: 'Victory', labelClass: 'text-white/40' },
-  { name: 'Hikaru_N', rating: 2892, time: '2 hours ago', mode: 'Bullet', result: '½ - ½', label: 'Draw', labelClass: 'text-white/20' },
-  { name: 'Alireza_F', rating: 2810, time: 'Yesterday', mode: 'Rapid', result: '1 - 0', label: 'Victory', labelClass: 'text-white/40' },
-];
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} mins ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? 'Yesterday' : `${days}d ago`;
+}
 
 export default function GrandmasterDashboard() {
   const { data: session } = useSession();
   const user = session?.user;
   const elo = (user as any)?.elo ?? 1200;
-  const rd = (user as any)?.delta_value ?? 200;
-  const puzzlesSolved = (user as any)?.puzzles_solved ?? 0;
+  const stats = useGameStats();
+
+  const performanceData = stats.ratingHistory.length > 0
+    ? stats.ratingHistory
+    : [{ date: 'Today', rating: elo }];
+
+  const encounters = stats.recentGames.map(g => {
+    const isWin = g.result === 'win';
+    const isDraw = g.result === 'draw';
+    return {
+      name: `Engine ${g.opponentElo}`,
+      rating: g.opponentElo,
+      time: timeAgo(g.date),
+      mode: 'Standard',
+      result: isWin ? '1 - 0' : isDraw ? '½ - ½' : '0 - 1',
+      label: isWin ? 'Victory' : isDraw ? 'Draw' : 'Loss',
+      labelClass: isWin ? 'text-white/40' : isDraw ? 'text-white/20' : 'text-white/40',
+    };
+  });
 
   useEffect(() => {
     const lenis = new Lenis();
@@ -141,7 +155,7 @@ export default function GrandmasterDashboard() {
           <div className="col-span-12 lg:col-span-7 xl:col-span-8">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-black tracking-tight text-white uppercase">Recent Encounters</h2>
-              <Link href="#" className="text-[10px] font-bold text-on-surface-variant hover:text-white transition-colors uppercase tracking-[0.2em]">View History</Link>
+              <Link href="/under-construction" className="text-[10px] font-bold text-on-surface-variant hover:text-white transition-colors uppercase tracking-[0.2em]">View History</Link>
             </div>
             <div className="space-y-3">
               {encounters.map((enc) => (
@@ -188,19 +202,19 @@ export default function GrandmasterDashboard() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-surface-container p-6 rounded-2xl border border-white/5">
                 <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block mb-2">Win Rate</span>
-                <span className="text-2xl font-black text-white">68.4%</span>
+                <span className="text-2xl font-black text-white">{stats.winRate.toFixed(1)}%</span>
               </div>
               <div className="bg-surface-container p-6 rounded-2xl border border-white/5">
                 <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block mb-2">Accuracy</span>
-                <span className="text-2xl font-black text-white">94.2%</span>
+                <span className="text-2xl font-black text-white">{stats.averageAccuracy.toFixed(1)}%</span>
               </div>
               <div className="bg-surface-container p-6 rounded-2xl border border-white/5">
                 <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block mb-2">Streak</span>
-                <span className="text-2xl font-black text-white">{Math.min(99, Math.max(1, Math.floor(elo / 150)))} Lvl</span>
+                <span className="text-2xl font-black text-white">{stats.currentStreak.count > 0 ? `${stats.currentStreak.count} ${stats.currentStreak.type}` : '-'}</span>
               </div>
               <div className="bg-surface-container p-6 rounded-2xl border border-white/5">
-                <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block mb-2">Puzzles</span>
-                <span className="text-2xl font-black text-white">{puzzlesSolved.toLocaleString() || 1242}</span>
+                <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block mb-2">Games</span>
+                <span className="text-2xl font-black text-white">{stats.totalGames}</span>
               </div>
             </div>
 

@@ -47,7 +47,7 @@ const GrandmasterMonolith = () => {
                         </p>
                         <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
                             <Link href="/login" className="bg-white text-black px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all">Begin Training</Link>
-                            <button className="bg-transparent text-white border border-white/10 px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/5 transition-all">Watch Protocol</button>
+                            <Link href="/under-construction" className="bg-transparent text-white border border-white/10 px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/5 transition-all">Watch Protocol</Link>
                         </div>
                     </div>
 
@@ -85,7 +85,7 @@ const GrandmasterMonolith = () => {
                         <div className="bg-background p-12 space-y-6">
                             <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white/30">02 / Analysis</span>
                             <h3 className="text-2xl font-black text-white tracking-tighter">Unrestricted Game Review</h3>
-                            <p className="text-neutral-500 text-sm leading-relaxed">Cloud-based Stockfish 16.1 at 30+ depth for every move. Deep neural evaluations with human-readable reasoning.</p>
+                            <p className="text-neutral-500 text-sm leading-relaxed">Cloud-based Stockfish 18 NNUE at depth 18 for every move. Deep neural evaluations with human-readable reasoning.</p>
                         </div>
                         <div className="bg-background p-12 space-y-6">
                             <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white/30">03 / Variants</span>
@@ -142,7 +142,7 @@ const GrandmasterMonolith = () => {
                         <p className="text-neutral-400 uppercase tracking-[0.4em] text-[11px] font-bold">Curricula and variants are free, open-source, and accessible to the global collective.</p>
                         <div className="flex flex-col sm:flex-row justify-center gap-6 pt-6">
                             <Link href={session ? `/dashboard` : `/login`} className="bg-white text-black px-16 py-6 rounded-full font-black text-sm uppercase tracking-widest hover:bg-neutral-200 transition-all active:scale-95 shadow-[0_0_50px_rgba(255,255,255,0.1)]">VIEW SOURCE</Link>
-                            <button className="bg-transparent text-white border border-white/10 px-16 py-6 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/5 transition-all">EXPLORE COURSES</button>
+                            <Link href="/under-construction" className="bg-transparent text-white border border-white/10 px-16 py-6 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/5 transition-all">EXPLORE COURSES</Link>
                         </div>
                     </div>
                 </section>
@@ -157,25 +157,26 @@ const GrandmasterMonolith = () => {
                         <div className="space-y-8">
                             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">System</h4>
                             <ul className="space-y-4 text-[11px] uppercase tracking-widest text-neutral-500 font-medium">
-                                <li><a className="hover:text-white transition-colors" href="#">Architecture</a></li>
-                                <li><a className="hover:text-white transition-colors" href="#">API Docs</a></li>
-                                <li><a className="hover:text-white transition-colors" href="#">Neural Net</a></li>
+                                <li><Link className="hover:text-white transition-colors" href="/under-construction">Architecture</Link></li>
+                                <li><Link className="hover:text-white transition-colors" href="/under-construction">API Docs</Link></li>
+                                <li><Link className="hover:text-white transition-colors" href="/under-construction">Neural Net</Link></li>
                             </ul>
                         </div>
                         <div className="space-y-8">
                             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Legal</h4>
                             <ul className="space-y-4 text-[11px] uppercase tracking-widest text-neutral-500 font-medium">
-                                <li><a className="hover:text-white transition-colors" href="#">Fair Play</a></li>
+                                <li><Link className="hover:text-white transition-colors" href="/under-construction">Fair Play</Link></li>
                                 <li><Link className="hover:text-white transition-colors" href="/privacy">Privacy</Link></li>
                                 <li><Link className="hover:text-white transition-colors" href="/terms">Terms</Link></li>
+                                <li><Link className="hover:text-white transition-colors" href="/credits">Credits</Link></li>
                             </ul>
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-12 border-t border-monolith">
                         <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-700">© 2024 Monolith Chess Systems. No distractions.</p>
                         <div className="flex gap-8">
-                            <a className="text-neutral-700 hover:text-white transition-colors" href="#"><span className="material-symbols-outlined !text-lg">terminal</span></a>
-                            <a className="text-neutral-700 hover:text-white transition-colors" href="#"><span className="material-symbols-outlined !text-lg">shield</span></a>
+                            <Link className="text-neutral-700 hover:text-white transition-colors" href="/under-construction"><span className="material-symbols-outlined !text-lg">terminal</span></Link>
+                            <Link className="text-neutral-700 hover:text-white transition-colors" href="/under-construction"><span className="material-symbols-outlined !text-lg">shield</span></Link>
                         </div>
                     </div>
                 </footer>
@@ -184,9 +185,9 @@ const GrandmasterMonolith = () => {
             {/* Mobile Bottom Nav */}
             <MobileNavbar />
             {/* Floating Action Button */}
-            <button className="fixed bottom-10 right-10 w-14 h-14 bg-white text-black rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all z-50">
+            <Link href="/under-construction" className="fixed bottom-10 right-10 w-14 h-14 bg-white text-black rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all z-50">
                 <span className="material-symbols-outlined font-bold">add</span>
-            </button>
+            </Link>
         </div>
     );
 };

@@ -41,7 +41,7 @@ export function updatePuzzleRating(
   const outcome = solved ? 1 : usedHint ? 0.5 : 0;
   r.updateRatings([[player, puzzle, outcome]]);
   const newRating = Math.round(player.getRating());
-  const newRd = Math.round(player.getRd() * 10) / 10;
+  const newRd = Math.round(player.getRd());
   const newVol = Math.round(player.getVol() * 10000) / 10000;
   const delta = newRating - currentRating;
   return { newRating, newRd, newVol, delta };
