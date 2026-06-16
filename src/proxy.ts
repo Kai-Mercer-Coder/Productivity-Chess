@@ -5,12 +5,15 @@ function handler(req: any) {
   const url = req.nextUrl.pathname;
   const isStockfish = url.startsWith("/stockfish-mv/");
   const isVariant = url.startsWith("/variants/");
+  const isEndgame = url.startsWith("/learn/endgames/");
 
-  if (isStockfish || isVariant) {
+  const needsCrossOrigin = isStockfish || isVariant || isEndgame;
+
+  if (needsCrossOrigin) {
     const response = NextResponse.next();
     response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
     response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
-    return response;
+    if (isStockfish) return response;
   }
 
   if (!req.auth) {

@@ -161,4 +161,4 @@ Deploy on Vercel. Set the same env vars in the Vercel dashboard, overriding `NEX
 
 ## License
 
-[MIT](LICENSE)
+[AGPL-3.0](LICENSE)

@@ -1,10 +1,44 @@
 "use client";
 
 import Link from "next/link";
+import { endgameLines } from "@/data/endgames";
 import { useGameStats } from "@/lib/hooks/useGameStats";
 
 export default function EndgamesPage() {
   const stats = useGameStats();
+
+  const grouped: Record<string, typeof endgameLines> = {};
+  for (const line of endgameLines) {
+    if (!grouped[line.group]) grouped[line.group] = [];
+    grouped[line.group].push(line);
+  }
+
+  function LineCard({ line }: { line: typeof endgameLines[0] }) {
+    const isChallenge = !!line.maxMoves;
+    return (
+      <div className="bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex items-center gap-5 hover:bg-surface-container-high transition-all">
+        <div className="flex-1 min-w-0">
+          <h4 className="text-base font-bold text-primary truncate">{line.name}</h4>
+          <p className="text-xs text-on-surface-variant mt-1">
+            {isChallenge
+              ? `Beat Stockfish in ${line.maxMoves} moves`
+              : `${line.moves.length} moves`}
+          </p>
+        </div>
+        <Link
+          href={`/learn/endgames/train/${line.id}`}
+          className={`px-4 py-2 rounded-full font-bold text-xs transition-all text-center whitespace-nowrap ${
+            isChallenge
+              ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:opacity-80'
+              : 'bg-primary text-on-primary hover:opacity-80'
+          }`}
+        >
+          {isChallenge ? 'Challenge' : 'Learn'}
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <>
       <main className="px-8 pb-20 max-w-7xl mx-auto pt-12">
@@ -22,93 +56,20 @@ export default function EndgamesPage() {
           </p>
         </header>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Link href="/under-construction" className="group relative bg-surface-container border border-outline-variant/10 rounded-xl overflow-hidden hover:bg-surface-container-high transition-all duration-500 p-8 flex flex-col justify-between min-h-[420px] active:scale-[0.98]">
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-              <span className="material-symbols-outlined text-8xl" style={{ fontVariationSettings: "'wght' 200" }}>chess_pawn</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">Theoretical</span>
-                <span className="text-on-surface-variant text-xs font-medium">8 Lessons</span>
+        <section className="space-y-8">
+          {Object.entries(grouped).map(([groupName, lines]) => (
+            <div key={groupName} className="bg-surface-container border border-outline-variant/10 rounded-xl overflow-hidden">
+              <div className="p-6 pb-4">
+                <h2 className="text-xl font-black tracking-tight text-primary">{groupName}</h2>
+                <p className="text-sm text-on-surface-variant mt-1">{lines.length} lessons</p>
               </div>
-              <h3 className="text-2xl font-bold text-primary mb-4 leading-tight group-hover:translate-x-2 transition-transform duration-500">Pawn Endings</h3>
-              <p className="text-on-surface-variant text-sm leading-relaxed mb-8">
-                The bedrock of endgame theory. Understand opposition, key squares, and the rule of the square. Mastering pawn endings is essential for any aspiring Grandmaster.
-              </p>
-            </div>
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Difficulty</p>
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <div className="w-2 h-2 rounded-full bg-primary/20"></div>
-                  <div className="w-2 h-2 rounded-full bg-primary/20"></div>
-                </div>
+              <div className="px-6 pb-6 space-y-2">
+                {lines.map(line => (
+                  <LineCard key={line.id} line={line} />
+                ))}
               </div>
-              <span className="w-12 h-12 rounded-full bg-primary text-surface flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </span>
             </div>
-          </Link>
-
-          <Link href="/under-construction" className="group relative bg-primary rounded-xl overflow-hidden shadow-2xl p-8 flex flex-col justify-between min-h-[420px] active:scale-[0.98]">
-            <div className="absolute top-0 right-0 p-8 text-surface/10">
-              <span className="material-symbols-outlined text-8xl" style={{ fontVariationSettings: "'wght' 200" }}>chess_rook</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="px-3 py-1 bg-surface text-primary text-[10px] font-black uppercase tracking-widest rounded-full">Essential</span>
-                <span className="text-surface/70 text-xs font-medium">14 Lessons</span>
-              </div>
-              <h3 className="text-2xl font-bold text-surface mb-4 leading-tight">Rook &amp; Pawn Essentials</h3>
-              <p className="text-surface/80 text-sm leading-relaxed mb-8">
-                The most frequent endgame in tournament play. Learn the Lucena position, Philidor&rsquo;s defense, and the Vancura maneuver to save drawn games and win winning ones.
-              </p>
-            </div>
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-[10px] text-surface/60 uppercase tracking-widest mb-1">Difficulty</p>
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-surface"></div>
-                  <div className="w-2 h-2 rounded-full bg-surface"></div>
-                  <div className="w-2 h-2 rounded-full bg-surface/30"></div>
-                </div>
-              </div>
-              <span className="w-12 h-12 rounded-full bg-surface text-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                <span className="material-symbols-outlined">play_arrow</span>
-              </span>
-            </div>
-          </Link>
-
-          <Link href="/under-construction" className="group relative bg-surface-container border border-outline-variant/10 rounded-xl overflow-hidden hover:bg-surface-container-high transition-all duration-500 p-8 flex flex-col justify-between min-h-[420px] active:scale-[0.98]">
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-              <span className="material-symbols-outlined text-8xl" style={{ fontVariationSettings: "'wght' 200" }}>memory</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">Advanced</span>
-                <span className="text-on-surface-variant text-xs font-medium">5 Lessons</span>
-              </div>
-              <h3 className="text-2xl font-bold text-primary mb-4 leading-tight group-hover:translate-x-2 transition-transform duration-500">Tablebase Theory</h3>
-              <p className="text-on-surface-variant text-sm leading-relaxed mb-8">
-                Deep dive into computer-perfect endgame play. Explore 7-piece tablebases and the counter-intuitive defensive resources that defy classical intuition.
-              </p>
-            </div>
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Difficulty</p>
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                </div>
-              </div>
-              <span className="w-12 h-12 rounded-full bg-primary text-surface flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined">science</span>
-              </span>
-            </div>
-          </Link>
+          ))}
         </section>
 
         <section className="mt-24 grid grid-cols-1 md:grid-cols-4 gap-8 py-12 border-y border-outline-variant/10">

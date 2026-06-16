@@ -3,10 +3,7 @@ import Link from "next/link";
 const libraries = [
   { name: "Stockfish", url: "https://stockfishchess.org/", desc: "Open-source chess engine used for local and cloud analysis" },
   { name: "Lichess", url: "https://lichess.org/", desc: "Puzzle database and piece design inspiration" },
-  { name: "WintrChess", url: "#", desc: "Chess analysis and evaluation tools" },
   { name: "react-chessboard", url: "#", desc: "Interactive chessboard component for React" },
-  { name: "positional_chess", url: "https://github.com/dev-arcturus/positional_chess", desc: "Positional chess evaluation and analysis library" },
-  { name: "en-croissant", url: "https://github.com/franciscoBSalgueiro/en-croissant", desc: "Offline chess platform — move and capture sound effects" },
   { name: "Next.js", url: "https://nextjs.org/", desc: "React framework for production-grade applications" },
   { name: "Tailwind CSS", url: "https://tailwindcss.com/", desc: "Utility-first CSS framework" },
   { name: "next-auth", url: "https://next-auth.js.org/", desc: "Authentication for Next.js" },
@@ -24,9 +21,15 @@ export default function CreditsPage() {
         </Link>
 
         <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4">Credits</h1>
-        <p className="text-neutral-500 text-sm mb-12">
-          This project is built on the shoulders of open-source giants. Thank you.
-        </p>
+
+        <div className="mb-16 p-6 bg-neutral-900/50 rounded-xl border border-neutral-800">
+          <h2 className="text-lg font-bold text-white mb-2">Contributors</h2>
+          <p className="text-neutral-400 text-sm leading-relaxed">
+            ClonicalClone and Kai Mercer have the main contribution of making this website.
+          </p>
+        </div>
+
+        <h2 className="text-xl font-bold text-white mb-6">Packages Used to Make This Project</h2>
 
         <div className="space-y-4 mb-16">
           {libraries.map((lib) => (
@@ -61,6 +64,12 @@ export default function CreditsPage() {
             <span className="material-symbols-outlined">code</span>
             View on GitHub
           </a>
+        </div>
+
+        <div className="mt-24 text-center">
+          <p className="text-[10px] font-mono text-neutral-700 select-all break-all">
+            0a33146aacb2d3d27444d8109d10d030e90ab9e7dbc09bb3853f39f25c1dfb13
+          </p>
         </div>
       </div>
     </div>

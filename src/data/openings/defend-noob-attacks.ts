@@ -1,0 +1,66 @@
+import { type OpeningLine } from '../openingLines';
+
+export const defendNoobLines: OpeningLine[] = [
+  {
+    id: "defend-scholars-mate",
+    name: "Defending the Scholar's Mate",
+    eco: "C20",
+    group: "Defend Noob Attacks",
+    moves: [
+      { san: "e4", hint: null },
+      { san: "e5", hint: "Play e5 — claim central space naturally" },
+      { san: "Qh5", hint: null },
+      { san: "Nc6", hint: "Play Nc6 — White threatens e5. Defend your central pawn first before kicking the queen" },
+      { san: "Bc4", hint: null },
+      { san: "g6", hint: "Play g6 — White threatens checkmate on f7! Block the path and attack the queen simultaneously" },
+      { san: "Qf3", hint: null },
+      { san: "Nf6", hint: "Play Nf6 — White resets the checkmate threat on f7. Block it again with a natural knight development" },
+    ],
+  },
+  {
+    id: "defend-fried-liver-traxler",
+    name: "Fried Liver: Traxler Counter-Attack",
+    eco: "C57",
+    group: "Defend Noob Attacks",
+    moves: [
+      { san: "e4", hint: null },
+      { san: "e5", hint: "Play e5 — establish your central presence" },
+      { san: "Nf3", hint: null },
+      { san: "Nc6", hint: "Play Nc6 — defend your e5 pawn" },
+      { san: "Bc4", hint: null },
+      { san: "Nf6", hint: "Play Nf6 — the Two Knights Defense, daring White to jump forward" },
+      { san: "Ng5", hint: null },
+      { san: "Bc5", hint: "Play Bc5 — the Traxler Counter-Attack! Ignore White's f7 threat and launch an even deadlier counter-attack on White's f2 square" },
+    ],
+  },
+  {
+    id: "defend-icbm-gambit",
+    name: "Defending the ICBM Gambit",
+    eco: "A40",
+    group: "Defend Noob Attacks",
+    moves: [
+      { san: "d4", hint: null },
+      { san: "Nf6", hint: "Play Nf6 — develop normally against the Queen's Pawn opening" },
+      { san: "e4", hint: null },
+      { san: "Nxe4", hint: "Play Nxe4 — accept the free pawn! This is the Tennison Gambit" },
+      { san: "Nc3", hint: null },
+      { san: "Nf6", hint: "Play Nf6 — retreat your knight safely to safeguard your material advantage" },
+      { san: "Bg5", hint: null },
+      { san: "Nc6", hint: "Play Nc6 — the vital antidote! Develop naturally to prepare a safe escape route for your king" },
+    ],
+  },
+  {
+    id: "defend-wayward-queen-early-nf6",
+    name: "Punishing 2.Qh5 (Wayward Queen)",
+    eco: "C20",
+    group: "Defend Noob Attacks",
+    moves: [
+      { san: "e4", hint: null },
+      { san: "e5", hint: "Play e5 — match White's central footprint" },
+      { san: "Qh5", hint: null },
+      { san: "Nc6", hint: "Play Nc6 — protect your e5 pawn before you worry about White's misplaced queen" },
+      { san: "Nf3", hint: null },
+      { san: "g6", hint: "Play g6 — White tries to pressure e5 again; force the queen to move away with a tempo" },
+    ],
+  },
+];

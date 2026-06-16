@@ -108,9 +108,12 @@ export async function getEngineBestMove(fen: string, variant: string, strength: 
   const sf = await loadScript();
   const skillLevel = Math.max(1, Math.min(20, Math.round(strength * 2)));
 
-  const opts = VARIANT_UCI_OPTS[variant] || [];
-  for (const [name, value] of opts) {
-    sf.postMessage(`setoption name ${name} value ${value}`);
+  if (VARIANT_UCI_OPTS[variant]) {
+    for (const [name, value] of VARIANT_UCI_OPTS[variant]) {
+      sf.postMessage(`setoption name ${name} value ${value}`);
+    }
+  } else {
+    sf.postMessage('setoption name UCI_Variant value standard');
   }
   sf.postMessage(`setoption name Skill Level value ${skillLevel}`);
 
