@@ -1,5 +1,5 @@
-import { Chess, Position, Board, SquareSet, Material, parseUci, makeUci, makeSquare, compat, isDrop, variant, fen } from 'chessops';
-import type { Move, Role, Setup, Square } from 'chessops';
+import { Chess, Position, Board, SquareSet, Material, parseUci, makeUci, compat, variant, fen } from 'chessops';
+import type { Role, Setup, Square } from 'chessops';
 
 export interface VariantConfig {
   id: string;
@@ -12,10 +12,6 @@ export const VARIANT_CONFIGS: Record<string, VariantConfig> = {
   giveaway: { id: 'giveaway', title: 'Giveaway', icon: 'heart_broken' },
   crazyhouse: { id: 'crazyhouse', title: 'Crazyhouse', icon: 'cyclone' },
   atomic: { id: 'atomic', title: 'Atomic', icon: 'explosion' },
-};
-
-const PIECE_VALUES: Record<string, number> = {
-  pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0,
 };
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -94,6 +90,7 @@ export function getAllUciMoves(pos: Position): string[] {
       moves.push(makeUci({ from, to }));
     }
   }
+  moves.push(...getAllDropUciMoves(pos));
   return moves;
 }
 
@@ -121,29 +118,42 @@ export function getLegalDests(pos: Position): Map<string, string[]> {
   return compat.chessgroundDests(pos);
 }
 
-function evaluateMove(pos: Position, move: Move): number {
-  let score = Math.random() * 50;
-  if (!isDrop(move)) {
-    const target = pos.board.get(move.to);
-    if (target) score += (PIECE_VALUES[target.role] || 0) * 100;
-  }
-  return score;
+const ROLE_TO_CHAR: Record<string, string> = { pawn: 'P', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q' };
+const CHAR_TO_ROLE: Record<string, Role> = { P: 'pawn', N: 'knight', B: 'bishop', R: 'rook', Q: 'queen' };
+
+export function getPlayerPocket(pos: Position): Record<string, number> {
+  const pockets = pos.pockets;
+  if (!pockets) return {};
+  const side = pockets.white;
+  return { pawn: side.pawn, knight: side.knight, bishop: side.bishop, rook: side.rook, queen: side.queen };
 }
 
-export function pickAiMove(pos: Position, strength: number): string {
-  const ctx = pos.ctx();
-  const allDests = pos.allDests(ctx);
-  const moves: { uci: string; score: number }[] = [];
-  for (const [from, toSet] of allDests) {
-    for (const to of toSet) {
-      const move: Move = { from, to };
-      moves.push({ uci: makeUci(move), score: evaluateMove(pos, move) });
+export function getAiPocket(pos: Position): Record<string, number> {
+  const pockets = pos.pockets;
+  if (!pockets) return {};
+  const side = pockets.black;
+  return { pawn: side.pawn, knight: side.knight, bishop: side.bishop, rook: side.rook, queen: side.queen };
+}
+
+export function sparePieceToDropUci(pieceType: string, targetSquare: string): string {
+  const char = pieceType[1].toUpperCase();
+  return `${char}@${targetSquare}`;
+}
+
+export function getAllDropUciMoves(pos: Position): string[] {
+  const drops: string[] = [];
+  const pockets = pos.pockets;
+  if (!pockets) return drops;
+  const side = pos.turn === 'white' ? pockets.white : pockets.black;
+  const dests = pos.dropDests();
+  for (const role of ['pawn', 'knight', 'bishop', 'rook', 'queen'] as Role[]) {
+    if (side[role] > 0) {
+      for (const to of dests) {
+        drops.push(makeUci({ role, to }));
+      }
     }
   }
-  if (moves.length === 0) return '';
-  if (moves.length === 1) return moves[0].uci;
-  moves.sort((a, b) => b.score - a.score);
-  const topN = Math.max(1, Math.ceil((10 - strength) / 10 * moves.length));
-  const idx = Math.floor(Math.random() * topN);
-  return moves[idx].uci;
+  return drops;
 }
+
+

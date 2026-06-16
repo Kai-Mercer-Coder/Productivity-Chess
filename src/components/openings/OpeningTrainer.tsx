@@ -17,7 +17,20 @@ interface Props {
   onComplete: (wrongCount: number) => void;
 }
 
+function isUsersTurn(idx: number, orientation: 'white' | 'black') {
+  return orientation === 'white' ? idx % 2 === 0 : idx % 2 === 1;
+}
+
+function isAutoPlay(idx: number, orientation: 'white' | 'black') {
+  return !isUsersTurn(idx, orientation);
+}
+
+function userPieceColor(orientation: 'white' | 'black') {
+  return orientation === 'white' ? 'w' : 'b';
+}
+
 export default function OpeningTrainer({ line, mode, onComplete }: Props) {
+  const orientation = line.orientation ?? 'black';
   const chessRef = useRef(new Chess());
   const [position, setPosition] = useState(chessRef.current.fen());
   const [moveIdx, setMoveIdx] = useState(0);
@@ -53,31 +66,31 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
       setShowCompletion(true);
       return;
     }
+    if (!isAutoPlay(idx, orientation)) { setStatus('playing'); return; }
+
     const move = line.moves[idx];
-    if (idx % 2 === 0) {
-      const game = chessRef.current;
-      let isCapture = false;
-      try {
-        const target = move.san.replace(/[^a-h1-8]/g, '').slice(-2);
-        isCapture = !!game.get(target as any);
-      } catch {}
-      if (isCapture) playCaptureSound(); else playMoveSound();
-      try {
-        game.move(move.san);
-        setPosition(game.fen());
-      } catch (e) {
-        return;
-      }
-      const next = idx + 1;
-      if (next >= line.moves.length) {
-        setShowCompletion(true);
-        setStatus('completed');
-        return;
-      }
-      setMoveIdx(next);
-      setStatus('playing');
+    const game = chessRef.current;
+    let isCapture = false;
+    try {
+      const target = move.san.replace(/[^a-h1-8]/g, '').slice(-2);
+      isCapture = !!game.get(target as any);
+    } catch {}
+    if (isCapture) playCaptureSound(); else playMoveSound();
+    try {
+      game.move(move.san);
+      setPosition(game.fen());
+    } catch (e) {
+      return;
     }
-  }, [line.moves]);
+    const next = idx + 1;
+    if (next >= line.moves.length) {
+      setShowCompletion(true);
+      setStatus('completed');
+      return;
+    }
+    setMoveIdx(next);
+    setStatus('playing');
+  }, [line.moves, orientation]);
 
   useEffect(() => {
     chessRef.current = new Chess();
@@ -92,13 +105,13 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
   }, [line, autoPlayNext, clearSelection]);
 
   const executeUserMove = useCallback((sourceSquare: string, targetSquare: string): boolean => {
-    const status = statusRef.current;
+    const myStatus = statusRef.current;
     const idx = moveIdxRef.current;
-    if (status !== 'playing' || idx % 2 !== 1) return false;
+    if (myStatus !== 'playing' || !isUsersTurn(idx, orientation)) return false;
 
     const game = chessRef.current;
     const piece = game.get(sourceSquare as any);
-    if (!piece || piece.color !== 'b') return false;
+    if (!piece || piece.color !== userPieceColor(orientation)) return false;
 
     const expectedSan = line.moves[idx].san;
 
@@ -136,14 +149,15 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
       setStatus('playing');
     }, 1200);
     return true;
-  }, [line.moves, autoPlayNext, clearSelection]);
+  }, [line.moves, autoPlayNext, clearSelection, orientation]);
 
   const handleSquareClick = useCallback(({ square }: { square: string }) => {
     const game = chessRef.current;
-    const status = statusRef.current;
+    const myStatus = statusRef.current;
     const idx = moveIdxRef.current;
+    const uc = userPieceColor(orientation);
 
-    if (status !== 'playing' || idx % 2 !== 1) return;
+    if (myStatus !== 'playing' || !isUsersTurn(idx, orientation)) return;
 
     const piece = game.get(square as any);
 
@@ -152,7 +166,7 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
       return;
     }
 
-    if (piece && piece.color === 'b') {
+    if (piece && piece.color === uc) {
       const moves = game.moves({ square: square as any, verbose: true });
       setSelectedSquare(square);
       setLegalMoves(moves.map(m => m.to));
@@ -162,7 +176,7 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
     if (selectedSquare && legalMoves.includes(square)) {
       executeUserMove(selectedSquare, square);
     }
-  }, [selectedSquare, legalMoves, executeUserMove, clearSelection]);
+  }, [selectedSquare, legalMoves, executeUserMove, clearSelection, orientation]);
 
   const handlePieceDrop = useCallback((sourceSquare: string, targetSquare: string | null): boolean => {
     if (!targetSquare) return false;
@@ -174,20 +188,21 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
     if (!square) return;
     const game = chessRef.current;
     const piece = game.get(square as any);
-    if (piece && piece.color === 'b') {
+    const uc = userPieceColor(orientation);
+    if (piece && piece.color === uc) {
       const moves = game.moves({ square: square as any, verbose: true });
       setSelectedSquare(square);
       setLegalMoves(moves.map(m => m.to));
     }
-  }, []);
+  }, [orientation]);
 
-  const currentHint = moveIdx < line.moves.length && moveIdx % 2 === 1
+  const currentHint = moveIdx < line.moves.length && isUsersTurn(moveIdx, orientation)
     ? line.moves[moveIdx].hint
     : null;
 
   const showHint = mode === 'learn' || (mode === 'revise' && status === 'wrong');
 
-  const userMovesCount = line.moves.filter((_, i) => i % 2 === 1).length;
+  const userMovesCount = line.moves.filter((_, i) => isUsersTurn(i, orientation)).length;
   const completedUserMoves = Math.floor(moveIdx / 2);
 
   return (
@@ -221,7 +236,7 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
                 position,
                 pieces: customPieces,
                 squareStyles,
-                boardOrientation: "black",
+                boardOrientation: orientation,
                 onPieceDrop: ({ sourceSquare, targetSquare }) => handlePieceDrop(sourceSquare, targetSquare),
                 onSquareClick: handleSquareClick,
                 onPieceDrag: handlePieceDrag,
@@ -264,7 +279,7 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
             </div>
           )}
 
-          {status === 'playing' && !currentHint && moveIdx % 2 === 1 && mode === 'revise' && (
+          {status === 'playing' && !currentHint && isUsersTurn(moveIdx, orientation) && mode === 'revise' && (
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
               <p className="text-neutral-400 text-sm">Play the correct response from memory.</p>
             </div>

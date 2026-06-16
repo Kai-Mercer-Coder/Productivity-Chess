@@ -4,8 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { customPieces } from "@/components/chess/customPieces";
 import { boardTheme } from "@/lib/chess/boardTheme";
-import type { CoachExplanation } from "@/lib/chess/CoachService";
-import { useCoachService } from "@/lib/hooks/useCoachService";
 import { getCoachMessage } from "@/lib/chess/coach";
 import type Report from "@/lib/types/Report";
 import {
@@ -24,11 +22,18 @@ const PIECE_UNICODE: Record<string, string> = {
   pawn: "\u265F",
 };
 
+interface CoachToken {
+  type: string;
+  text: string;
+  square?: string;
+  role?: string;
+}
+
 function CoachMessage({
   items,
   loading,
 }: {
-  items: CoachExplanation[];
+  items: CoachToken[];
   loading: boolean;
 }) {
   return (
@@ -61,7 +66,7 @@ function CoachMessage({
                 className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-amber-500/15 text-amber-300 font-mono text-xs font-bold"
               >
                 <span className="text-sm">
-                  {PIECE_UNICODE[item.role] || ""}
+                  {item.role ? (PIECE_UNICODE[item.role] || "") : ""}
                 </span>
                 {item.square}
               </span>
@@ -100,19 +105,9 @@ function GameReviewView({
   apiKey?: string;
 }) {
   const [showAnalysis, setShowAnalysis] = useState(false);
-  const prevNavRef = useRef(navIndex);
-  const wasActiveRef = useRef(false);
   const [localCoachMsg, setLocalCoachMsg] = useState<string | null>(null);
   const [localLoading, setLocalLoading] = useState(false);
   const localNavRef = useRef(-1);
-
-  const coach = useCoachService({
-    enabled: showAnalysis,
-    stockfishUrl,
-    apiKey: apiKey || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY,
-  });
-
-  const hasApiKey = !!(apiKey || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY);
 
   const currentClassification = useMemo(() => {
     if (!report) return null;
@@ -130,27 +125,10 @@ function GameReviewView({
   }, [report, navIndex]);
 
   useEffect(() => {
-    if (!showAnalysis || !coach.ready || !report || navIndex < 1) return;
-    if (wasActiveRef.current && prevNavRef.current === navIndex) return;
-    wasActiveRef.current = true;
-    prevNavRef.current = navIndex;
-
-    const pos = report.positions[navIndex];
-    if (pos?.fen && pos?.move?.uci) {
-      coach.explain(pos.fen, pos.move.uci);
-    }
-  }, [showAnalysis, coach.ready, report, navIndex, coach.explain]);
-
-  useEffect(() => {
-    if (!showAnalysis) wasActiveRef.current = false;
-  }, [showAnalysis]);
-
-  useEffect(() => {
     if (!showAnalysis || !report || navIndex < 1) {
       setLocalCoachMsg(null);
       return;
     }
-    if (hasApiKey) return;
     if (localNavRef.current === navIndex) return;
     localNavRef.current = navIndex;
 
@@ -163,14 +141,9 @@ function GameReviewView({
       setLocalCoachMsg(msg);
       setLocalLoading(false);
     });
-  }, [showAnalysis, report, navIndex, hasApiKey]);
+  }, [showAnalysis, report, navIndex]);
 
-  const coachTokens = useMemo(() => {
-    if (!coach.result) return [];
-    return coach.result.tokens;
-  }, [coach.result]);
-
-  const localCoachTokens: CoachExplanation[] = useMemo(() => {
+  const localCoachTokens = useMemo(() => {
     if (!localCoachMsg) return [];
     return [{ type: "text", text: localCoachMsg }];
   }, [localCoachMsg]);
@@ -437,33 +410,7 @@ function GameReviewView({
                   </div>
                 </div>
               )}
-              {hasApiKey && (coachTokens.length > 0 || coach.loading || coach.error) && (
-                <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 mt-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400/70">
-                      Coach
-                    </span>
-                    {coach.result && (
-                      <span className="text-[9px] text-neutral-600 font-mono">
-                        {coach.result.model.split("/").pop()}
-                      </span>
-                    )}
-                  </div>
-                  {coach.error ? (
-                    <div className="text-sm text-rose-400/80 leading-relaxed">
-                      {coach.error}
-                    </div>
-                  ) : (
-                    <div className="text-sm text-neutral-300 leading-relaxed">
-                      <CoachMessage
-                        items={coachTokens}
-                        loading={coach.loading}
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-              {!hasApiKey && (localCoachMsg || localLoading) && (
+              {(localCoachMsg || localLoading) && (
                 <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 mt-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400/70">
