@@ -10,10 +10,16 @@ function handler(req: any) {
   const needsCrossOrigin = isStockfish || isVariant || isEndgame;
 
   if (needsCrossOrigin) {
+    if (!req.auth) {
+      const response = NextResponse.redirect(new URL("/login", req.url));
+      response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+      response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+      return response;
+    }
     const response = NextResponse.next();
     response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
     response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
-    if (isStockfish) return response;
+    return response;
   }
 
   if (!req.auth) {
