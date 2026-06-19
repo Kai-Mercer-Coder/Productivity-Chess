@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import type { SessionWithProfile } from "@/types/profile";
 import { useSidebar } from "./SidebarContext";
 import UserProfileOverlay from "@/components/profile/UserProfileOverlay";
 
@@ -22,7 +23,7 @@ const Sidebar = () => {
   const { isCollapsed, toggleSidebar } = useSidebar();
   const [profileOpen, setProfileOpen] = useState(false);
   const user = session?.user;
-  const elo = (user as any)?.elo ?? 1200;
+  const elo = (user as SessionWithProfile["user"])?.elo ?? 1200;
 
   return (
     <aside

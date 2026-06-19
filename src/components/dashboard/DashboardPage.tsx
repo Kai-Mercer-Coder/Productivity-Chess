@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from "next-auth/react";
+import type { SessionWithProfile } from "@/types/profile";
 import '../../app/style.css';
 import Lenis from 'lenis';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -21,7 +22,7 @@ function timeAgo(iso: string): string {
 export default function GrandmasterDashboard() {
   const { data: session } = useSession();
   const user = session?.user;
-  const elo = (user as any)?.elo ?? 1200;
+  const elo = (user as SessionWithProfile["user"])?.elo ?? 1200;
   const stats = useGameStats();
 
   const performanceData = stats.ratingHistory.length > 0
@@ -99,7 +100,11 @@ export default function GrandmasterDashboard() {
               <h3 className="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] mb-4">01 / Rating</h3>
               <div className="flex items-baseline gap-3">
                 <span className="text-7xl md:text-8xl font-black tracking-tighter text-white">{elo}</span>
-                <span className="text-white/40 font-bold text-xl">+{Math.max(0, Math.round(1400 - elo / 2))}</span>
+                {stats.eloDelta !== 0 && (
+                  <span className={`font-bold text-xl ${stats.eloDelta > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {stats.eloDelta > 0 ? '+' : ''}{stats.eloDelta}
+                  </span>
+                )}
               </div>
               <p className="text-on-surface-variant text-sm mt-3 font-medium">{title} Title &bull; {tierLabel}</p>
             </div>

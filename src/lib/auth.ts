@@ -65,7 +65,7 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
             }
             return true;
         },
-        async jwt({ token, user, session, trigger }: any) {
+        async jwt({ token, user, session, trigger }: { token: any; user?: any; session?: any; trigger?: string }) {
             if (user) {
                 token.name = user.name;
             }
@@ -95,7 +95,7 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
 
             return token;
         },
-        async session({ session, token }: any) {
+        async session({ session, token }: { session: any; token: any }) {
             if (token) {
                 session.user.id = token.id;
                 session.user.elo = token.elo;

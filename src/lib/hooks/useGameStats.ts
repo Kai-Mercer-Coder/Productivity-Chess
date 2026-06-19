@@ -10,6 +10,7 @@ export interface GameStats {
   draws: number;
   winRate: number;
   ratingHistory: { date: string; rating: number }[];
+  eloDelta: number;
   recentGames: {
     id: number;
     date: string;
@@ -49,7 +50,7 @@ function computeStreak(games: { result: string }[]): { type: 'win' | 'loss' | 'd
 export function useGameStats() {
   const [stats, setStats] = useState<GameStats>({
     totalGames: 0, wins: 0, losses: 0, draws: 0, winRate: 0,
-    ratingHistory: [], recentGames: [], averageAccuracy: 0,
+    ratingHistory: [], eloDelta: 0, recentGames: [], averageAccuracy: 0,
     blundersPerGame: 0, openingStats: [], currentStreak: { type: 'draw', count: 0 },
     localPuzzleCount: 0, loading: true,
   });
@@ -77,6 +78,9 @@ export function useGameStats() {
         const blundersPerGame = analyzed.length > 0 ? blunders / analyzed.length : 0;
 
         const ratingHistory = all.map(g => ({ date: g.date.split('T')[0], rating: g.eloAtTime }));
+        const eloDelta = ratingHistory.length >= 2
+          ? ratingHistory[ratingHistory.length - 1].rating - ratingHistory[ratingHistory.length - 2].rating
+          : 0;
 
         const recentGames = [...all].reverse().slice(0, 10).map(g => ({
           id: g.id!,
@@ -115,7 +119,7 @@ export function useGameStats() {
 
         setStats({
           totalGames, wins, losses, draws, winRate,
-          ratingHistory, recentGames, averageAccuracy: avgAcc,
+          ratingHistory, eloDelta, recentGames, averageAccuracy: avgAcc,
           blundersPerGame, openingStats, currentStreak,
           localPuzzleCount, loading: false,
         });

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useSession, signOut } from "next-auth/react";
+import type { SessionWithProfile } from "@/types/profile";
 import Link from 'next/link';
 
 const Navbar = () => {
@@ -70,19 +71,19 @@ const Navbar = () => {
                             <div className="grid grid-cols-2 gap-3 mb-6">
                                 <div className="bg-neutral-900/60 rounded-xl p-4">
                                     <p className="text-xs text-neutral-500 uppercase tracking-wider">Rating</p>
-                                    <p className="text-2xl font-bold text-white">{(user as any)?.elo ?? 1200}</p>
+                                    <p className="text-2xl font-bold text-white">{(user as SessionWithProfile["user"])?.elo ?? 1200}</p>
                                 </div>
                                 <div className="bg-neutral-900/60 rounded-xl p-4">
                                     <p className="text-xs text-neutral-500 uppercase tracking-wider">Puzzles</p>
-                                    <p className="text-2xl font-bold text-white">{(user as any)?.puzzles_solved ?? 0}</p>
+                                    <p className="text-2xl font-bold text-white">{(user as SessionWithProfile["user"])?.puzzles_solved ?? 0}</p>
                                 </div>
                                 <div className="bg-neutral-900/60 rounded-xl p-4">
                                     <p className="text-xs text-neutral-500 uppercase tracking-wider">Delta</p>
-                                    <p className="text-2xl font-bold text-white">±{(user as any)?.delta_value ?? 200}</p>
+                                    <p className="text-2xl font-bold text-white">±{(user as SessionWithProfile["user"])?.delta_value ?? 200}</p>
                                 </div>
                                 <div className="bg-neutral-900/60 rounded-xl p-4">
                                     <p className="text-xs text-neutral-500 uppercase tracking-wider">Level</p>
-                                    <p className="text-2xl font-bold text-white">{Math.floor(((user as any)?.elo ?? 1200) / 200) + 1}</p>
+                                    <p className="text-2xl font-bold text-white">{Math.floor(((user as SessionWithProfile["user"])?.elo ?? 1200) / 200) + 1}</p>
                                 </div>
                             </div>
 

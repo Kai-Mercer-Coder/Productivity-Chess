@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { type PieceSymbol } from 'chess.js';
+import { type PieceSymbol, type Square } from 'chess.js';
 import { fenStringToPositionObject } from 'react-chessboard';
 import type { PieceDropHandlerArgs, PieceHandlerArgs, SquareHandlerArgs } from 'react-chessboard';
 
@@ -135,7 +135,7 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
         const type = piece.pieceType[1].toLowerCase();
         const color = piece.pieceType[0];
         const allowedMoves = moveHandlerRef.current.getTheoreticalMoves(sourceSquare, type, color);
-        if (!allowedMoves.includes(targetSquare as any)) return false;
+        if (!allowedMoves.includes(targetSquare)) return false;
 
         game.premovesRef.current.push({ sourceSquare, targetSquare, piece });
         game.setPremoves([...game.premovesRef.current]);
@@ -143,7 +143,7 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
       }
 
       let isCapture = false;
-      try { isCapture = !!game.chessGame.get(targetSquare as any); } catch {}
+      try { isCapture = !!game.chessGame.get(targetSquare as Square); } catch {}
       if (isCapture) playCaptureSound(); else playMoveSound();
 
       if (moveHandlerRef.current.executeMove(sourceSquare, targetSquare, 'q')) {
@@ -209,11 +209,11 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
           allowedMoves = moveHandlerRef.current.getTheoreticalMoves(game.moveFrom, type, color);
         }
 
-        if (allowedMoves.includes(square as any) && fromPieceStr) {
+        if (allowedMoves.includes(square) && fromPieceStr) {
           _onPieceDrop({
             sourceSquare: game.moveFrom,
-            targetSquare: square as any,
-            piece: { pieceType: fromPieceStr, isSparePiece: false, position: square } as any,
+            targetSquare: square,
+            piece: { pieceType: fromPieceStr, isSparePiece: false, position: square },
           });
         }
         game.resetMoveState(false);

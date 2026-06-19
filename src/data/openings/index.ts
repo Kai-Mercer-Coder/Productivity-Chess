@@ -6,6 +6,8 @@ import { ruyLopezLines } from './ruy-lopez';
 import { hyperDragonLines } from './hyper-dragon';
 import { queensGambitLines } from './queens-gambit';
 import { italianLines } from './italian';
+import { scandinavianLines } from './scandinavian';
+import { kingsIndianLines } from './kings-indian';
 import { defendNoobLines } from './defend-noob-attacks';
 import type { OpeningLine } from '../openingLines';
 
@@ -18,6 +20,8 @@ const openingLines: OpeningLine[] = [
   ...hyperDragonLines,
   ...queensGambitLines,
   ...italianLines,
+  ...scandinavianLines,
+  ...kingsIndianLines,
   ...defendNoobLines,
 ];
 

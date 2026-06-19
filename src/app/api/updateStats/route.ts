@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import type { SessionWithProfile } from "@/types/profile";
 import { createAdminClient } from "@/lib/supabase/createServerClient";
 import { updatePuzzleRating } from "@/lib/rating/GlickoRating";
 
@@ -12,9 +13,10 @@ export async function POST(req: Request) {
 
     const { solved, puzzleRating, usedHint } = await req.json();
 
-    const currentElo = (session.user as any)?.elo ?? 1200;
-    const currentRd = (session.user as any)?.delta_value ?? 200;
-    const currentVol = (session.user as any)?.volatility ?? 0.06;
+    const user = session?.user as SessionWithProfile["user"];
+    const currentElo = user?.elo ?? 1200;
+    const currentRd = user?.delta_value ?? 200;
+    const currentVol = user?.volatility ?? 0.06;
     const result = updatePuzzleRating(
         currentElo,
         currentRd,

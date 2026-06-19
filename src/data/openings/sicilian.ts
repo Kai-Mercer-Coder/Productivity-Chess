@@ -6,6 +6,7 @@ export const sicilianLines: OpeningLine[] = [
     name: "Najdorf Introduction",
     eco: "B90",
     group: "Sicilian Defense",
+    mainline: true,
     moves: [
       { san: "e4", hint: null },
       { san: "c5", hint: "Play c5 — the Sicilian's signature move, fighting for center control from the flank" },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import type { SessionWithProfile } from "@/types/profile";
 import { useGameStats } from '@/lib/hooks/useGameStats';
 
 function timeAgo(iso: string): string {
@@ -26,7 +27,7 @@ const TIERS = [
 export default function StatsPage() {
   const { data: session } = useSession();
   const user = session?.user;
-  const elo = (user as any)?.elo ?? 1200;
+  const elo = (user as SessionWithProfile["user"])?.elo ?? 1200;
   const stats = useGameStats();
 
   const currentTier = TIERS.findLast((t) => elo >= t.min) ?? TIERS[0];

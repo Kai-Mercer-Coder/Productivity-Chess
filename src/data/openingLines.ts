@@ -4,6 +4,7 @@ export interface OpeningLine {
   eco: string;
   group?: string;
   orientation?: 'white' | 'black';
+  mainline?: boolean;
   moves: { san: string; hint: string | null }[];
 }
 

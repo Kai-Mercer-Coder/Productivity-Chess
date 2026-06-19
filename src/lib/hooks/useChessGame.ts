@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Chess, type PieceSymbol } from 'chess.js';
+import { Chess, type PieceSymbol, type Square } from 'chess.js';
 import type { PieceDropHandlerArgs } from 'react-chessboard';
 import type { PromotionMove } from '@/lib/types/Engine';
 
@@ -38,7 +38,7 @@ export function useChessGame() {
 
     const makeMove = (from: string, to: string, promotion?: PieceSymbol): boolean => {
         try {
-            chessGame.move({ from, to, promotion } as any);
+            chessGame.move({ from: from as Square, to: to as Square, promotion });
             setPosition(chessGame.fen());
             resetMoveState();
             return true;

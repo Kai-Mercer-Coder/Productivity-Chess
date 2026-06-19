@@ -7,14 +7,8 @@ import { hfEvaluateFen, LocalStockfishEvalEngine, type LocalEvalResult } from "@
 import type Report from "@/lib/types/Report";
 import type { EvaluatedPosition } from "@/lib/types/Position";
 
-interface EvalResponse {
-  eval: number;
-  mate: number | null;
-  bestmove: string;
-  san: string;
-  continuationArr: string[];
-  winChance: number;
-}
+import type { EvalResult } from "@/lib/chess/engine/types";
+type EvalResponse = EvalResult;
 
 interface UseGameReviewReturn {
   report: Report | null;

@@ -1,5 +1,5 @@
-import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 function handler(req: any) {
   const url = req.nextUrl.pathname;
@@ -28,7 +28,7 @@ function handler(req: any) {
   return NextResponse.next();
 }
 
-export const proxy = auth(handler);
+export default auth(handler);
 
 export const config = {
   matcher: [

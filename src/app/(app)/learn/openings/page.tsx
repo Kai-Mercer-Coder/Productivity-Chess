@@ -1,96 +1,116 @@
 'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import { useOpeningProgress } from "@/hooks/useOpeningProgress";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useOpeningProgress } from '@/hooks/useOpeningProgress';
 
-export default function OpeningsPage() {
-  const { lines, totalLines, newCount, completedCount, getLine } = useOpeningProgress();
-  const reviseCount = completedCount;
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+interface GroupMeta {
+  desc: string;
+}
 
-  const grouped: Record<string, typeof lines> = {};
-  const ungrouped: typeof lines = [];
-  for (const line of lines) {
-    if (line.group) {
-      if (!grouped[line.group]) grouped[line.group] = [];
-      grouped[line.group].push(line);
-    } else {
-      ungrouped.push(line);
-    }
-  }
+const GROUP_META: Record<string, GroupMeta> = {
+  "Sicilian Defense": {
+    desc: "The most dynamic reply to 1.e4. Fight for control of the dark squares with asymmetrical counterplay.",
+  },
+  "Caro-Kann": {
+    desc: "A rock-solid fortress against 1.e4. Build an impenetrable pawn chain and outmaneuver White in the endgame.",
+  },
+  "Queen's Gambit Declined": {
+    desc: "The classical response to 1.d4. Construct a resilient wall and counter-strike at the perfect moment.",
+  },
+  "London System": {
+    desc: "A weaponized development system. Deploy the London bishop and launch a relentless kingside assault.",
+  },
+  "Ruy Lopez": {
+    desc: "The Spanish Inquisition. Pressure the knight that defends e5 and suffocate Black with slow positional torture.",
+  },
+  "Hyper-Accelerated Dragon": {
+    desc: "Sicilian on fast-forward. Fianchetto before White can set up — strike the center with explosive timing.",
+  },
+  "Queen's Gambit": {
+    desc: "Offer a flank pawn to dominate the center. Every serious 1.d4 player must master this cornerstone.",
+  },
+  "Italian Game": {
+    desc: "The Renaissance attack. Aim the bishop directly at f7 and unleash the deadliest early-game tactics.",
+  },
+  "Scandinavian Defense": {
+    desc: "Strike e4 on move one. Provoke White into overextending while you develop with rapid counterplay.",
+  },
+  "King's Indian Defense": {
+    desc: "The hypermodern masterpiece. Let White build a center, then detonate it with surgical kingside fury.",
+  },
+  "Defend Noob Attacks": {
+    desc: "Survive the Scholar's Mate, the Fried Liver, and every cheap trick. Turn their aggression into your advantage.",
+  },
+};
 
-  function LineCard({ line }: { line: typeof lines[0] }) {
-    const progress = getLine(line.id);
-    const userMovesCount = line.moves.filter((_, i) => i % 2 === 1).length;
-    return (
-      <div className="bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex items-center gap-5 hover:bg-surface-container-high transition-all">
+function OpeningGroupCard({
+  groupName,
+  lines,
+}: {
+  groupName: string;
+  lines: { id: string; name: string; eco: string }[];
+}) {
+  const router = useRouter();
+  const { getLine, getNextToLearn, getNextToRevise } = useOpeningProgress();
+
+  const total = lines.length;
+  const done = lines.filter(l => getLine(l.id).status === 'completed').length;
+  const newCount = total - done;
+  const meta = GROUP_META[groupName];
+
+  return (
+    <div className="bg-surface-container border border-outline-variant/10 rounded-xl p-6 hover:border-outline-variant/30 transition-all">
+      <div className="flex items-start justify-between gap-6">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-black tracking-widest text-primary/50 uppercase shrink-0">{line.eco}</span>
-            <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full shrink-0 ${
-              progress.status === 'new'
-                ? 'bg-blue-900/30 text-blue-400 border border-blue-500/20'
-                : 'bg-green-900/30 text-green-400 border border-green-500/20'
-            }`}>
-              {progress.status === 'new' ? 'New' : 'Completed'}
+          <h3 className="text-xl font-black tracking-tight text-primary">{groupName}</h3>
+          {meta?.desc && (
+            <p className="text-sm text-on-surface-variant/80 mt-1.5 leading-relaxed max-w-lg">{meta.desc}</p>
+          )}
+          <div className="flex items-center gap-3 mt-4">
+            <div className="flex-1 max-w-[200px] h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-500"
+                style={{ width: `${total > 0 ? (done / total) * 100 : 0}%` }}
+              />
+            </div>
+            <span className="text-xs text-on-surface-variant font-medium whitespace-nowrap">
+              {done}/{total} completed
+              {newCount > 0 && <span className="text-blue-400 ml-1">({newCount} new)</span>}
             </span>
           </div>
-          <h4 className="text-base font-bold text-primary truncate">{line.name}</h4>
-          <p className="text-xs text-on-surface-variant mt-1">{userMovesCount} moves</p>
         </div>
-        <div className="flex gap-2 shrink-0">
-          {progress.status === 'new' ? (
-            <Link href={`/learn/openings/train/${line.id}?mode=learn`}
-              className="px-4 py-2 bg-primary text-on-primary rounded-full font-bold text-xs hover:opacity-80 transition-all text-center whitespace-nowrap">
+        <div className="flex gap-3 shrink-0 pt-1">
+          {newCount > 0 && (
+            <button
+              onClick={() => {
+                const next = getNextToLearn(lines as any);
+                if (next) router.push(`/learn/openings/train/${next.id}?mode=${next.mode}`);
+              }}
+              className="px-5 py-2.5 bg-primary text-on-primary rounded-full font-bold text-xs hover:opacity-80 transition-all whitespace-nowrap"
+            >
               Learn
-            </Link>
-          ) : (
-            <>
-              <Link href={`/learn/openings/train/${line.id}?mode=learn`}
-                className="px-4 py-2 border border-primary/20 text-primary rounded-full font-bold text-xs hover:bg-primary hover:text-on-primary transition-all text-center whitespace-nowrap">
-                Re-learn
-              </Link>
-              <Link href={`/learn/openings/train/${line.id}?mode=revise`}
-                className="px-4 py-2 bg-primary text-on-primary rounded-full font-bold text-xs hover:opacity-80 transition-all text-center whitespace-nowrap">
-                Revise
-              </Link>
-            </>
+            </button>
+          )}
+          {done > 0 && (
+            <button
+              onClick={() => {
+                const next = getNextToRevise(lines as any);
+                if (next) router.push(`/learn/openings/train/${next.id}?mode=${next.mode}`);
+              }}
+              className="px-5 py-2.5 border border-primary/20 text-primary rounded-full font-bold text-xs hover:bg-primary hover:text-on-primary transition-all whitespace-nowrap"
+            >
+              Revise
+            </button>
           )}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  function GroupSection({ groupName, items }: { groupName: string; items: typeof lines }) {
-    const isOpen = expanded[groupName] ?? false;
-    const groupNew = items.filter(l => getLine(l.id).status === 'new').length;
-    const groupDone = items.filter(l => getLine(l.id).status === 'completed').length;
-    return (
-      <div className="bg-surface-container border border-outline-variant/10 rounded-xl overflow-hidden">
-        <button
-          onClick={() => setExpanded(p => ({ ...p, [groupName]: !isOpen }))}
-          className="w-full flex items-center gap-4 p-5 hover:bg-surface-container-high transition-colors text-left"
-        >
-          <span className={`material-symbols-outlined text-lg text-primary/50 transition-transform ${isOpen ? 'rotate-90' : ''}`}>
-            chevron_right
-          </span>
-          <div className="flex-1">
-            <h3 className="text-lg font-black tracking-tight text-primary">{groupName}</h3>
-            <p className="text-xs text-on-surface-variant mt-0.5">
-              {groupDone}/{items.length} completed
-              {groupNew > 0 && <span className="text-blue-400 ml-2">{groupNew} new</span>}
-            </p>
-          </div>
-        </button>
-        {isOpen && (
-          <div className="px-5 pb-5 space-y-3 border-t border-outline-variant/10 pt-4">
-            {items.map(line => <LineCard key={line.id} line={line} />)}
-          </div>
-        )}
-      </div>
-    );
-  }
+export default function OpeningsPage() {
+  const { groups, totalLines, newCount, completedCount } = useOpeningProgress();
 
   return (
     <main className="px-8 pb-20 max-w-7xl mx-auto pt-12">
@@ -104,16 +124,29 @@ export default function OpeningsPage() {
           Opening Trainer
         </h1>
         <p className="text-xl text-on-surface-variant max-w-2xl font-light leading-relaxed">
-          Master opening lines through spaced repetition. Play each line move by move until it becomes second nature.
+          Master opening lines through spaced repetition. Each opening is a set of variations to learn in order of depth.
         </p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-3 space-y-6">
-          {Object.entries(grouped).map(([name, items]) => (
-            <GroupSection key={name} groupName={name} items={items} />
+        <div className="lg:col-span-3 space-y-4">
+          {groups.sorted.map(({ groupName, lines }) => (
+            <OpeningGroupCard key={groupName} groupName={groupName} lines={lines} />
           ))}
-          {ungrouped.map(line => <LineCard key={line.id} line={line} />)}
+          {groups.ungrouped.map(line => (
+            <div key={line.id} className="bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex items-center gap-5">
+              <div className="flex-1 min-w-0">
+                <span className="text-[10px] font-black tracking-widest text-primary/50 uppercase">{line.eco}</span>
+                <h4 className="text-base font-bold text-primary truncate">{line.name}</h4>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Link href={`/learn/openings/train/${line.id}?mode=learn`}
+                  className="px-4 py-2 bg-primary text-on-primary rounded-full font-bold text-xs hover:opacity-80 transition-all text-center whitespace-nowrap">
+                  Learn
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="space-y-4">
@@ -131,7 +164,7 @@ export default function OpeningsPage() {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-on-surface-variant">Revise</span>
-                  <span className="text-2xl font-black text-primary">{reviseCount}</span>
+                  <span className="text-2xl font-black text-primary">{completedCount}</span>
                 </div>
                 <p className="text-[10px] text-on-surface-variant/50 uppercase tracking-wider">Lines ready for review</p>
               </div>
@@ -149,7 +182,7 @@ export default function OpeningsPage() {
           <div className="bg-surface-container border border-outline-variant/10 rounded-xl p-6">
             <h4 className="text-xs font-black uppercase tracking-widest text-on-surface-variant mb-3">Tip</h4>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Start with <span className="text-primary font-bold">Learn</span> mode to see hints. When you&apos;re confident, switch to <span className="text-primary font-bold">Revise</span> to test your recall.
+              Openings are taught in BFS order — you&apos;ll learn the core setup first, then variations by depth. Use <span className="text-primary font-bold">Learn</span> for new lines and <span className="text-primary font-bold">Revise</span> to review what you&apos;ve already completed.
             </p>
           </div>
         </div>

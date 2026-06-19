@@ -7,6 +7,7 @@ import { Chessboard } from "react-chessboard";
 import { customPieces } from "@/components/chess/customPieces";
 import { boardTheme } from "@/lib/chess/boardTheme";
 import { useSession } from "next-auth/react";
+import type { SessionWithProfile } from "@/types/profile";
 import { toast } from "react-toastify";
 
 import { useChessGame } from "@/lib/hooks/useChessGame";
@@ -67,19 +68,14 @@ export default function PuzzlePage() {
   const recordedRef = useRef(false);
   const latestAttemptsRef = useRef<PuzzleSolveRecord[]>([]);
 
-  const fetchAndLoadRef = useRef(puzzle.fetchAndLoad);
   useEffect(() => {
-    fetchAndLoadRef.current = puzzle.fetchAndLoad;
-  });
-
-  useEffect(() => {
-    fetchAndLoadRef.current({ userElo });
+    puzzle.fetchAndLoad({ userElo });
     puzzleStorage.getRecentAttempts(50, 4).then(setRecentAttempts);
   }, []);
 
   useEffect(() => {
     if (session?.user) {
-      const elo = (session.user as any)?.elo;
+      const elo = (session.user as SessionWithProfile["user"])?.elo;
       if (elo) setUserElo(elo);
     }
   }, [session]);
@@ -100,9 +96,10 @@ export default function PuzzlePage() {
           puzzleStorage.getRecentAttempts(50, 4).then(setRecentAttempts);
         });
       }
-      if (wrongToastRef.current) return;
-      wrongToastRef.current = 1;
-      toast.error("Incorrect", { autoClose: 1200 });
+      if (!wrongToastRef.current) {
+        wrongToastRef.current = 1;
+        toast.error("Incorrect", { autoClose: 1200 });
+      }
     } else if (puzzle.status === "playing") {
       wrongToastRef.current = null;
     }
