@@ -49,7 +49,6 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
             if (!existing) {
                 const { error: insertError } = await supabase.from("users").insert({
                     email: user.email,
-                    name: user.name,
                     elo: 1200,
                     puzzles_solved: 0,
                     delta_value: 200,
