@@ -26,7 +26,7 @@ import { useChessGame } from "@/lib/hooks/useChessGame";
 import { useGameReview } from "@/lib/hooks/useGameReview";
 import { useBoardInteraction } from "@/lib/hooks";
 import { LocalStockfishEvalEngine, type LocalEvalResult } from "@/lib/chess/MoveEngine";
-import GameReviewView from "./components/GameReviewViewOld";
+import GameReviewView from "./components/GameReviewView";
 import ModeSelector from "./components/ModeSelector";
 import { LiveAnalysisView } from "./components/LiveAnalysisView";
 import { ExportModal } from "./components/ExportModal";
@@ -192,9 +192,11 @@ export default function AnalysisPage() {
         onNavigate={navigateTo}
         navIndex={navIndex}
         moves={moves}
-        refining={true}
+        loading={loading}
         progress={progress}
         total={total}
+        analysisPass={analysisPass}
+        completedMoves={completedMoves}
       />
     );
   } else {
@@ -240,9 +242,11 @@ export default function AnalysisPage() {
             onNavigate={navigateTo}
             navIndex={navIndex}
             moves={moves}
-            refining={false}
+            loading={false}
             progress={progress}
             total={total}
+            analysisPass={analysisPass}
+            completedMoves={completedMoves}
           />
         ) : (
           <LiveAnalysisView
