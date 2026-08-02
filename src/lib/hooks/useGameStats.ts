@@ -18,6 +18,8 @@ export interface GameStats {
     opponentElo: number;
     accuracy: number | null;
     openingName?: string;
+    playerColor: 'w' | 'b';
+    moves: string[];
   }[];
   averageAccuracy: number;
   blundersPerGame: number;
@@ -89,6 +91,8 @@ export function useGameStats() {
           opponentElo: g.opponentElo,
           accuracy: g.accuracyWhite ?? g.accuracyBlack ?? null,
           openingName: g.openingName,
+          playerColor: g.playerColor,
+          moves: g.moves ?? [],
         }));
 
         const openingMap = new Map<string, { games: number; wins: number; accSum: number; accCount: number }>();
