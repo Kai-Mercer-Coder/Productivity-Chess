@@ -21,6 +21,7 @@ export const metadata: Metadata = {
   title: "Productivity Chess",
   description:
     "Chess tactics training with puzzles, game analysis, and play modes",
+  applicationName: "Productivity Chess",
 };
 
 export default function RootLayout({
