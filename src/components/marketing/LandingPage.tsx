@@ -1,195 +1,237 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
-import Lenis from 'lenis';
 import Navbar from '@/components/layouts/Navbar';
 import MobileNavbar from '@/components/layouts/MobileNavbar';
-import { useSession, signIn, signOut } from "next-auth/react"
-const GrandmasterMonolith = () => {
-    const { data: session, status } = useSession();
-    // Initialize Lenis for smooth scrolling
-    useEffect(() => {
-        const lenis = new Lenis();
+import { useSession } from "next-auth/react";
+import MiniBoard from "@/components/dashboard/MiniBoard";
+import CheckmateDrill from "@/components/dashboard/CheckmateDrill";
 
-        function raf(time: any) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
+const HERO_FEN = "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 5";
 
-        requestAnimationFrame(raf);
+const FEATURES = [
+  {
+    label: "01 / Tactics",
+    title: "Unlimited Tactical Puzzles",
+    desc: "A growing database of curated positions with adaptive difficulty. No daily limits, no paywalls — pure calculation training.",
+    icon: "bolt",
+    href: "/puzzles",
+  },
+  {
+    label: "02 / Analysis",
+    title: "Unrestricted Game Review",
+    desc: "Stockfish 18 NNUE evaluates every move with depth-18 lines, classifications, and human-readable coach notes.",
+    icon: "query_stats",
+    href: "/analysis",
+  },
+  {
+    label: "03 / Endgames",
+    title: "Master the Final Phase",
+    desc: "Walkthroughs and challenges for rook, queen, and pawn endings — plus random drills to sharpen the kill.",
+    icon: "sports_esports",
+    href: "/learn/endgames",
+  },
+];
 
-        return () => {
-            lenis.destroy();
-        };
-    }, []);
+const METRICS = [
+  { value: "4.2M", label: "Positions Analyzed / Sec" },
+  { value: "128ms", label: "Global Latency Avg" },
+  { value: "100%", label: "Free & Open Source" },
+];
 
-    return (
-        <div className="bg-background text-on-background selection:bg-white selection:text-black min-h-screen">
+export default function GrandmasterMonolith() {
+  const { data: session } = useSession();
+  const startHref = session ? "/dashboard" : "/login";
 
-            {/* TopNavBar */}
-            <Navbar />
-            {/* Main Content */}
-            <main className=" pt-28 min-h-screen">
+  return (
+    <div className="bg-background text-on-background selection:bg-white selection:text-black min-h-screen">
+      <Navbar />
 
-                {/* Hero Section */}
-                <section className="px-6 md:px-10 py-12 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                    <div className="space-y-6 md:space-y-8 text-center lg:text-left">
-                        <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full border border-white/10 bg-white/5 mx-auto lg:mx-0">
-                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60">Live Engine Analysis Active</span>
-                        </div>
-                        <h1 className="text-huge font-black tracking-monolith text-white">
-                            GRANDMASTER<br/>MONOLITH
-                        </h1>
-                        <p className="text-xl text-neutral-500 font-light leading-relaxed tracking-tight max-w-md mx-auto lg:mx-0">
-                            The terminal for elite chess mastery. Surgical precision. Unrestricted depth. Designed for the 1%.
-                        </p>
-                        <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
-                            <Link href="/login" className="bg-white text-black px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all">Begin Training</Link>
-                            <Link href="/under-construction" className="bg-transparent text-white border border-white/10 px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/5 transition-all">Watch Protocol</Link>
-                        </div>
-                    </div>
+      <main className="pt-32 min-h-screen">
+        {/* Hero Section */}
+        <section className="px-6 md:px-10 pb-16 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="space-y-6 md:space-y-8 text-center lg:text-left">
+            <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full border border-white/10 bg-white/5 mx-auto lg:mx-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60">Stockfish 18 NNUE · Live</span>
+            </div>
+            <h1 className="text-huge font-black tracking-monolith text-white">
+              MONOLITH
+            </h1>
+            <p className="text-xl text-neutral-500 font-light leading-relaxed tracking-tight max-w-md mx-auto lg:mx-0">
+              The terminal for chess mastery. Tactics, deep analysis, endgame drills — everything on the board, nothing off it.
+            </p>
+            <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
+              <Link href={startHref} className="bg-white text-black px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all">
+                Begin Training
+              </Link>
+              <Link href="/learn" className="bg-transparent text-white border border-white/10 px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/5 transition-all">
+                Explore Courses
+              </Link>
+            </div>
+          </div>
 
-                    <div className="relative w-full aspect-square max-w-[500px] mx-auto lg:max-w-none">
-                        <div className="absolute inset-0 bg-linear-to-tr from-surface via-transparent to-transparent z-10 rounded-xl"></div>
-                        <img
-                            alt="Chess King"
-                            className="w-full h-full object-cover rounded-xl grayscale contrast-125"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh-Jr4_HM3n-1IcSYSFb1EUolsTts5nCaDzlNWNa1y9WKxxjv9aS8XmGMgde9NCSB4WRVgeT1uvtRNOAbvH1rVBxx7yrtZXU6AakS7pfdNzFV0PcRDa3BfJSw3pyQLvaBCvOo7A79w4QoSiPEd_sZoFBbsvwLXuT_sWIL1-jXYwALhj2sIKYXkhb0yJgm-c1Gw1XZW_VzQB4OVDb7Ar4afBjwqu0KnSTV1KUwlb1tI8D1gvWX7yKyfVaexPB0U5KvbbX5M0sv9JwI"
-                        />
-                        <div className="absolute -bottom-4 md:-bottom-6 -left-4 md:-left-6 glass-panel p-4 md:p-6 rounded-xl border border-white/5 z-20 shadow-2xl">
-                            <div className="flex items-center gap-4">
-                                <div className="flex -space-x-3">
-                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-surface bg-neutral-800"></div>
-                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-surface bg-neutral-700"></div>
-                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-surface bg-neutral-600"></div>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] md:text-xs font-bold text-white">2,481 Active Players</p>
-                                    <p className="text-[8px] md:text-[10px] text-neutral-500 uppercase tracking-widest">In training right now</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+          <div className="relative w-full max-w-[520px] mx-auto lg:max-w-none">
+            <div className="relative rounded-xl overflow-hidden border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
+              <MiniBoard id="hero" fen={HERO_FEN} />
+            </div>
+            <div className="absolute -bottom-5 md:-bottom-6 -left-4 md:-left-6 glass-panel p-4 md:p-5 rounded-xl border border-white/5 z-20 shadow-2xl">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-lg text-white/80">memory</span>
+                <div>
+                  <p className="text-[10px] md:text-xs font-bold text-white">Stockfish 18 NNUE</p>
+                  <p className="text-[8px] md:text-[10px] text-neutral-500 uppercase tracking-widest">Depth 18 · No limits</p>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -top-5 md:-top-6 -right-4 md:-right-6 glass-panel p-4 md:p-5 rounded-xl border border-white/5 z-20 shadow-2xl">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-lg text-white/80">psychology</span>
+                <div>
+                  <p className="text-[10px] md:text-xs font-bold text-white">Adaptive Training</p>
+                  <p className="text-[8px] md:text-[10px] text-neutral-500 uppercase tracking-widest">Puzzles · Endgames</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-                {/* Bento Grid Features */}
-                <section className="px-8 py-32 max-w-7xl mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5 border border-white/5">
-                        <div className="bg-background p-12 space-y-6">
-                            <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white/30">01 / Tactics</span>
-                            <h3 className="text-2xl font-black text-white tracking-tighter">Unlimited Tactical Puzzles</h3>
-                            <p className="text-neutral-500 text-sm leading-relaxed">Experience a database of 15 million adaptive positions. No daily limits. No paywalls. Pure calculation training refined by GMs.</p>
-                        </div>
-                        <div className="bg-background p-12 space-y-6">
-                            <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white/30">02 / Analysis</span>
-                            <h3 className="text-2xl font-black text-white tracking-tighter">Unrestricted Game Review</h3>
-                            <p className="text-neutral-500 text-sm leading-relaxed">Cloud-based Stockfish 18 NNUE at depth 18 for every move. Deep neural evaluations with human-readable reasoning.</p>
-                        </div>
-                        <div className="bg-background p-12 space-y-6">
-                            <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white/30">03 / Variants</span>
-                            <h3 className="text-2xl font-black text-white tracking-tighter">Play Variants with Bots</h3>
-                            <p className="text-neutral-500 text-sm leading-relaxed">Challenge sophisticated engines in chess variants. From Chess960 to King of the Hill, master every dimension of the board without limits.</p>
-                        </div>
-                    </div>
-                </section>
+        {/* Feature Panels */}
+        <section className="px-6 md:px-10 py-20 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {FEATURES.map((f) => (
+              <Link
+                key={f.label}
+                href={f.href}
+                className="group bg-surface-container border border-white/5 rounded-2xl p-8 space-y-6 hover:bg-surface-container-high transition-all active:scale-[0.99]"
+              >
+                <div className="flex items-start justify-between">
+                  <span className="w-12 h-12 rounded-xl bg-surface-container-high border border-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-on-surface-variant group-hover:text-white transition-colors">{f.icon}</span>
+                  </span>
+                  <span className="text-[9px] font-black tracking-[0.3em] uppercase text-white/20">{f.label}</span>
+                </div>
+                <h3 className="text-xl font-black text-white tracking-tighter">{f.title}</h3>
+                <p className="text-neutral-500 text-sm leading-relaxed">{f.desc}</p>
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/30 group-hover:text-white transition-colors">
+                  Explore
+                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
 
-                {/* Strategic Mastery Section */}
-                <section className="py-48 px-8 max-w-5xl mx-auto">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
-                        <div className="space-y-8">
-                            <h2 className="text-5xl font-black tracking-tighter text-white uppercase leading-none">Strategic<br/>Mastery</h2>
-                            <div className="h-0.5 w-12 bg-white"></div>
-                            <p className="text-neutral-400 leading-relaxed font-light">
-                                Improvement is not accidental. It is the result of focused, high-repetition exposure to complex patterns. Monolith provides the environment required for neural consolidation.
-                            </p>
-                            <div className="grid grid-cols-2 gap-8 pt-8">
-                                <div>
-                                    <div className="text-2xl font-black text-white">4.2M</div>
-                                    <div className="text-[10px] uppercase tracking-widest text-neutral-600 mt-1">Positions Analyzed/Sec</div>
-                                </div>
-                                <div>
-                                    <div className="text-2xl font-black text-white">128ms</div>
-                                    <div className="text-[10px] uppercase tracking-widest text-neutral-600 mt-1">Global Latency Avg</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="space-y-8 lg:pt-32">
-                            <h2 className="text-5xl font-black tracking-tighter text-white uppercase leading-none">Engineered<br/>For Precision</h2>
-                            <div className="h-0.5 w-12 bg-white"></div>
-                            <p className="text-neutral-400 leading-relaxed font-light">
-                                Every pixel of the Monolith interface is calculated to minimize cognitive load. In focus mode, everything but the board vanishes. No chat. No distractions. Just the monolith.
-                            </p>
-                            <ul className="space-y-4 pt-4">
-                                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-white/80">
-                                    <span className="material-symbols-outlined text-sm">check</span>
-                                    Zero-Distraction Mode
-                                </li>
-                                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-white/80">
-                                    <span className="material-symbols-outlined text-sm">check</span>
-                                    Sub-second Matchmaking
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
+        {/* Playable Checkmate Drill */}
+        <section className="px-6 md:px-10 py-20 max-w-7xl mx-auto">
+          <div className="mb-10">
+            <h2 className="text-sm font-black tracking-tighter uppercase text-on-surface-variant">Checkmate Drill</h2>
+            <p className="text-neutral-500 font-light leading-relaxed mt-2 max-w-xl">
+              A random endgame position against Stockfish. You play the side to move. Deliver mate — there is no fanfare, only the position.
+            </p>
+          </div>
+          <CheckmateDrill />
+        </section>
 
-                {/* CTA Section */}
-                <section className="py-64 px-8 text-center bg-white/5">
-                    <div className="max-w-3xl mx-auto space-y-12">
-                        <h2 className="text-6xl font-black tracking-monolith text-white uppercase">UNRESTRICTED ACCESS.</h2>
-                        <p className="text-neutral-400 uppercase tracking-[0.4em] text-[11px] font-bold">Curricula and variants are free, open-source, and accessible to the global collective.</p>
-                        <div className="flex flex-col sm:flex-row justify-center gap-6 pt-6">
-                            <Link href={session ? `/dashboard` : `/login`} className="bg-white text-black px-16 py-6 rounded-full font-black text-sm uppercase tracking-widest hover:bg-neutral-200 transition-all active:scale-95 shadow-[0_0_50px_rgba(255,255,255,0.1)]">VIEW SOURCE</Link>
-                            <Link href="/under-construction" className="bg-transparent text-white border border-white/10 px-16 py-6 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/5 transition-all">EXPLORE COURSES</Link>
-                        </div>
-                    </div>
-                </section>
+        {/* Strategic Mastery */}
+        <section className="px-6 md:px-10 py-24 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div className="space-y-8">
+              <h2 className="text-5xl font-black tracking-tighter text-white uppercase leading-none">Strategic<br />Mastery</h2>
+              <div className="h-0.5 w-12 bg-white"></div>
+              <p className="text-neutral-400 leading-relaxed font-light">
+                Improvement is not accidental. It is the result of focused, high-repetition exposure to complex patterns. Monolith provides the environment for that consolidation.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                {METRICS.map((m) => (
+                  <div key={m.label} className="bg-surface-container border border-white/5 rounded-xl p-5">
+                    <div className="text-2xl font-black text-white">{m.value}</div>
+                    <div className="text-[9px] uppercase tracking-widest text-neutral-600 mt-1">{m.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-8 lg:pt-24">
+              <h2 className="text-5xl font-black tracking-tighter text-white uppercase leading-none">Engineered<br />For Precision</h2>
+              <div className="h-0.5 w-12 bg-white"></div>
+              <p className="text-neutral-400 leading-relaxed font-light">
+                Every pixel of the interface is calculated to minimize cognitive load. On the board, nothing but the position. No chat. No distractions.
+              </p>
+              <ul className="space-y-4 pt-4">
+                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-white/80">
+                  <span className="material-symbols-outlined text-sm">check</span>
+                  Zero-Distraction Mode
+                </li>
+                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-white/80">
+                  <span className="material-symbols-outlined text-sm">check</span>
+                  Local Stockfish Workers
+                </li>
+                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-white/80">
+                  <span className="material-symbols-outlined text-sm">check</span>
+                  Endgame Tablebases
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
 
-                {/* Footer */}
-                <footer className="px-8 py-24 max-w-7xl mx-auto">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-16 mb-24">
-                        <div className="col-span-2">
-                            <span className="text-2xl font-black text-white tracking-tighter uppercase block mb-8">Monolith</span>
-                            <p className="text-xs uppercase tracking-widest text-neutral-600 leading-loose max-w-xs">The standard for competitive chess training. Engineered in Berlin. Validated by Champions.</p>
-                        </div>
-                        <div className="space-y-8">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">System</h4>
-                            <ul className="space-y-4 text-[11px] uppercase tracking-widest text-neutral-500 font-medium">
-                                <li><Link className="hover:text-white transition-colors" href="/under-construction">Architecture</Link></li>
-                                <li><Link className="hover:text-white transition-colors" href="/under-construction">API Docs</Link></li>
-                                <li><Link className="hover:text-white transition-colors" href="/under-construction">Neural Net</Link></li>
-                            </ul>
-                        </div>
-                        <div className="space-y-8">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Legal</h4>
-                            <ul className="space-y-4 text-[11px] uppercase tracking-widest text-neutral-500 font-medium">
-                                <li><Link className="hover:text-white transition-colors" href="/under-construction">Fair Play</Link></li>
-                                <li><Link className="hover:text-white transition-colors" href="/privacy">Privacy</Link></li>
-                                <li><Link className="hover:text-white transition-colors" href="/terms">Terms</Link></li>
-                                <li><Link className="hover:text-white transition-colors" href="/credits">Credits</Link></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-12 border-t border-monolith">
-                        <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-700">© 2024 Monolith Chess Systems. No distractions.</p>
-                        <div className="flex gap-8">
-                            <Link className="text-neutral-700 hover:text-white transition-colors" href="/under-construction"><span className="material-symbols-outlined !text-lg">terminal</span></Link>
-                            <Link className="text-neutral-700 hover:text-white transition-colors" href="/under-construction"><span className="material-symbols-outlined !text-lg">shield</span></Link>
-                        </div>
-                    </div>
-                </footer>
-            </main>
+        {/* CTA Section */}
+        <section className="py-32 px-8 text-center bg-white/5 border-y border-white/5">
+          <div className="max-w-3xl mx-auto space-y-10">
+            <h2 className="text-5xl md:text-6xl font-black tracking-monolith text-white uppercase">Unrestricted Access.</h2>
+            <p className="text-neutral-400 uppercase tracking-[0.4em] text-[11px] font-bold">
+              Training that never tells you to wait.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-6 pt-4">
+              <Link href={startHref} className="bg-white text-black px-16 py-6 rounded-full font-black text-sm uppercase tracking-widest hover:bg-neutral-200 transition-all active:scale-95 shadow-[0_0_50px_rgba(255,255,255,0.1)]">
+                Start Training
+              </Link>
+              <Link href="/dashboard" className="bg-transparent text-white border border-white/10 px-16 py-6 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white/5 transition-all">
+                Open Dashboard
+              </Link>
+            </div>
+          </div>
+        </section>
 
-            {/* Mobile Bottom Nav */}
-            <MobileNavbar />
-            {/* Floating Action Button */}
-            <Link href="/under-construction" className="fixed bottom-10 right-10 w-14 h-14 bg-white text-black rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all z-50">
-                <span className="material-symbols-outlined font-bold">add</span>
-            </Link>
-        </div>
-    );
+        {/* Footer */}
+        <footer className="px-6 md:px-10 py-16 max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-14">
+            <div className="col-span-2">
+              <span className="text-2xl font-black text-white tracking-tighter uppercase block mb-6">Monolith</span>
+              <p className="text-xs uppercase tracking-widest text-neutral-600 leading-loose max-w-xs">
+                The standard for competitive chess training. On the board. Nothing else.
+              </p>
+            </div>
+            <div className="space-y-5">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Training</h4>
+              <ul className="space-y-3 text-[11px] uppercase tracking-widest text-neutral-500 font-medium">
+                <li><Link className="hover:text-white transition-colors" href="/play">Play vs Engine</Link></li>
+                <li><Link className="hover:text-white transition-colors" href="/puzzles">Puzzles</Link></li>
+                <li><Link className="hover:text-white transition-colors" href="/analysis">Analysis</Link></li>
+                <li><Link className="hover:text-white transition-colors" href="/learn">Courses</Link></li>
+              </ul>
+            </div>
+            <div className="space-y-5">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Product</h4>
+              <ul className="space-y-3 text-[11px] uppercase tracking-widest text-neutral-500 font-medium">
+                <li><Link className="hover:text-white transition-colors" href="/stats">Stats</Link></li>
+                <li><Link className="hover:text-white transition-colors" href="/variants">Variants</Link></li>
+                <li><Link className="hover:text-white transition-colors" href="/credits">Credits</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-10 border-t border-monolith">
+            <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-700">© 2026 Monolith Chess Systems. On the board, nothing else.</p>
+            <div className="flex gap-8">
+              <Link href="/privacy" className="text-[9px] uppercase tracking-[0.3em] text-neutral-700 hover:text-white transition-colors">Privacy</Link>
+              <Link href="/terms" className="text-[9px] uppercase tracking-[0.3em] text-neutral-700 hover:text-white transition-colors">Terms</Link>
+              <Link href="/credits" className="text-[9px] uppercase tracking-[0.3em] text-neutral-700 hover:text-white transition-colors">Credits</Link>
+            </div>
+          </div>
+        </footer>
+      </main>
+
+      <MobileNavbar />
+    </div>
+  );
 };
-
-export default GrandmasterMonolith;

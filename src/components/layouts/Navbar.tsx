@@ -16,9 +16,10 @@ const Navbar = () => {
                 <div className="flex items-center gap-10">
                     <span className="text-xl font-black tracking-tighter text-white whitespace-nowrap uppercase">Monolith</span>
                     <div className="hidden lg:flex items-center gap-8">
-                        <Link className="text-[11px] uppercase tracking-widest text-white font-bold" href="/login">Play</Link>
-                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/login">Puzzles</Link>
-                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/login">Analysis</Link>
+                        <Link className="text-[11px] uppercase tracking-widest text-white font-bold" href="/play">Play</Link>
+                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/puzzles">Puzzles</Link>
+                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/analysis">Analysis</Link>
+                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/learn">Learn</Link>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -30,13 +31,19 @@ const Navbar = () => {
                             <span className="material-symbols-outlined">notifications</span>
                         </button>
                     </div>
-                    <Link href="/login" className="bg-white text-black px-6 py-2 rounded-full font-black text-[11px] uppercase tracking-widest hover:bg-neutral-200 transition-all active:scale-95">Play Now</Link>
+                    <Link href={session ? "/dashboard" : "/play"} className="bg-white text-black px-6 py-2 rounded-full font-black text-[11px] uppercase tracking-widest hover:bg-neutral-200 transition-all active:scale-95">Play Now</Link>
                     <button type="button" onClick={() => setProfileOpen(true)}>
-                        <img
-                            className="h-9 w-9 object-cover rounded-full cursor-pointer"
-                            src={user?.image || 'https://via.placeholder.com/150'}
-                            alt="Profile"
-                        />
+                        {user?.image ? (
+                            <img
+                                className="h-9 w-9 object-cover rounded-full cursor-pointer"
+                                src={user.image}
+                                alt="Profile"
+                            />
+                        ) : (
+                            <span className="h-9 w-9 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center cursor-pointer">
+                                <span className="material-symbols-outlined text-sm text-on-surface-variant">person</span>
+                            </span>
+                        )}
                     </button>
                 </div>
             </nav>
@@ -53,11 +60,17 @@ const Navbar = () => {
                             </div>
 
                             <div className="flex items-center gap-4 mb-6">
-                                <img
-                                    className="w-16 h-16 rounded-full object-cover"
-                                    src={user?.image || 'https://via.placeholder.com/150'}
-                                    alt="Profile"
-                                />
+                                {user?.image ? (
+                                    <img
+                                        className="w-16 h-16 rounded-full object-cover"
+                                        src={user.image}
+                                        alt="Profile"
+                                    />
+                                ) : (
+                                    <span className="w-16 h-16 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-2xl text-on-surface-variant">person</span>
+                                    </span>
+                                )}
                                 <div className="flex-1 min-w-0">
                                     <p className="text-lg font-semibold text-white truncate">
                                         {user?.name || 'Guest'}
@@ -89,7 +102,7 @@ const Navbar = () => {
 
                             <div className="space-y-2">
                                 <Link
-                                    href="/login"
+                                    href="/dashboard"
                                     className="block w-full py-3 text-center rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white transition-colors"
                                 >
                                     Dashboard

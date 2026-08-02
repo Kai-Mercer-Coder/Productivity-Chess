@@ -7,7 +7,6 @@ import type { SessionWithProfile } from "@/types/profile";
 import { Chess } from "chess.js";
 import { useGameStats } from "@/lib/hooks/useGameStats";
 import MiniBoard from "./MiniBoard";
-import CheckmateDrill from "./CheckmateDrill";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -292,18 +291,6 @@ export default function GrandmasterDashboard() {
         </div>
       </section>
 
-      <section className="space-y-6">
-        <div>
-          <h2 className="text-sm font-black tracking-tighter uppercase text-on-surface-variant">
-            Checkmate Drill
-          </h2>
-          <p className="text-xs text-on-surface-variant/60 mt-1 font-medium">
-            A random endgame from the training database. Mate Stockfish — quietly.
-          </p>
-        </div>
-        <CheckmateDrill />
-      </section>
-
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           <div className="flex justify-between items-end">
@@ -427,32 +414,6 @@ export default function GrandmasterDashboard() {
               </span>
             </div>
           </Link>
-
-          <div className="bg-surface-container border border-white/5 rounded-2xl p-8 space-y-5">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-white border border-white/10">
-                <span className="material-symbols-outlined text-on-surface-variant">
-                  lightbulb
-                </span>
-              </div>
-              <div>
-                <p className="font-bold text-white text-sm">Analysis Studio</p>
-                <p className="text-[10px] text-on-surface-variant uppercase font-medium">
-                  Deep Stockfish 18 NNUE
-                </p>
-              </div>
-            </div>
-            <p className="text-sm text-on-surface-variant font-medium leading-relaxed">
-              Load any PGN and get a full annotated report with classifications,
-              coach notes and move-by-move evaluation.
-            </p>
-            <Link
-              href="/analysis"
-              className="block w-full py-3 rounded-xl border border-white/10 bg-surface-container-high text-white font-bold text-xs uppercase tracking-widest text-center hover:bg-surface-container-highest transition-colors"
-            >
-              Open Studio
-            </Link>
-          </div>
         </div>
       </section>
     </div>
