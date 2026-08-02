@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import MiniBoard from "@/components/dashboard/MiniBoard";
 import CheckmateDrill from "@/components/dashboard/CheckmateDrill";
 
-const HERO_FEN = "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 5";
+const HERO_FEN = "rn2k2r/ppq1bppp/2pp1n2/3Pp1N1/4P3/2N4P/PPPBbPP1/R2QK2R w KQkq - 0 11";
 
 const FEATURES = [
   {
@@ -31,12 +31,6 @@ const FEATURES = [
     icon: "sports_esports",
     href: "/learn/endgames",
   },
-];
-
-const METRICS = [
-  { value: "4.2M", label: "Positions Analyzed / Sec" },
-  { value: "128ms", label: "Global Latency Avg" },
-  { value: "100%", label: "Free & Open Source" },
 ];
 
 export default function GrandmasterMonolith() {
@@ -72,26 +66,14 @@ export default function GrandmasterMonolith() {
           </div>
 
           <div className="relative w-full max-w-[520px] mx-auto lg:max-w-none">
-            <div className="relative rounded-xl overflow-hidden border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
+            <div className="rounded-2xl overflow-hidden border border-white/5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]">
               <MiniBoard id="hero" fen={HERO_FEN} />
             </div>
-            <div className="absolute -bottom-5 md:-bottom-6 -left-4 md:-left-6 glass-panel p-4 md:p-5 rounded-xl border border-white/5 z-20 shadow-2xl">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-lg text-white/80">memory</span>
-                <div>
-                  <p className="text-[10px] md:text-xs font-bold text-white">Stockfish 18 NNUE</p>
-                  <p className="text-[8px] md:text-[10px] text-neutral-500 uppercase tracking-widest">Depth 18 · No limits</p>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -top-5 md:-top-6 -right-4 md:-right-6 glass-panel p-4 md:p-5 rounded-xl border border-white/5 z-20 shadow-2xl">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-lg text-white/80">psychology</span>
-                <div>
-                  <p className="text-[10px] md:text-xs font-bold text-white">Adaptive Training</p>
-                  <p className="text-[8px] md:text-[10px] text-neutral-500 uppercase tracking-widest">Puzzles · Endgames</p>
-                </div>
-              </div>
+            <div className="flex items-center justify-center gap-2 mt-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/30">
+                Live position &middot; Stockfish 18 NNUE
+              </span>
             </div>
           </div>
         </section>
@@ -142,14 +124,6 @@ export default function GrandmasterMonolith() {
               <p className="text-neutral-400 leading-relaxed font-light">
                 Improvement is not accidental. It is the result of focused, high-repetition exposure to complex patterns. Monolith provides the environment for that consolidation.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                {METRICS.map((m) => (
-                  <div key={m.label} className="bg-surface-container border border-white/5 rounded-xl p-5">
-                    <div className="text-2xl font-black text-white">{m.value}</div>
-                    <div className="text-[9px] uppercase tracking-widest text-neutral-600 mt-1">{m.label}</div>
-                  </div>
-                ))}
-              </div>
             </div>
             <div className="space-y-8 lg:pt-24">
               <h2 className="text-5xl font-black tracking-tighter text-white uppercase leading-none">Engineered<br />For Precision</h2>
