@@ -7,6 +7,7 @@ import type { SessionWithProfile } from "@/types/profile";
 import { Chess } from "chess.js";
 import { useGameStats } from "@/lib/hooks/useGameStats";
 import MiniBoard from "./MiniBoard";
+import CheckmateDrill from "./CheckmateDrill";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -289,6 +290,18 @@ export default function GrandmasterDashboard() {
             {stats.wins} W &middot; {stats.losses} L &middot; {stats.draws} D
           </p>
         </div>
+      </section>
+
+      <section className="space-y-6">
+        <div>
+          <h2 className="text-sm font-black tracking-tighter uppercase text-on-surface-variant">
+            Checkmate Drill
+          </h2>
+          <p className="text-xs text-on-surface-variant/60 mt-1 font-medium">
+            A random endgame from the training database. Mate Stockfish — quietly.
+          </p>
+        </div>
+        <CheckmateDrill />
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
