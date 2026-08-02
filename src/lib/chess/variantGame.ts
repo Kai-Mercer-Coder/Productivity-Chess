@@ -12,6 +12,10 @@ export const VARIANT_CONFIGS: Record<string, VariantConfig> = {
   giveaway: { id: 'giveaway', title: 'Giveaway', icon: 'heart_broken' },
   crazyhouse: { id: 'crazyhouse', title: 'Crazyhouse', icon: 'cyclone' },
   atomic: { id: 'atomic', title: 'Atomic', icon: 'explosion' },
+  kingOfTheHill: { id: 'kingOfTheHill', title: 'King of the Hill', icon: 'flag' },
+  threeCheck: { id: 'threeCheck', title: 'Three-Check', icon: 'electric_bolt' },
+  horde: { id: 'horde', title: 'Horde', icon: 'group' },
+  racingKings: { id: 'racingKings', title: 'Racing Kings', icon: 'speed' },
 };
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -67,6 +71,10 @@ export function createPosition(variantId: string): Position {
     case 'giveaway': return variant.Antichess.default();
     case 'crazyhouse': return variant.Crazyhouse.default();
     case 'atomic': return variant.Atomic.default();
+    case 'kingOfTheHill': return variant.KingOfTheHill.default();
+    case 'threeCheck': return variant.ThreeCheck.default();
+    case 'horde': return variant.Horde.default();
+    case 'racingKings': return variant.RacingKings.default();
     default: throw new Error(`Unknown variant: ${variantId}`);
   }
 }

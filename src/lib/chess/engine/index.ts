@@ -1,8 +1,9 @@
-// Barrel — sub-modules of the chess engine layer. StockfishEngine (local) and
-// ChessApiEvalEngine (cloud) share the EvalEngine interface. LocalStockfishEvalEngine
-// handles live analysis. hfEvaluateFen is a one-shot HuggingFace endpoint call.
+// Barrel — sub-modules of the chess engine layer.
+// LocalStockfishEvalEngine handles live analysis via WASM.
+// fetchTablebase provides endgame tablebase lookups.
+// StockfishEngine and ChessApiEvalEngine kept for backward compatibility.
+export { LocalStockfishEvalEngine } from "./local-stockfish";
 export { StockfishEngine } from "./stockfish";
 export { ChessApiEvalEngine } from "./cloud-api";
-export { hfEvaluateFen } from "./huggingface";
-export { LocalStockfishEvalEngine } from "./local-stockfish";
+export { fetchTablebase } from "./evaluators";
 export type { ChessApiResponse, LocalEvalResult } from "./types";

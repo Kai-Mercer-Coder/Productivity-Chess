@@ -1,254 +1,336 @@
-'use client'
+"use client";
+import Lenis from "lenis";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { Chess } from "chess.js";
+import { Chessboard } from "react-chessboard";
+import { boardTheme } from "@/lib/chess/boardTheme";
 
-// Engine selection screen. Displays 6 preset engines (800–2800 ELO) with
-// lock/unlock based on player ELO, plus a custom ELO slider (400–3200).
-// onSelectEngine callback starts a game at the chosen strength.
+const START_FEN = new Chess().fen();
+
 const ENGINES = [
-  { proto: 'PROTOTYPE_01', name: 'MONOLITH_01', elo: 800, desc: 'BASICS / SCHOLAR', unlockAt: 0 },
-  { proto: 'STRATEGY_NODE', name: 'CORE_STRATEGY', elo: 1200, desc: 'POSITIONAL / STEADY', unlockAt: 1000 },
-  { proto: 'AGGRESSIVE_CORE', name: 'STRATEGIST_S', elo: 1600, desc: 'TACTICAL / SHARP', unlockAt: 1400 },
-  { proto: 'ELITE_LOGIC', name: 'NEURAL_ELITE', elo: 2000, desc: 'MASTER / CALIBRATED', unlockAt: 1800 },
-  { proto: 'CALC_UNIT_09', name: 'DEEP_CALCULATION', elo: 2400, desc: 'THEORETICAL / PEAK', unlockAt: 2200 },
-  { proto: 'MONOLITH_ULTRA', name: 'GRANDMASTER_ENGINE', elo: 2800, desc: 'OPTIMAL / UNBEATABLE', unlockAt: 2600 },
+  {
+    level: "Beginner",
+    proto: "NOOB_CORE_01",
+    name: "Dummy V2",
+    elo: 250,
+    desc: "LITERALLY_DOESNT_CARE",
+  },
+  {
+    proto: "CHAOS_TACTIC_02",
+    name: "L-Aura",
+    elo: 400,
+    desc: "MAX_AGGRESSION_TROLL",
+  },
+  {
+    proto: "FUMBLE_NODE_03",
+    name: "Skibidi",
+    elo: 700,
+    desc: "OVERCONFIDENT_NOOB",
+  },
+  {
+    level: "Intermediate",
+    proto: "HUSTLE_CORE_04",
+    name: "Mid-Tier",
+    elo: 1000,
+    desc: "ACTIVE_HUSTLER",
+  },
+  {
+    proto: "BAIT_NODE_05",
+    name: "Trap_Lord",
+    elo: 1100,
+    desc: "TACTICAL_TRICKSTER",
+  },
+  {
+    proto: "QUEEN_SPAM_06",
+    name: "NapoleoN",
+    elo: 1300,
+    desc: "EARLY_QUEEN_ATTACK",
+  },
+  {
+    level: "Club-Players",
+    proto: "PRAGMA_UNIT_07",
+    name: "Pragmatist",
+    elo: 1500,
+    desc: "BALANCED_POSITIONAL",
+  },
+  {
+    proto: "OPENING_BOOK_08",
+    name: "THEORY_CRAFTER",
+    elo: 1600,
+    desc: "BOOK_KNOWLEDGE",
+  },
+  {
+    proto: "SHARP_CALC_09",
+    name: "TACTICAL_BEAST",
+    elo: 1800,
+    desc: "DYNAMIC_SACRIFICES",
+  },
+  {
+    level: "Advance",
+    proto: "COLD_LOGIC_10",
+    name: "AURA_SQUEEZER",
+    elo: 2000,
+    desc: "SAFE_POSITIONAL",
+  },
+  {
+    proto: "MASTER_NODE_11",
+    name: "BOSS_LEVEL",
+    elo: 2200,
+    desc: "UNFORGIVING_PUNISHER",
+  },
+  {
+    proto: "MONOLITH_ULTRA",
+    name: "ALPHA_MAX",
+    elo: 2300,
+    desc: "OPTIMAL_STOCKFISH",
+  },
+  {
+    level: "Undetermined",
+    proto: "MAX_AURA_BOSS",
+    name: "WhiteRoom_GEN-4",
+    elo: 3000,
+    desc: "All I wanted was to feel something.",
+  },
 ];
 
 const DIFFICULTY_TIERS = [
-  { max: 800, label: 'NOVICE_PROFILE' },
-  { max: 1200, label: 'SCHOLAR_PROFILE' },
-  { max: 1600, label: 'EXPERT_PROFILE' },
-  { max: 2000, label: 'CANDIDATE_PROFILE' },
-  { max: 2400, label: 'MASTER_PROFILE' },
-  { max: 2800, label: 'GRANDMASTER_PROFILE' },
-  { max: 3200, label: 'MONOLITH_ENTITY' },
+  { max: 800, label: "NOVICE" },
+  { max: 1200, label: "SCHOLAR" },
+  { max: 1600, label: "EXPERT" },
+  { max: 2000, label: "CANDIDATE" },
+  { max: 2400, label: "MASTER" },
+  { max: 2800, label: "GRANDMASTER" },
+  { max: 3200, label: "MONOLITH" },
 ];
 
 export function SelectEngineView({
-  playerElo,
   customElo,
   onCustomEloChange,
   onSelectEngine,
 }: {
-  playerElo: number;
   customElo: number;
   onCustomEloChange: (elo: number) => void;
   onSelectEngine: (elo: number) => void;
 }) {
-  const customTier = DIFFICULTY_TIERS.find(t => customElo <= t.max) ?? DIFFICULTY_TIERS[DIFFICULTY_TIERS.length - 1];
+  const customTier =
+    DIFFICULTY_TIERS.find((t) => customElo <= t.max) ??
+    DIFFICULTY_TIERS[DIFFICULTY_TIERS.length - 1];
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const lenis = new Lenis({
+      wrapper: containerRef.current,
+      content: containerRef.current.firstElementChild as HTMLElement,
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - 2 ** (-10 * t)),
+      orientation: "vertical",
+      gestureOrientation: "vertical",
+      smoothWheel: true,
+    });
+    let animationFrameId: number;
+    function raf(time: number) {
+      lenis.raf(time);
+      animationFrameId = requestAnimationFrame(raf);
+    }
+    animationFrameId = requestAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      lenis.destroy();
+    };
+  }, []);
 
   return (
-    <div className="flex min-h-screen font-sans antialiased" style={{ backgroundColor: '#131313', color: '#e2e2e2' }}>
-      <main className="flex-1 pt-12 pb-24">
-        <header className="max-w-6xl mx-auto mb-16 px-6">
-          <h2 className="text-5xl md:text-6xl font-black tracking-tighter leading-none mb-6" style={{ color: '#ffffff' }}>
+    <div className="min-h-screen bg-black text-white font-sans antialiased selection:bg-white selection:text-black relative">
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-neutral-900 via-black to-black pointer-events-none" />
+      <div
+        className="fixed top-0 right-0 -z-10 w-1/2 h-screen opacity-20 pointer-events-none"
+        style={{ background: "radial-gradient(circle at 70% 30%, rgba(255,255,255,0.1) 0%, transparent 70%)" }}
+      />
+
+      <main className="relative z-10 pt-10 pb-20 animate-in fade-in duration-300">
+        <header className="max-w-[1600px] mx-auto mb-10 px-6">
+          <h2 className="text-5xl md:text-6xl font-black tracking-tighter leading-none mb-6 text-white">
             SELECT_ENTITY
           </h2>
-          <p className="text-lg max-w-2xl font-light leading-relaxed" style={{ color: '#c6c6c6' }}>
-            Calibrate your training session by selecting a specific neural profile. Each engine operates on distinct heuristics to simulate authentic grandmaster intuition.
+          <p className="text-lg max-w-2xl font-light leading-relaxed text-neutral-400">
+            Calibrate your training session by selecting a specific neural
+            profile. Each engine operates on distinct heuristics to simulate
+            authentic grandmaster intuition.
           </p>
         </header>
 
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-6">
-          {ENGINES.map((engine) => {
-            const locked = playerElo < engine.unlockAt;
-            return (
-              <button
-                key={engine.name}
-                onClick={() => !locked && onSelectEngine(engine.elo)}
-                className={`relative group h-64 rounded-xl p-8 flex flex-col text-left transition-all duration-300 ${
-                  locked
-                    ? 'cursor-not-allowed opacity-45 bg-[#0e0e0e] border border-dashed border-white/8'
-                    : 'cursor-pointer bg-[#1f1f1f] border border-white/5 hover:bg-[#2a2a2a] hover:border-white/10'
-                }`}
-              >
-                {locked && (
-                  <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                    <div className="flex flex-col items-center gap-2">
-                      <svg className="w-8 h-8 opacity-30" style={{ color: '#c6c6c6' }} fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
-                      </svg>
-                      <span className="text-[8px] font-black tracking-[0.2em] uppercase opacity-40" style={{ color: '#c6c6c6' }}>
-                        UNLOCK_AT_{engine.unlockAt}_ELO
+        <div className="max-w-[1600px] mx-auto px-6 flex flex-col lg:flex-row gap-8">
+          {/* Left — Board */}
+          <div className="flex-1 flex justify-center lg:sticky lg:top-10 lg:self-start">
+            <div className="w-full max-w-[500px] aspect-square bg-surface-container shadow-[0_30px_100px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden border border-white/5">
+              <Chessboard
+                options={{
+                  id: "setup-board",
+                  position: START_FEN,
+                  allowDragging: false,
+                  darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
+                  lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
+                  animationDurationInMs: 400,
+                  showAnimations: true,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Right — Engines */}
+          <div className="flex-1 max-w-[600px] mx-auto lg:mx-0">
+            <div
+              ref={containerRef}
+              className="flex flex-col gap-4 h-[calc(80vh-160px)] overflow-y-auto overflow-x-hidden"
+            >
+              {ENGINES.map((engine) => (
+                <Fragment key={engine.name}>
+                  {engine.level && (
+                    <div className="mt-5 mb-3 font-bold text-2xl text-white flex items-center gap-2">
+                      {engine.level}
+                      <span className="material-symbols-outlined text-neutral-500">arrow_forward</span>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => onSelectEngine(engine.elo)}
+                    className="relative group h-64 rounded-xl p-8 flex flex-col text-left transition-all duration-300 cursor-pointer bg-neutral-900/60 border border-white/5 hover:bg-neutral-800/60 hover:border-white/10 backdrop-blur-sm hover:scale-[1.01] active:scale-[0.99]"
+                  >
+                    <div>
+                      <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-1 text-neutral-400">
+                        {engine.proto}
+                      </p>
+                      <h3 className="text-2xl font-black tracking-tighter uppercase text-white">
+                        {engine.name}
+                      </h3>
+                    </div>
+                    <div className="text-center flex-1 flex flex-col justify-center mt-5">
+                      <p className="text-4xl font-black tracking-tighter text-white">
+                        {engine.elo}
+                      </p>
+                      <p className="text-[8px] font-bold tracking-widest uppercase mt-1 text-neutral-600">
+                        ELO_RATING
+                      </p>
+                    </div>
+                    <div className="flex justify-between items-end pt-4 mt-8 border-t border-white/5">
+                      <span className="text-[10px] font-bold tracking-widest uppercase text-neutral-400">
+                        {engine.desc}
+                      </span>
+                      <span className="material-symbols-outlined text-neutral-600 text-lg">arrow_forward</span>
+                    </div>
+                  </button>
+                </Fragment>
+              ))}
+
+              <div className="relative rounded-xl p-8 mt-8 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-8 bg-neutral-900/60 border border-white/5 backdrop-blur-sm">
+                <div className="max-w-xs">
+                  <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-2 text-neutral-400">
+                    CUSTOM_CALIBRATION
+                  </p>
+                  <h3 className="text-3xl font-black tracking-tighter uppercase mb-4 text-white">
+                    ENGINE_ADJUST
+                  </h3>
+                  <p className="text-xs leading-relaxed text-neutral-400">
+                    Manually override the rating parameters for precise opponent
+                    simulation.
+                  </p>
+                </div>
+
+                <div className="flex-1 w-full space-y-6">
+                  <div className="flex justify-between items-end">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl md:text-7xl font-black tracking-tighter transition-opacity text-white">
+                        {customElo}
+                      </span>
+                      <span className="text-xs font-black tracking-widest uppercase text-neutral-600">
+                        ELO
                       </span>
                     </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-bold tracking-widest uppercase mb-1 text-neutral-400">
+                        TIER_ID
+                      </p>
+                      <p className="text-xs font-black tracking-wider uppercase text-white">
+                        {customTier.label}
+                      </p>
+                    </div>
                   </div>
-                )}
-                <div className={locked ? 'blur-sm' : ''}>
-                  <div>
-                    <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-1" style={{ color: '#c6c6c6' }}>
-                      {engine.proto}
-                    </p>
-                    <h3 className="text-2xl font-black tracking-tighter uppercase" style={{ color: '#ffffff' }}>
-                      {engine.name}
-                    </h3>
-                  </div>
-                  <div className="text-center flex-1 flex flex-col justify-center">
-                    <p className="text-4xl font-black tracking-tighter" style={{ color: '#ffffff' }}>
-                      {engine.elo}
-                    </p>
-                    <p className="text-[8px] font-bold tracking-widest uppercase mt-1" style={{ color: '#474747' }}>
-                      ELO_RATING
-                    </p>
-                  </div>
-                  <div className="flex justify-between items-end pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                    <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#c6c6c6' }}>
-                      {engine.desc}
-                    </span>
-                    {!locked && (
-                      <svg className="w-5 h-5 transition-colors" style={{ color: '#474747' }} fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
-                      </svg>
-                    )}
+
+                  <div className="relative w-full">
+                    <input
+                      type="range"
+                      min={400}
+                      max={3200}
+                      step={50}
+                      value={customElo}
+                      onChange={(e) => onCustomEloChange(Number(e.target.value))}
+                      className="w-full cursor-pointer"
+                      style={{
+                        WebkitAppearance: "none",
+                        appearance: "none",
+                        background: "transparent",
+                        height: "12px",
+                      }}
+                      onInput={(e) => {
+                        const val = (e.target as HTMLInputElement).value;
+                        e.currentTarget.style.setProperty(
+                          "--pct",
+                          `${((Number(val) - 400) / (3200 - 400)) * 100}%`,
+                        );
+                      }}
+                    />
+                    <style>{`
+                      input[type=range]::-webkit-slider-runnable-track {
+                        width: 100%;
+                        height: 2px;
+                        cursor: pointer;
+                        background: #404040;
+                        border-radius: 2px;
+                      }
+                      input[type=range]::-webkit-slider-thumb {
+                        -webkit-appearance: none;
+                        height: 12px;
+                        width: 12px;
+                        border-radius: 50%;
+                        background: #ffffff;
+                        cursor: pointer;
+                        margin-top: -5px;
+                        box-shadow: 0 0 10px rgba(255,255,255,0.2);
+                      }
+                      input[type=range]::-moz-range-track {
+                        width: 100%;
+                        height: 2px;
+                        cursor: pointer;
+                        background: #404040;
+                        border-radius: 2px;
+                      }
+                      input[type=range]::-moz-range-thumb {
+                        height: 12px;
+                        width: 12px;
+                        border-radius: 50%;
+                        background: #ffffff;
+                        cursor: pointer;
+                        border: none;
+                        box-shadow: 0 0 10px rgba(255,255,255,0.2);
+                      }
+                    `}</style>
                   </div>
                 </div>
-              </button>
-            );
-          })}
 
-          <div
-            className="lg:col-span-3 relative rounded-xl p-8 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-8"
-            style={{
-              backgroundColor: '#1f1f1f',
-              border: '1px solid rgba(255,255,255,0.05)',
-            }}
-          >
-            <div className="max-w-xs">
-              <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-2" style={{ color: '#c6c6c6' }}>
-                CUSTOM_CALIBRATION
-              </p>
-              <h3 className="text-3xl font-black tracking-tighter uppercase mb-4" style={{ color: '#ffffff' }}>
-                ENGINE_ADJUST
-              </h3>
-              <p className="text-xs leading-relaxed" style={{ color: '#c6c6c6' }}>
-                Manually override the rating parameters for precise opponent simulation.
-              </p>
-            </div>
-
-            <div className="flex-1 w-full space-y-6">
-              <div className="flex justify-between items-end">
-                <div className="flex items-baseline gap-2">
-                  <span
-                    className="text-5xl md:text-7xl font-black tracking-tighter transition-opacity"
-                    style={{ color: '#ffffff' }}
+                <div className="flex flex-col justify-center shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => onSelectEngine(customElo)}
+                    className="px-8 py-4 font-black text-[10px] uppercase tracking-[0.2em] rounded-full whitespace-nowrap transition-all duration-300 bg-neutral-700 text-white hover:bg-white hover:text-black border border-white/5 hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    {customElo}
-                  </span>
-                  <span className="text-xs font-black tracking-widest uppercase" style={{ color: '#474747' }}>
-                    ELO
-                  </span>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: '#c6c6c6' }}>
-                    TIER_ID
-                  </p>
-                  <p className="text-xs font-black tracking-wider uppercase" style={{ color: '#ffffff' }}>
-                    {customTier.label}
-                  </p>
+                    PLAY
+                  </button>
                 </div>
               </div>
-
-              <div className="relative w-full">
-                <input
-                  type="range"
-                  min={400}
-                  max={3200}
-                  step={50}
-                  value={customElo}
-                  onChange={(e) => onCustomEloChange(Number(e.target.value))}
-                  className="w-full cursor-pointer"
-                  style={{
-                    WebkitAppearance: 'none',
-                    appearance: 'none',
-                    background: 'transparent',
-                    height: '12px',
-                  }}
-                  onInput={(e) => {
-                    const val = (e.target as HTMLInputElement).value;
-                    const thumb = e.currentTarget;
-                    thumb.style.setProperty('--pct', `${((Number(val) - 400) / (3200 - 400)) * 100}%`);
-                  }}
-                />
-                <style>{`
-                  input[type=range]::-webkit-slider-runnable-track {
-                    width: 100%;
-                    height: 2px;
-                    cursor: pointer;
-                    background: #353535;
-                    border-radius: 2px;
-                  }
-                  input[type=range]::-webkit-slider-thumb {
-                    -webkit-appearance: none;
-                    height: 12px;
-                    width: 12px;
-                    border-radius: 50%;
-                    background: #ffffff;
-                    cursor: pointer;
-                    margin-top: -5px;
-                    box-shadow: 0 0 10px rgba(255,255,255,0.2);
-                  }
-                  input[type=range]::-moz-range-track {
-                    width: 100%;
-                    height: 2px;
-                    cursor: pointer;
-                    background: #353535;
-                    border-radius: 2px;
-                  }
-                  input[type=range]::-moz-range-thumb {
-                    height: 12px;
-                    width: 12px;
-                    border-radius: 50%;
-                    background: #ffffff;
-                    cursor: pointer;
-                    border: none;
-                    box-shadow: 0 0 10px rgba(255,255,255,0.2);
-                  }
-                `}</style>
-              </div>
-            </div>
-
-            <div className="flex flex-col justify-center shrink-0">
-              <button
-                onClick={() => onSelectEngine(customElo)}
-                className="px-8 py-4 font-black text-[10px] uppercase tracking-[0.2em] rounded-full whitespace-nowrap transition-all duration-300 bg-[#353535] text-white hover:bg-white hover:text-[#1a1c1c] border border-white/5"
-              >
-                INITIALIZE_CUSTOM
-              </button>
             </div>
           </div>
-
-
         </div>
-
-        <footer className="max-w-6xl mx-auto mt-24 pt-12 flex flex-col md:flex-row justify-between items-center gap-8 px-6" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="flex items-center gap-12 flex-wrap">
-            <div>
-              <p className="text-[8px] font-black tracking-[0.3em] uppercase mb-1" style={{ color: '#474747' }}>
-                ACTIVE_PROCESSES
-              </p>
-              <p className="font-black tracking-tighter text-sm" style={{ color: '#ffffff' }}>
-                1,248_INSTANCES
-              </p>
-            </div>
-            <div>
-              <p className="text-[8px] font-black tracking-[0.3em] uppercase mb-1" style={{ color: '#474747' }}>
-                ENGINE_LATENCY
-              </p>
-              <p className="font-black tracking-tighter text-sm" style={{ color: '#ffffff' }}>
-                0.04ms
-              </p>
-            </div>
-            <div>
-              <p className="text-[8px] font-black tracking-[0.3em] uppercase mb-1" style={{ color: '#474747' }}>
-                SYSTEM_STATUS
-              </p>
-              <p className="font-black tracking-tighter text-sm" style={{ color: '#ffffff' }}>
-                STABLE_00
-              </p>
-            </div>
-          </div>
-          <div className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: '#474747' }}>
-            © 2024 MONOLITH_TERMINAL_V.01 // ALL_RIGHTS_RESERVED
-          </div>
-        </footer>
       </main>
     </div>
   );

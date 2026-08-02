@@ -1,78 +1,70 @@
-import { useState, useEffect } from 'react';
-import { StockfishEngine } from '@/lib/chess/MoveEngine';
-import type { MoveEngine } from '@/lib/types/Engine';
+import { useState, useRef, useCallback } from "react";
+import type { Square } from "chess.js";
+import { StockfishEngine } from "@/lib/chess/MoveEngine";
+import type { MoveEngine } from "@/lib/types/Engine";
+import { playMoveSound } from "@/lib/chess/sounds";
 
-export function useEngine(game: any, initialElo = 1350) {
-    const [elo, setElo] = useState(initialElo);
-    const [isRandom, setIsRandom] = useState(false);
-    const [isThinking, setIsThinking] = useState(false);
-    const [engine, setEngine] = useState<MoveEngine>(() => new StockfishEngine('/stockfish/stockfish-18-lite-single.js', initialElo));
+export function useEngine(
+  game: {
+    chessGame: { fen(): string; turn(): string; move(move: string): any; isCheck(): boolean; isGameOver(): boolean; get(square: string): any; moves(opts: { verbose: true }): any[] };
+    setPosition(fen: string): void;
+  },
+  initialElo = 1350,
+) {
+  const [elo, setElo] = useState(initialElo);
+  const [isThinking, setIsThinking] = useState(false);
+  const [engine] = useState<MoveEngine>(
+    () => new StockfishEngine("/stockfish/stockfish-18-lite-single.js", initialElo),
+  );
 
-    useEffect(() => {
-        setElo(initialElo);
-        engine?.setElo?.(initialElo);
-    }, [initialElo, engine]);
+  const thinkingRef = useRef(false);
 
-    const handleEloChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newElo = parseInt(e.target.value, 10);
-        setElo(newElo);
-        engine.setElo?.(newElo);
-    };
+  const makeEngineMove = useCallback(
+    async () => {
+      if (thinkingRef.current) return;
+      thinkingRef.current = true;
+      setIsThinking(true);
 
-    const handleModeToggle = () => {
-        setIsRandom(prev => !prev);
-        engine.terminate?.();
-        setEngine(new StockfishEngine('/stockfish/stockfish-18-lite-single.js', elo));
-    };
+      const startFen = game.chessGame.fen();
+      const move = await engine.getNextMove(game.chessGame);
 
-    const makeEngineMove = async (onPieceDrop: (args: any) => boolean) => {
-        setIsThinking(true);
-        const startFen = game.chessGame.fen();
-        const move = await Promise.resolve(engine.getNextMove(game.chessGame));
+      if (game.chessGame.fen() !== startFen) {
+        thinkingRef.current = false;
         setIsThinking(false);
+        return;
+      }
 
-        if (!move || game.chessGame.fen() !== startFen) return;
+      if (!move) {
+        thinkingRef.current = false;
+        setIsThinking(false);
+        return;
+      }
 
-        game.chessGame.move(move);
-        const newFen = game.chessGame.fen();
-        game.setPosition(newFen);
+      const legalMoves = game.chessGame.moves({ verbose: true });
+      const matched = legalMoves.find((m) => m.san === move || m.from + m.to === move);
+      if (!matched) {
+        thinkingRef.current = false;
+        setIsThinking(false);
+        return;
+      }
 
-        // handle premoves
-        if (game.premovesRef.current.length > 0) {
-            const nextPlayerPremove = game.premovesRef.current[0];
-            game.premovesRef.current.splice(0, 1);
+      const isCapture = !!game.chessGame.get(matched.to as Square);
+      game.chessGame.move(move);
+      const newFen = game.chessGame.fen();
+      game.setPosition(newFen);
 
-            // wait for CPU move animation to complete
-            setTimeout(() => {
-                // execute the premove
-                const premoveSuccessful = onPieceDrop(nextPlayerPremove);
+      playMoveSound({ isCapture, isCheck: game.chessGame.isCheck(), isGameOver: game.chessGame.isGameOver() });
 
-                // if the premove was not successful, clear all premoves
-                if (!premoveSuccessful) {
-                    game.premovesRef.current = [];
-                }
+      thinkingRef.current = false;
+      setIsThinking(false);
+    },
+    [engine, game],
+  );
 
-                // update the premoves state
-                game.setPremoves([...game.premovesRef.current]);
-
-                // disable animations while clearing premoves
-                game.setShowAnimations(false);
-
-                // re-enable animations after a short delay
-                setTimeout(() => {
-                    game.setShowAnimations(true);
-                }, 50);
-            }, 300);
-        }
-    };
-
-    return {
-        elo,
-        isRandom,
-        isThinking,
-        handleEloChange,
-        handleModeToggle,
-        makeEngineMove,
-        terminate: () => engine.terminate?.()
-    };
+  return {
+    elo,
+    isThinking,
+    makeEngineMove,
+    terminate: () => engine?.terminate?.(),
+  };
 }

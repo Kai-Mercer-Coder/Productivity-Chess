@@ -178,7 +178,7 @@ export function LiveAnalysisView({
         </div>
       </div>
 
-      <div className="col-span-4 flex flex-col gap-6">
+      <div className="col-span-4 flex flex-col gap-6 max-h-[680px]">
         <div className="bg-surface-container rounded-xl p-6 shadow-xl border-b-2 border-white/5">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xs font-black uppercase tracking-widest text-primary/40">Stockfish 18 NNUE</h3>
@@ -225,12 +225,12 @@ export function LiveAnalysisView({
           </div>
         </div>
 
-        <div className="bg-surface-container rounded-xl flex flex-col flex-1 shadow-xl overflow-hidden">
+        <div className="bg-surface-container rounded-xl flex flex-col flex-1 min-h-0 shadow-xl overflow-hidden">
           <div className="p-4 border-b border-white/5 flex justify-between items-center bg-surface-container-high/30">
             <span className="text-xs font-black uppercase tracking-widest text-white">Move History</span>
             <span className="text-[10px] font-bold text-on-surface-variant bg-white/5 px-2 py-1 rounded">PGN</span>
           </div>
-          <div className="flex-1 overflow-y-auto max-h-[400px] p-2 space-y-1 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
             {movePairs.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-neutral-700 p-8">
                 <span className="material-symbols-outlined text-3xl">touch_app</span>

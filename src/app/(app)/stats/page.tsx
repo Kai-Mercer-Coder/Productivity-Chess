@@ -207,26 +207,6 @@ export default function StatsPage() {
           </div>
         </section>
       </div>
-
-      <footer className="pt-12 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-8 pb-12">
-        <div className="space-y-1">
-          <p className="text-[10px] font-black tracking-widest text-on-surface-variant uppercase">SERVER STATUS</p>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-bold">MONOLITH_ENGINE_V4.2 [ONLINE]</span>
-          </div>
-        </div>
-        <div className="flex gap-8">
-          <div className="text-center">
-            <p className="text-2xl font-black leading-none">12M+</p>
-            <p className="text-[8px] font-black tracking-widest text-on-surface-variant uppercase">POSITIONS ANALYZED</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-black leading-none">0.0ms</p>
-            <p className="text-[8px] font-black tracking-widest text-on-surface-variant uppercase">LATENCY</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

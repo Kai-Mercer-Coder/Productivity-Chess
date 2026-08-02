@@ -27,6 +27,11 @@ function isAutoPlay(idx: number, orientation: "white" | "black") {
   return !isUsersTurn(idx, orientation);
 }
 
+interface Premove {
+  sourceSquare: string;
+  targetSquare: string;
+}
+
 export default function MiddlegameTrainer({ line, onComplete }: Props) {
   const orientation = line.orientation ?? "white";
   const chessRef = useRef(new Chess(line.fen));
@@ -37,6 +42,8 @@ export default function MiddlegameTrainer({ line, onComplete }: Props) {
   const [showCompletion, setShowCompletion] = useState(false);
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [legalMoves, setLegalMoves] = useState<string[]>([]);
+  const premovesRef = useRef<Premove[]>([]);
+  const [premoves, setPremoves] = useState<Premove[]>([]);
 
   const statusRef = useRef(status);
   statusRef.current = status;
@@ -55,8 +62,12 @@ export default function MiddlegameTrainer({ line, onComplete }: Props) {
       const target = game.get(sq as any);
       styles[sq] = target ? captureSquareStyle : legalMoveSquareStyle;
     }
+    for (const p of premoves) {
+      styles[p.sourceSquare] = { backgroundColor: "rgba(235, 97, 80, 0.55)" };
+      styles[p.targetSquare] = { backgroundColor: "rgba(235, 97, 80, 0.7)" };
+    }
     return styles;
-  }, [legalMoves]);
+  }, [legalMoves, premoves]);
 
   const autoPlayNext = useCallback(
     (idx: number) => {
@@ -105,6 +116,8 @@ export default function MiddlegameTrainer({ line, onComplete }: Props) {
     setWrongCount(0);
     setShowCompletion(false);
     clearSelection();
+    premovesRef.current = [];
+    setPremoves([]);
     const timer = setTimeout(() => autoPlayNext(0), 600);
     return () => clearTimeout(timer);
   }, [line, autoPlayNext, clearSelection]);
@@ -167,6 +180,15 @@ export default function MiddlegameTrainer({ line, onComplete }: Props) {
     [line.moves, autoPlayNext, clearSelection, orientation],
   );
 
+  useEffect(() => {
+    if (status !== "playing" || premoves.length === 0) return;
+    if (!isUsersTurn(moveIdx, orientation)) return;
+    const p = premoves[0];
+    premovesRef.current = premoves.slice(1);
+    setPremoves(premovesRef.current);
+    executeUserMove(p.sourceSquare, p.targetSquare);
+  }, [status, premoves, moveIdx, orientation, executeUserMove]);
+
   const handleSquareClick = useCallback(
     ({ square }: { square: string }) => {
       const game = chessRef.current;
@@ -200,9 +222,18 @@ export default function MiddlegameTrainer({ line, onComplete }: Props) {
     (sourceSquare: string, targetSquare: string | null): boolean => {
       if (!targetSquare) return false;
       clearSelection();
-      return executeUserMove(sourceSquare, targetSquare);
+      if (
+        statusRef.current !== "playing" ||
+        isUsersTurn(moveIdxRef.current, orientation)
+      ) {
+        return executeUserMove(sourceSquare, targetSquare);
+      }
+      const p: Premove = { sourceSquare, targetSquare };
+      premovesRef.current = [...premovesRef.current, p];
+      setPremoves([...premovesRef.current]);
+      return true;
     },
-    [executeUserMove, clearSelection],
+    [executeUserMove, clearSelection, orientation],
   );
 
   const handlePieceDrag = useCallback(
@@ -246,7 +277,8 @@ export default function MiddlegameTrainer({ line, onComplete }: Props) {
                     : `${wrongCount} mistake${wrongCount > 1 ? "s" : ""} — keep practicing.`}
                 </p>
                 <button
-                  type="button" onClick={() => onComplete(wrongCount)}
+                  type="button"
+                  onClick={() => onComplete(wrongCount)}
                   className="px-8 py-3 bg-white text-black rounded-full font-bold hover:bg-neutral-200 transition-colors"
                 >
                   Back to Middle Games

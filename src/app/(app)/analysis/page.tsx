@@ -10,7 +10,7 @@ import { Chess } from "chess.js";
 
 const CONTROL_CHARS = /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g;
 const FEN_ALLOWED = /[^a-zA-Z0-9\s\/\-kqKQ]+/g;
-const PGN_STRIP = /[^a-zA-Z0-9\s\.\-\+\=\#\!\?\/\(\)\:\*\"\']/g;
+const PGN_STRIP = /[^\x20-\x7E\t\n\r]/g;
 
 function sanitize(input: string): string {
   return input.replace(CONTROL_CHARS, "").normalize("NFKC");
@@ -26,7 +26,7 @@ import { useChessGame } from "@/lib/hooks/useChessGame";
 import { useGameReview } from "@/lib/hooks/useGameReview";
 import { useBoardInteraction } from "@/lib/hooks";
 import { LocalStockfishEvalEngine, type LocalEvalResult } from "@/lib/chess/MoveEngine";
-import GameReviewView from "./components/GameReviewView";
+import GameReviewView from "./components/GameReviewViewOld";
 import ModeSelector from "./components/ModeSelector";
 import { LiveAnalysisView } from "./components/LiveAnalysisView";
 import { ExportModal } from "./components/ExportModal";
@@ -35,7 +35,7 @@ type AnalysisMode = "pgn" | "fen" | "blank";
 
 export default function AnalysisPage() {
   const game = useChessGame();
-  const { report, loading, progress, total, deepLoading, runReview, runDeepAnalysis, reset: resetReview } = useGameReview();
+  const { report, loading, progress, total, deepLoading, analysisPass, completedMoves, runReview, runDeepAnalysis, reset: resetReview } = useGameReview();
 
   const [exportOpen, setExportOpen] = useState(false);
   const [engineResult, setEngineResult] = useState<LocalEvalResult | null>(null);
@@ -185,12 +185,17 @@ export default function AnalysisPage() {
     );
   } else if (loading) {
     mainContent = (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-          <p className="text-sm text-neutral-400">Analysing game... {progress}/{total}</p>
-        </div>
-      </div>
+      <GameReviewView
+        fen={game.position}
+        report={null}
+        onReset={reset}
+        onNavigate={navigateTo}
+        navIndex={navIndex}
+        moves={moves}
+        refining={true}
+        progress={progress}
+        total={total}
+      />
     );
   } else {
     mainContent = (
@@ -235,7 +240,7 @@ export default function AnalysisPage() {
             onNavigate={navigateTo}
             navIndex={navIndex}
             moves={moves}
-            loading={false}
+            refining={false}
             progress={progress}
             total={total}
           />

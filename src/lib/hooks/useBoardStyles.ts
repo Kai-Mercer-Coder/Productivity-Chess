@@ -32,6 +32,9 @@ export const useBoardStyles = ({
   const fen = chessGame.fen();
 
   return useMemo(() => {
+    if (!isUnderdefended && !isOverdefended && !showCheckHighlights && Object.keys(optionSquares).length === 0) {
+      return { styles: optionSquares, arrows: [] };
+    }
     const boardMap = new Map<Square, ReturnType<typeof chessGame.get>>();
     for (const sq of ALL_SQUARES) {
       const piece = chessGame.get(sq);

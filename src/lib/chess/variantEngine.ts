@@ -57,6 +57,10 @@ const VARIANT_UCI_OPTS: Record<string, [string, string][]> = {
   giveaway: [['UCI_Variant', 'giveaway']],
   crazyhouse: [['UCI_Variant', 'crazyhouse']],
   atomic: [['UCI_Variant', 'atomic']],
+  kingOfTheHill: [['UCI_Variant', 'kingofthehill']],
+  threeCheck: [['UCI_Variant', '3check']],
+  horde: [['UCI_Variant', 'horde']],
+  racingKings: [['UCI_Variant', 'racingkings']],
 };
 
 function waitFor(sf: any, predicate: (line: string) => boolean, timeoutMs = 30000): Promise<void> {
@@ -136,4 +140,8 @@ export async function getEngineBestMove(fen: string, variant: string, strength: 
     sf.addMessageListener(listener);
     sf.postMessage('go depth 10');
   });
+}
+
+export function getStrengthElo(strength: number): number {
+  return Math.round(800 + (strength - 1) * 200);
 }

@@ -9,41 +9,164 @@ import { boardTheme } from "@/lib/chess/boardTheme";
 import { useSession } from "next-auth/react";
 import type { SessionWithProfile } from "@/types/profile";
 import { toast } from "react-toastify";
-
+import Dexie from 'dexie';
 import { useChessGame } from "@/lib/hooks/useChessGame";
 import { useBoardInteraction } from "@/lib/hooks";
 import { preloadShardsForElo } from "@/lib/puzzles/PuzzleShards";
 import { usePuzzle } from "@/lib/puzzles/usePuzzle";
 import { usePuzzleStorage } from "@/lib/hooks/usePuzzleStorage";
 import type { PuzzleSolveRecord } from "@/lib/db/gameDB";
+import { pickTheme, RARITY_COLORS } from "@/lib/puzzles/puzzleThemes";
 import {
-  PuzzleInfoBar,
-  PuzzleMoveHistory,
   PuzzleSettingsModal,
   PuzzleSolvedFooter,
   StatusOverlay,
 } from "./components";
 
-function StreakDots({ attempts }: { attempts: PuzzleSolveRecord[] }) {
+function StreakDots({
+  attempts,
+  onShowAll,
+}: {
+  attempts: PuzzleSolveRecord[];
+  onShowAll: () => void;
+}) {
+  const visible = attempts.slice(-9);
+  const wins = attempts.filter((a) => a.correct).length;
+  const losses = attempts.filter((a) => !a.correct).length;
+  const hinted = attempts.filter((a) => a.hinted).length;
+
   return (
-    <div className="flex items-center gap-1.5 flex-wrap justify-center">
-      {attempts.map((a, i) => {
-        let color: string;
-        if (a.hinted) {
-          color = "bg-white";
-        } else if (a.correct) {
-          color = "bg-green-500";
-        } else {
-          color = "bg-red-500";
-        }
-        return (
+    <button
+      type="button"
+      onClick={onShowAll}
+      className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-surface-container-low/80 border border-white/5 hover:bg-surface-container-low hover:border-white/10 transition-all cursor-pointer group"
+    >
+      <div className="flex items-center gap-1.5">
+        {visible.map((a, i) => {
+          let color: string;
+          if (a.hinted) {
+            color = "bg-white/50";
+          } else if (a.correct) {
+            color = "bg-green-500";
+          } else {
+            color = "bg-red-500";
+          }
+          return (
+            <div
+              key={a.id ?? i}
+              className={`w-2.5 h-2.5 rounded-full ${color} transition-all duration-300`}
+            />
+          );
+        })}
+        {Array.from({ length: 9 - visible.length }).map((_, i) => (
           <div
-            key={a.id ?? i}
-            className={`w-2.5 h-2.5 rounded-full ${color} transition-all duration-300`}
-            title={`${a.correct ? "Solved" : "Failed"}${a.hinted ? " (hint used)" : ""}`}
+            key={`empty-${i}`}
+            className="w-2.5 h-2.5 rounded-full bg-white/5"
           />
-        );
-      })}
+        ))}
+      </div>
+      <div className="h-4 w-px bg-white/10" />
+      <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider group-hover:text-neutral-400 transition-colors">
+        {wins}W {losses}L{hinted > 0 ? ` ${hinted}H` : ""}
+      </span>
+    </button>
+  );
+}
+
+function StreakModal({
+  attempts,
+  onClose,
+}: {
+  attempts: PuzzleSolveRecord[];
+  onClose: () => void;
+}) {
+  const wins = attempts.filter((a) => a.correct).length;
+  const losses = attempts.filter((a) => !a.correct).length;
+  const hinted = attempts.filter((a) => a.hinted).length;
+  const streak = attempts.reduce<number>((acc, a) => {
+    if (a.correct) return acc + 1;
+    return 0;
+  }, 0);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
+    >
+      <div
+        className="glass border border-white/10 rounded-3xl shadow-2xl p-6 w-[360px]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-xs font-black uppercase tracking-wider text-white">
+            Streak History
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 text-neutral-500 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+          >
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-center">
+            <div className="text-xl font-black text-green-400">{wins}</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-green-400/60">
+              Wins
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
+            <div className="text-xl font-black text-red-400">{losses}</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-red-400/60">
+              Losses
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
+            <div className="text-xl font-black text-white">{streak}</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">
+              Streak
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-9 gap-1.5">
+          {attempts
+            .slice()
+            .reverse()
+            .slice(0, 81)
+            .map((a, i) => {
+              let color: string;
+              if (a.hinted) {
+                color = "bg-white/40";
+              } else if (a.correct) {
+                color = "bg-green-500";
+              } else {
+                color = "bg-red-500";
+              }
+              return (
+                <div
+                  key={a.id ?? i}
+                  className={`w-full aspect-square rounded-md ${color} transition-all duration-300`}
+                  title={`${a.correct ? "Solved" : "Failed"}${a.hinted ? " (hint)" : ""}`}
+                />
+              );
+            })}
+        </div>
+
+        {hinted > 0 && (
+          <div className="mt-4 flex items-center gap-2 justify-center">
+            <div className="w-2.5 h-2.5 rounded-full bg-white/40" />
+            <span className="text-[10px] text-neutral-500 font-medium">
+              {hinted} solved with hint
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -60,6 +183,7 @@ export default function PuzzlePage() {
   const [showSolution, setShowSolution] = useState(false);
   const [userElo, setUserElo] = useState(1200);
   const [unrated, setUnrated] = useState(false);
+  const [showStreak, setShowStreak] = useState(false);
   const [recentAttempts, setRecentAttempts] = useState<PuzzleSolveRecord[]>([]);
   const submittedRef = useRef(false);
   const wrongToastRef = useRef<number | null>(null);
@@ -216,7 +340,7 @@ export default function PuzzlePage() {
           {puzzle.puzzle ? (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
               <section className="lg:col-span-7 xl:col-span-8 flex flex-col items-center w-full">
-                <div className="relative w-full max-w-[700px] aspect-square bg-surface-container shadow-[0_30px_100px_rgba(0,0,0,0.5)] rounded-[2rem] overflow-hidden group border border-white/5">
+                <div className="relative w-full max-w-[680px] aspect-square bg-surface-container shadow-[0_30px_100px_rgba(0,0,0,0.5)] rounded-[2rem] overflow-hidden group border border-white/5">
                   <StatusOverlay status={puzzle.status} />
                   <Chessboard
                     options={{
@@ -238,77 +362,56 @@ export default function PuzzlePage() {
                   />
                 </div>
 
-                <div className="mt-8 w-full max-w-[700px]">
-                  <PuzzleInfoBar
-                    playerColor={puzzle.playerColor}
-                    status={puzzle.status}
-                    currentPlayerMove={currentPlayerMove}
-                    totalPlayerMoves={totalPlayerMoves}
-                  />
-                </div>
-
-                <div className="mt-6 w-full max-w-[700px] flex items-center justify-between">
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <div
-                      onClick={() => setUnrated((u) => !u)}
-                      className={`w-9 h-5 flex items-center rounded-full px-0.5 transition-colors duration-200 ${
-                        unrated ? "bg-neutral-600" : "bg-white"
-                      }`}
-                    >
-                      <div
-                        className={`w-4 h-4 rounded-full bg-black transition-transform duration-200 ${
-                          unrated ? "translate-x-0" : "translate-x-4"
-                        }`}
-                      />
-                    </div>
-                    <span className="text-[11px] font-medium text-neutral-400">
-                      Unrated
-                    </span>
-                  </label>
-
-                  <StreakDots attempts={recentAttempts} />
-                </div>
               </section>
 
               <aside className="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 w-full max-w-[500px] mx-auto lg:mx-0">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-8 rounded-3xl border border-white/5 shadow-xl glass">
+                <StreakDots attempts={recentAttempts} onShowAll={() => setShowStreak(true)} />
+
+                <div className="flex flex-col gap-4">
+                  <div className="p-8 rounded-3xl border border-white/5 shadow-xl glass relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowSettings(true)}
+                      className="absolute top-4 right-4 p-2 text-neutral-500 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                    >
+                      <span className="material-symbols-outlined text-lg">settings</span>
+                    </button>
                     <span className="text-[10px] font-black text-neutral-500 uppercase tracking-widest block mb-2">
                       Rating
                     </span>
-                    <div className="flex items-baseline gap-2">
+                    <div className="flex items-center gap-5">
                       <span className="text-4xl font-black text-white tracking-tighter">
-                        {puzzle.puzzle.rating.toLocaleString()}
+                        {userElo.toLocaleString()}
                       </span>
+                      <div className={`w-4 h-4 rounded-full ${puzzle.playerColor === "w" ? "bg-white" : "bg-neutral-800 border border-white/30"}`} />
                     </div>
                   </div>
-                  <div className="p-8 rounded-3xl border border-white/5 shadow-xl glass">
-                    <span className="text-[10px] font-black text-neutral-500 uppercase tracking-widest block mb-2">
-                      Themes
-                    </span>
-                    <div className="flex flex-wrap gap-1">
-                      {puzzle.puzzle.themes.slice(0, 4).map((t) => (
-                        <span
-                          key={t}
-                          className="text-[10px] font-medium text-white/70 bg-white/5 px-2 py-1 rounded capitalize"
-                        >
-                          {t.replace(/([A-Z])/g, " $1")}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
 
-                <PuzzleMoveHistory
-                  puzzle={puzzle.puzzle}
-                  moveIndex={puzzle.moveIndex}
-                  onToggleSettings={() => setShowSettings(true)}
-                />
+                  {puzzle.puzzle.themes.length > 0 && (() => {
+                    const primaryTheme = pickTheme(puzzle.puzzle.themes);
+                    const rarityColor = RARITY_COLORS[primaryTheme.rarity ?? "common"];
+                    return (
+                      <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5 flex items-center gap-8 relative overflow-hidden group shadow-xl">
+                        <div className="flex-1 z-10">
+                          <h3 className="text-sm font-black text-white mb-2 uppercase tracking-wide">
+                            {primaryTheme.label}
+                          </h3>
+                          <p className="text-xs text-neutral-400 leading-relaxed capitalize">
+                            {primaryTheme.description}
+                          </p>
+                        </div>
+                        <div className="w-20 h-20 opacity-5 absolute -right-2 pointer-events-none group-hover:scale-110 transition-transform duration-700">
+                          <span className="material-symbols-outlined scale-600">
+                            {primaryTheme.icon}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
 
                 {puzzle.status === "solved" ? (
                   <PuzzleSolvedFooter
-                    rating={puzzle.puzzle.rating}
-                    themes={puzzle.puzzle.themes}
                     onNextPuzzle={loadNextPuzzle}
                   />
                 ) : (
@@ -342,25 +445,25 @@ export default function PuzzlePage() {
                   </div>
                 )}
 
-                {puzzle.puzzle.themes.length > 0 && (
-                  <div className="bg-surface-container-low p-8 rounded-3xl border border-white/5 flex items-center gap-8 relative overflow-hidden group shadow-xl">
-                    <div className="flex-1 z-10">
-                      <h3 className="text-sm font-black text-white mb-2 uppercase tracking-wide">
-                        Tactical Motif{puzzle.puzzle.themes.length > 1 ? "s" : ""}
-                      </h3>
-                      <p className="text-xs text-neutral-400 leading-relaxed capitalize">
-                        {puzzle.puzzle.themes
-                          .join(", ")
-                          .replace(/([A-Z])/g, " $1")}
-                      </p>
-                    </div>
-                    <div className="w-20 h-20 opacity-5 absolute -right-2 pointer-events-none group-hover:scale-110 transition-transform duration-700">
-                      <span className="material-symbols-outlined scale-600">
-                        psychology
+                <div className="p-6 rounded-3xl border border-white/5 glass">
+                  <button
+                    type="button"
+                    onClick={() => setUnrated((u) => !u)}
+                    className="w-full flex items-center justify-between"
+                  >
+                    <div>
+                      <span className="text-sm font-semibold text-white">
+                        {unrated ? "Unrated" : "Rated"}
+                      </span>
+                      <span className="text-xs text-neutral-500 block mt-0.5">
+                        {unrated ? "No ELO change" : "Affects rating"}
                       </span>
                     </div>
-                  </div>
-                )}
+                    <div className={`w-10 h-6 flex items-center rounded-full px-0.5 transition-colors duration-200 ${unrated ? "bg-white" : "bg-neutral-700"}`}>
+                      <div className={`w-5 h-5 rounded-full bg-black transition-transform duration-200 shadow-sm ${unrated ? "translate-x-4" : "translate-x-0"}`} />
+                    </div>
+                  </button>
+                </div>
 
                 {showSolution && puzzle.puzzle && (
                   <div
@@ -443,6 +546,10 @@ export default function PuzzlePage() {
           <span className="material-symbols-outlined font-black text-3xl">arrow_forward</span>
         </button>
       </div>
+
+      {showStreak && (
+        <StreakModal attempts={recentAttempts} onClose={() => setShowStreak(false)} />
+      )}
     </div>
   );
 }

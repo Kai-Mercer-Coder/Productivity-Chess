@@ -17,6 +17,13 @@ export interface GameRecord {
   classifications: { white: ClassificationCount; black: ClassificationCount } | null;
 }
 
+export interface Graph {
+  id?:number;
+  date: string;
+  elo: number;
+  difference: number;
+}
+
 export interface PuzzleFailRecord {
   id?: number;
   puzzleId: string;
@@ -37,6 +44,7 @@ class MonolithDB extends Dexie {
   games!: Table<GameRecord>;
   puzzleFails!: Table<PuzzleFailRecord>;
   puzzleSolves!: Table<PuzzleSolveRecord>;
+  graph!: Table<Graph>;
 
   constructor() {
     super("MonolithDB");
@@ -44,6 +52,7 @@ class MonolithDB extends Dexie {
       games: "++id, date, result, opponentElo",
       puzzleFails: "++id, puzzleId",
       puzzleSolves: "++id, puzzleId, date, correct",
+      graph: "++id, date, elo, difference"
     });
   }
 }

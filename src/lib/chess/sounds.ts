@@ -1,18 +1,44 @@
 let moveAudio: HTMLAudioElement | null = null;
 let captureAudio: HTMLAudioElement | null = null;
+let checkAudio: HTMLAudioElement | null = null;
+let gameOverAudio: HTMLAudioElement | null = null;
 
 function getMove() {
-  if (!moveAudio) moveAudio = new Audio('/Move.mp3');
+  if (!moveAudio) moveAudio = new Audio('/SwiftMove.mp3');
   return moveAudio;
 }
 
 function getCapture() {
-  if (!captureAudio) captureAudio = new Audio('/Capture.mp3');
+  if (!captureAudio) captureAudio = new Audio('/SwiftCapture.mp3');
   return captureAudio;
 }
 
-export function playMoveSound() {
-  try { (getMove().cloneNode(true) as HTMLAudioElement).play(); } catch {}
+function getCheck() {
+  if (!checkAudio) checkAudio = new Audio('/Check.mp3');
+  return checkAudio;
+}
+
+function getGameOver() {
+  if (!gameOverAudio) gameOverAudio = new Audio('/GameOver.mp3');
+  return gameOverAudio;
+}
+
+export function playMoveSound(opts?: { isCapture?: boolean; isCheck?: boolean; isGameOver?: boolean }) {
+  try {
+    if (opts?.isGameOver) {
+      (getGameOver().cloneNode(true) as HTMLAudioElement).play();
+      return;
+    }
+    if (opts?.isCheck) {
+      (getCheck().cloneNode(true) as HTMLAudioElement).play();
+      return;
+    }
+    if (opts?.isCapture) {
+      (getCapture().cloneNode(true) as HTMLAudioElement).play();
+      return;
+    }
+    (getMove().cloneNode(true) as HTMLAudioElement).play();
+  } catch {}
 }
 
 export function playCaptureSound() {

@@ -184,6 +184,22 @@ export class LocalStockfishEvalEngine {
     timeMs = 10000,
     onUpdate?: (result: LocalEvalResult) => void,
   ): Promise<LocalEvalResult> {
+    return this.evaluateWithLimit(fen, { timeMs }, onUpdate);
+  }
+
+  async evaluateToDepth(
+    fen: string,
+    depth: number,
+    onUpdate?: (result: LocalEvalResult) => void,
+  ): Promise<LocalEvalResult> {
+    return this.evaluateWithLimit(fen, { depth }, onUpdate);
+  }
+
+  private async evaluateWithLimit(
+    fen: string,
+    limit: { timeMs?: number; depth?: number },
+    onUpdate?: (result: LocalEvalResult) => void,
+  ): Promise<LocalEvalResult> {
     if (!this.worker) {
       return {
         fen,
@@ -224,7 +240,12 @@ export class LocalStockfishEvalEngine {
     return new Promise((resolve) => {
       this.evalResolve = resolve;
       this.worker?.postMessage("position fen " + fen);
-      this.worker?.postMessage("go movetime " + timeMs);
+      if (limit.depth) {
+        this.maxDepth = limit.depth;
+        this.worker?.postMessage("go depth " + limit.depth);
+      } else {
+        this.worker?.postMessage("go movetime " + (limit.timeMs ?? 10000));
+      }
     });
   }
 

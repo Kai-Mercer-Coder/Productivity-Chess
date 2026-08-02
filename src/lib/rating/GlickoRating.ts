@@ -27,6 +27,7 @@ export interface GlickoResult {
   delta: number;
 }
 
+
 export function updatePuzzleRating(
   currentRating: number,
   currentRd: number,

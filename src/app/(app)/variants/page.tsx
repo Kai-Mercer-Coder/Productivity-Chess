@@ -36,6 +36,38 @@ const variants = [
     description:
       "Every capture triggers a localized explosion. The capturing piece, the captured piece, and all non-pawn pieces in a 3x3 radius are vaporized. The ultimate objective: explode the opponent's king.",
   },
+  {
+    id: "kingOfTheHill",
+    title: "King of the Hill",
+    module: "Module 05",
+    icon: "flag",
+    description:
+      "Standard chess with a twist: moving your king to one of the four central squares (d4, d5, e4, e5) wins the game instantly. Forces aggressive king play from the opening.",
+  },
+  {
+    id: "threeCheck",
+    title: "Three-Check",
+    module: "Module 06",
+    icon: "electric_bolt",
+    description:
+      "Check the opponent's king three times to win. Adds a secondary objective to every position, rewarding tactical threats and forcing both sides to balance attack with king safety.",
+  },
+  {
+    id: "horde",
+    title: "Horde",
+    module: "Module 07",
+    icon: "group",
+    description:
+      "White plays with a horde of 36 pawns against Black's standard army. The horde wins by checkmating the king; Black wins by capturing every pawn. Asymmetric warfare at its finest.",
+  },
+  {
+    id: "racingKings",
+    title: "Racing Kings",
+    module: "Module 08",
+    icon: "speed",
+    description:
+      "Both sides race their kings to the 8th rank. No checks allowed. Pieces move freely but the first king to reach the finish line wins. Pure positional calculation with no tactical shortcuts.",
+  },
 ];
 
 export default function VariantsPage() {

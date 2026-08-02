@@ -3,11 +3,13 @@
 import { useState, useCallback, useRef } from "react";
 import { Chess } from "chess.js";
 import { analyse } from "@/lib/chess/analyse";
-import { hfEvaluateFen, LocalStockfishEvalEngine, type LocalEvalResult } from "@/lib/chess/MoveEngine";
+import { LocalStockfishEvalEngine, fetchTablebase, type LocalEvalResult } from "@/lib/chess/MoveEngine";
 import type Report from "@/lib/types/Report";
 import type { EvaluatedPosition } from "@/lib/types/Position";
-
 import type { EvalResult } from "@/lib/chess/engine/types";
+import { Classification } from "@/lib/types/Classification";
+import { toast } from "react-toastify";
+
 type EvalResponse = EvalResult;
 
 interface UseGameReviewReturn {
@@ -16,6 +18,8 @@ interface UseGameReviewReturn {
   progress: number;
   total: number;
   deepLoading: boolean;
+  analysisPass: number;
+  completedMoves: number;
   runReview: (pgn: string) => Promise<void>;
   runDeepAnalysis: (pgn: string) => Promise<void>;
   reset: () => void;
@@ -27,40 +31,48 @@ export function useGameReview(): UseGameReviewReturn {
   const [progress, setProgress] = useState(0);
   const [total, setTotal] = useState(0);
   const [deepLoading, setDeepLoading] = useState(false);
+  const [analysisPass, setAnalysisPass] = useState(0);
+  const [completedMoves, setCompletedMoves] = useState(0);
   const positionsRef = useRef<EvaluatedPosition[]>([]);
+  const abortRef = useRef(false);
 
   const runReview = useCallback(async (pgn: string) => {
     if (!pgn.trim()) return;
     setLoading(true);
     setReport(null);
+    setAnalysisPass(1);
+    setCompletedMoves(0);
+    abortRef.current = false;
 
     try {
       const game = new Chess();
       game.loadPgn(pgn.trim());
       const allMoves = game.history({ verbose: true });
-      if (allMoves.length === 0) return;
+      if (allMoves.length === 0) {
+        setLoading(false);
+        setAnalysisPass(0);
+        return;
+      }
 
       setTotal(allMoves.length + 1);
-
       const positions: EvaluatedPosition[] = [];
 
       const startGame = new Chess();
       try {
-        const startEval = await evaluateFen(startGame.fen());
+        const startEval = await evaluateFenToDepth(startGame.fen(), 13);
         const startEvalCp = Math.round(startEval.eval * 100);
         const startMate = startEval.mate;
-
         positions.push({
           fen: startGame.fen(),
           move: { san: "", uci: "" },
           topLines: [{
-            id: 1, depth: 18,
+            id: 1, depth: 13,
             evaluation: { type: startMate !== null ? "mate" : "cp", value: startMate ?? startEvalCp },
             moveUCI: startEval.bestmove, moveSAN: startEval.san
           }],
           cutoffEvaluation: undefined,
           classification: undefined,
-          worker: "cloud"
+          worker: "local"
         });
       } catch (err) {
         console.warn("Failed to evaluate starting position:", err);
@@ -78,27 +90,29 @@ export function useGameReview(): UseGameReviewReturn {
       }
 
       setProgress(1);
+      setCompletedMoves(1);
 
       const replay = new Chess();
       for (let i = 0; i < allMoves.length; i++) {
+        if (abortRef.current) return;
+
         replay.move(allMoves[i]);
         const currentFen = replay.fen();
 
         try {
-          const evalData = await evaluateFen(currentFen);
+          const evalData = await evaluateFenToDepth(currentFen, 13);
           const evalCp = Math.round(evalData.eval * 100);
-
           positions.push({
             fen: currentFen,
             move: { san: allMoves[i].san, uci: allMoves[i].from + allMoves[i].to },
             topLines: [{
-              id: 1, depth: 18,
+              id: 1, depth: 13,
               evaluation: { type: evalData.mate !== null ? "mate" : "cp", value: evalData.mate ?? evalCp },
               moveUCI: evalData.bestmove, moveSAN: evalData.san,
               continuation: evalData.continuationArr || []
             }],
             classification: undefined,
-            worker: "cloud"
+            worker: "local"
           });
         } catch (err) {
           console.warn(`Failed to evaluate position ${i + 1}:`, err);
@@ -116,15 +130,140 @@ export function useGameReview(): UseGameReviewReturn {
         }
 
         setProgress(i + 2);
+        setCompletedMoves(i + 2);
       }
 
-      positionsRef.current = positions;
-      const result = await analyse(positions);
+      positionsRef.current = [...positions];
+      const result = await analyse([...positions]);
       setReport(result);
+
+      if (!abortRef.current) {
+        toast.success("Depth 13 analysis complete", { autoClose: 1500 });
+        runPass2(pgn, positions);
+      }
     } catch (err) {
       console.error("Game review failed:", err);
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const runPass2 = useCallback(async (pgn: string, basePositions: EvaluatedPosition[]) => {
+    setAnalysisPass(2);
+    setCompletedMoves(0);
+    const engine = new LocalStockfishEvalEngine();
+    const updated = basePositions.map(p => ({ ...p }));
+
+    try {
+      for (let i = 0; i < updated.length; i++) {
+        if (abortRef.current) return;
+
+        const pos = updated[i];
+        const result = await engine.evaluateToDepth(pos.fen, 15);
+        if (result.depth === 0) continue;
+
+        const evalCp = Math.round(result.eval * 100);
+        const oldEval = pos.topLines[0]?.evaluation.value ?? 0;
+        const newEval = result.mate !== null ? (result.mate > 0 ? 10000 : -10000) : evalCp;
+
+        updated[i] = {
+          ...pos,
+          topLines: [{
+            id: 1, depth: 15,
+            evaluation: { type: result.mate !== null ? "mate" : "cp", value: result.mate ?? evalCp },
+            moveUCI: result.bestmove,
+            moveSAN: "",
+            continuation: result.pv.slice(1)
+          }],
+          worker: "local"
+        };
+
+        setCompletedMoves(i + 1);
+      }
+
+      const oldReport = positionsRef.current.map(p => p.classification);
+      const newResult = await analyse(updated);
+
+      let changedCount = 0;
+      for (let i = 0; i < updated.length; i++) {
+        if (oldReport[i] !== updated[i].classification && updated[i].classification) {
+          changedCount++;
+        }
+      }
+
+      positionsRef.current = updated;
+      setReport(newResult);
+
+      if (!abortRef.current) {
+        if (changedCount > 0) {
+          toast.info(`Depth 15: ${changedCount} classification${changedCount > 1 ? "s" : ""} updated`, { autoClose: 2000 });
+        } else {
+          toast.success("Depth 15 analysis complete", { autoClose: 1500 });
+        }
+        runPass3(pgn, updated);
+      }
+    } catch (err) {
+      console.error("Pass 2 failed:", err);
+    } finally {
+      engine.terminate();
+    }
+  }, []);
+
+  const runPass3 = useCallback(async (pgn: string, basePositions: EvaluatedPosition[]) => {
+    setAnalysisPass(3);
+    setCompletedMoves(0);
+    const engine = new LocalStockfishEvalEngine();
+    const updated = basePositions.map(p => ({ ...p }));
+
+    try {
+      for (let i = 0; i < updated.length; i++) {
+        if (abortRef.current) return;
+
+        const pos = updated[i];
+        const result = await engine.evaluateToDepth(pos.fen, 18);
+        if (result.depth === 0) continue;
+
+        const evalCp = Math.round(result.eval * 100);
+
+        updated[i] = {
+          ...pos,
+          topLines: [{
+            id: 1, depth: 18,
+            evaluation: { type: result.mate !== null ? "mate" : "cp", value: result.mate ?? evalCp },
+            moveUCI: result.bestmove,
+            moveSAN: "",
+            continuation: result.pv.slice(1)
+          }],
+          worker: "local"
+        };
+
+        setCompletedMoves(i + 1);
+      }
+
+      const oldReport = positionsRef.current.map(p => p.classification);
+      const newResult = await analyse(updated);
+
+      let changedCount = 0;
+      for (let i = 0; i < updated.length; i++) {
+        if (oldReport[i] !== updated[i].classification && updated[i].classification) {
+          changedCount++;
+        }
+      }
+
+      positionsRef.current = updated;
+      setReport(newResult);
+
+      if (!abortRef.current) {
+        if (changedCount > 0) {
+          toast.info(`Final: ${changedCount} classification${changedCount > 1 ? "s" : ""} updated`, { autoClose: 2000 });
+        }
+        toast.success("Analysis complete", { autoClose: 1500 });
+        setAnalysisPass(0);
+      }
+    } catch (err) {
+      console.error("Pass 3 failed:", err);
+    } finally {
+      engine.terminate();
     }
   }, []);
 
@@ -136,10 +275,6 @@ export function useGameReview(): UseGameReviewReturn {
     const updated = [...positionsRef.current];
 
     try {
-      const game = new Chess();
-      game.loadPgn(pgn.trim());
-      const allMoves = game.history({ verbose: true });
-
       for (let i = 0; i < updated.length; i++) {
         const pos = updated[i];
         const localResult = await engine.evaluatePosition(pos.fen, 5000);
@@ -175,39 +310,46 @@ export function useGameReview(): UseGameReviewReturn {
   }, [deepLoading]);
 
   const reset = useCallback(() => {
+    abortRef.current = true;
     setReport(null);
     setLoading(false);
     setProgress(0);
     setTotal(0);
     setDeepLoading(false);
+    setAnalysisPass(0);
+    setCompletedMoves(0);
     positionsRef.current = [];
   }, []);
 
-  return { report, loading, progress, total, deepLoading, runReview, runDeepAnalysis, reset };
+  return { report, loading, progress, total, deepLoading, analysisPass, completedMoves, runReview, runDeepAnalysis, reset };
 }
 
-let sharedLocalEngine: LocalStockfishEvalEngine | null = null;
-
-function getSharedEngine(): LocalStockfishEvalEngine {
-  if (!sharedLocalEngine) {
-    sharedLocalEngine = new LocalStockfishEvalEngine();
+async function evaluateFenToDepth(fen: string, depth: number): Promise<EvalResponse> {
+  const tablebase = await fetchTablebase(fen);
+  if (tablebase) {
+    return {
+      eval: tablebase.eval,
+      mate: tablebase.mate,
+      bestmove: tablebase.bestmove,
+      san: "",
+      continuationArr: tablebase.continuationArr,
+      winChance: tablebase.winChance,
+    };
   }
-  return sharedLocalEngine;
-}
 
-async function evaluateFen(fen: string): Promise<EvalResponse> {
-  const cloudResult = await hfEvaluateFen(fen);
-  if (cloudResult.eval !== 0 || cloudResult.bestmove) return cloudResult;
-
-  const localEngine = getSharedEngine();
-  const result = await localEngine.evaluatePosition(fen, 3000);
-  const evalCp = Math.round(result.eval * 100);
-  return {
-    eval: result.eval,
-    mate: result.mate,
-    bestmove: result.bestmove,
-    san: "",
-    continuationArr: result.pv.slice(1),
-    winChance: 50 + (evalCp / 200),
-  };
+  const engine = new LocalStockfishEvalEngine();
+  try {
+    const result = await engine.evaluateToDepth(fen, depth);
+    const evalCp = Math.round(result.eval * 100);
+    return {
+      eval: result.eval,
+      mate: result.mate,
+      bestmove: result.bestmove,
+      san: "",
+      continuationArr: result.pv.slice(1),
+      winChance: 50 + (evalCp / 200),
+    };
+  } finally {
+    engine.terminate();
+  }
 }

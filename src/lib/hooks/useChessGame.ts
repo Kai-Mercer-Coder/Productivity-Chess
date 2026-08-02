@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { Chess, type PieceSymbol, type Square } from 'chess.js';
-import type { PieceDropHandlerArgs } from 'react-chessboard';
 import type { PromotionMove } from '@/lib/types/Engine';
 
 export function useChessGame() {
@@ -11,22 +10,12 @@ export function useChessGame() {
     const [optionSquares, setOptionSquares] = useState<Record<string, React.CSSProperties>>({});
     const [promotionMove, setPromotionMove] = useState<PromotionMove | null>(null);
     const [moveFrom, setMoveFrom] = useState('');
-    const [premoves, setPremoves] = useState<PieceDropHandlerArgs[]>([]);
-    const premovesRef = useRef<PieceDropHandlerArgs[]>([]);
     const [showAnimations, setShowAnimations] = useState(true);
 
-    const clearPremoves = () => {
-        premovesRef.current = [];
-        setPremoves([]);
-    };
-
-    const resetMoveState = (shouldClearPremoves = false) => {
+    const resetMoveState = () => {
         setMoveFrom('');
         setOptionSquares({});
         setPromotionMove(null);
-        if (shouldClearPremoves) clearPremoves();
-        setShowAnimations(false);
-        setTimeout(() => setShowAnimations(true), 50);
     };
 
     const getGameState = () => ({
@@ -70,14 +59,11 @@ export function useChessGame() {
         moveFrom,
         optionSquares,
         promotionMove,
-        premoves,
-        premovesRef,
         showAnimations,
         setPosition,
         setMoveFrom,
         setOptionSquares,
         setPromotionMove,
-        setPremoves,
         setShowAnimations,
         resetMoveState,
         getGameState,
