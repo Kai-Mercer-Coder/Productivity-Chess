@@ -40,11 +40,29 @@ export interface PuzzleSolveRecord {
   hinted?: boolean;
 }
 
+export interface EloRecord {
+  id?: number;
+  rating: number;
+  rd: number;
+  volatility: number;
+  prevRatings: number[];
+  updatedAt: string;
+}
+
+export interface EloHistoryRecord {
+  id?: number;
+  rating: number;
+  date: string;
+  source: 'puzzle' | 'game';
+}
+
 class MonolithDB extends Dexie {
   games!: Table<GameRecord>;
   puzzleFails!: Table<PuzzleFailRecord>;
   puzzleSolves!: Table<PuzzleSolveRecord>;
   graph!: Table<Graph>;
+  elo!: Table<EloRecord>;
+  eloHistory!: Table<EloHistoryRecord>;
 
   constructor() {
     super("MonolithDB");
@@ -53,6 +71,14 @@ class MonolithDB extends Dexie {
       puzzleFails: "++id, puzzleId",
       puzzleSolves: "++id, puzzleId, date, correct",
       graph: "++id, date, elo, difference"
+    });
+    this.version(2).stores({
+      games: "++id, date, result, opponentElo",
+      puzzleFails: "++id, puzzleId",
+      puzzleSolves: "++id, puzzleId, date, correct",
+      graph: "++id, date, elo, difference",
+      elo: "id",
+      eloHistory: "++id, date, source"
     });
   }
 }

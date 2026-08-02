@@ -1,13 +1,16 @@
 import { useState, useRef, useCallback } from "react";
-import type { Square } from "chess.js";
+import { Chess, type Square } from "chess.js";
 import { StockfishEngine } from "@/lib/chess/MoveEngine";
 import type { MoveEngine } from "@/lib/types/Engine";
 import { playMoveSound } from "@/lib/chess/sounds";
 
 export function useEngine(
   game: {
-    chessGame: { fen(): string; turn(): string; move(move: string): any; isCheck(): boolean; isGameOver(): boolean; get(square: string): any; moves(opts: { verbose: true }): any[] };
+    chessGame: Chess;
     setPosition(fen: string): void;
+    premovesRef: { current: any[] };
+    setPremoves(premoves: any[]): void;
+    setShowAnimations(show: boolean): void;
   },
   initialElo = 1350,
 ) {
@@ -17,10 +20,18 @@ export function useEngine(
     () => new StockfishEngine("/stockfish/stockfish-18-lite-single.js", initialElo),
   );
 
+  const handleEloChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    setElo(value);
+    if (typeof (engine as StockfishEngine).setElo === "function") {
+      (engine as StockfishEngine).setElo(value);
+    }
+  }, [engine]);
+
   const thinkingRef = useRef(false);
 
   const makeEngineMove = useCallback(
-    async () => {
+    async (onPieceDrop?: (args: any) => boolean) => {
       if (thinkingRef.current) return;
       thinkingRef.current = true;
       setIsThinking(true);
@@ -55,6 +66,23 @@ export function useEngine(
 
       playMoveSound({ isCapture, isCheck: game.chessGame.isCheck(), isGameOver: game.chessGame.isGameOver() });
 
+      if (onPieceDrop && game.premovesRef.current.length > 0) {
+        const nextPlayerPremove = game.premovesRef.current[0];
+        game.premovesRef.current.splice(0, 1);
+
+        setTimeout(() => {
+          const premoveSuccessful = onPieceDrop(nextPlayerPremove);
+          if (!premoveSuccessful) {
+            game.premovesRef.current = [];
+          }
+          game.setPremoves([...game.premovesRef.current]);
+          game.setShowAnimations(false);
+          setTimeout(() => {
+            game.setShowAnimations(true);
+          }, 50);
+        }, 300);
+      }
+
       thinkingRef.current = false;
       setIsThinking(false);
     },
@@ -64,6 +92,7 @@ export function useEngine(
   return {
     elo,
     isThinking,
+    handleEloChange,
     makeEngineMove,
     terminate: () => engine?.terminate?.(),
   };
