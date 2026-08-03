@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { customPieces } from "@/components/chess/customPieces";
-import { StockfishEngine } from "@/lib/chess/MoveEngine";
 import { playCaptureSound, playMoveSound } from "@/lib/chess/sounds";
 
 const DRILL_FEN = "3k4/3P4/3K4/8/8/8/8/8 w - - 0 1";
@@ -13,7 +12,6 @@ type DrillStatus = "loading" | "playing" | "thinking" | "done";
 
 export default function CheckmateDrill() {
   const chessRef = useRef<Chess | null>(null);
-  const engineRef = useRef<StockfishEngine | null>(null);
   const [position, setPosition] = useState("");
   const [userColor, setUserColor] = useState<"w" | "b">("w");
   const [status, setStatus] = useState<DrillStatus>("loading");
@@ -28,26 +26,17 @@ export default function CheckmateDrill() {
     setLegalMoves([]);
   }, []);
 
-  const terminateEngine = useCallback(() => {
-    engineRef.current?.terminate();
-    engineRef.current = null;
-  }, []);
-
   const newPosition = useCallback(() => {
-    terminateEngine();
     chessRef.current = new Chess(DRILL_FEN);
     setUserColor("w");
     setPosition(DRILL_FEN);
     setStatus("playing");
     clearSelection();
-  }, [terminateEngine, clearSelection]);
+  }, [clearSelection]);
 
   useEffect(() => {
     newPosition();
-    return () => terminateEngine();
-  }, [newPosition, terminateEngine]);
-
-  const freezeSilently = useCallback(() => {
+  }, [newPosition]);  const freezeSilently = useCallback(() => {
     setStatus("done");
   }, []);
 
@@ -58,23 +47,23 @@ export default function CheckmateDrill() {
     if (game.turn() !== engineColor) return;
     if (statusRef.current !== "playing") return;
 
-    setStatus("thinking");
-    if (!engineRef.current) {
-      engineRef.current = new StockfishEngine(
-        "/stockfish/stockfish-18-lite-single.js",
-        900,
-      );
+    const moves = game.moves({ verbose: true });
+    if (moves.length === 0) {
+      freezeSilently();
+      return;
     }
 
-    engineRef.current.getNextMove(game, 600).then((uci) => {
+    setStatus("thinking");
+    const reply = moves[Math.floor(Math.random() * moves.length)];
+    setTimeout(() => {
       if (statusRef.current !== "thinking") return;
-      if (!uci) {
-        setStatus("playing");
-        return;
-      }
       try {
-        const isCapture = !!game.get(uci.slice(2, 4) as any);
-        game.move(uci, { strict: false });
+        const isCapture = !!game.get(reply.to as any);
+        game.move({
+          from: reply.from as any,
+          to: reply.to as any,
+          promotion: "q",
+        });
         setPosition(game.fen());
         if (isCapture) playCaptureSound();
         else playMoveSound();
@@ -86,7 +75,7 @@ export default function CheckmateDrill() {
       } catch {
         setStatus("playing");
       }
-    });
+    }, 200);
   }, [userColor, freezeSilently]);
 
   const executeUserMove = useCallback(
@@ -228,12 +217,6 @@ export default function CheckmateDrill() {
               : `${userColor === "w" ? "White" : "Black"} to mate`}
           </span>
         </div>
-
-        {status === "thinking" && (
-          <div className="absolute top-3 right-3 z-10 px-3 py-1 bg-black/70 text-white text-[10px] font-bold uppercase tracking-widest rounded-full backdrop-blur-sm animate-pulse">
-            Engine thinking...
-          </div>
-        )}
       </div>
     </div>
   );
