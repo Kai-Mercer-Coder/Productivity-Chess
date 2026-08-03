@@ -4,10 +4,8 @@ import Link from 'next/link';
 import Navbar from '@/components/layouts/Navbar';
 import MobileNavbar from '@/components/layouts/MobileNavbar';
 import { useSession } from "next-auth/react";
-import MiniBoard from "@/components/dashboard/MiniBoard";
 import CheckmateDrill from "@/components/dashboard/CheckmateDrill";
-
-const HERO_FEN = "rn2k2r/ppq1bppp/2pp1n2/3Pp1N1/4P3/2N4P/PPPBbPP1/R2QK2R w KQkq - 0 11";
+import SelfPlayingBoard from "@/components/marketing/SelfPlayingBoard";
 
 const FEATURES = [
   {
@@ -38,41 +36,60 @@ export default function GrandmasterMonolith() {
   const startHref = session ? "/dashboard" : "/login";
 
   return (
-    <div className="bg-background text-on-background selection:bg-white selection:text-black min-h-screen">
+    <div className="bg-background text-on-background selection:bg-white selection:text-black min-h-screen relative overflow-x-hidden">
       <Navbar />
 
-      <main className="pt-32 min-h-screen">
-        {/* Hero Section */}
-        <section className="px-6 md:px-10 pb-16 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div className="space-y-6 md:space-y-8 text-center lg:text-left">
-            <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full border border-white/10 bg-white/5 mx-auto lg:mx-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60">Stockfish 18 NNUE · Live</span>
-            </div>
-            <h1 className="text-huge font-black tracking-monolith text-white">
-              MONOLITH
+      {/* Atmospheric Fog */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-[10%] left-[20%] w-[800px] h-[800px] bg-white rounded-full filter blur-[200px] opacity-[0.08]"></div>
+        <div className="absolute top-[15%] right-[10%] w-[600px] h-[600px] bg-white rounded-full filter blur-[150px] opacity-[0.05]"></div>
+        <div className="absolute -bottom-[15%] left-[8%] w-[500px] h-[500px] bg-white rounded-full filter blur-[180px] opacity-[0.04]"></div>
+      </div>
+      <div className="noise-overlay" />
+
+      <main className="min-h-screen relative z-10">
+        {/* Hero */}
+        <section className="w-full flex flex-col items-center justify-center py-12 md:py-20">
+          <div className="text-center w-full flex flex-col items-center relative z-20 mix-blend-difference">
+            <h1 className="font-display text-[clamp(3rem,8vw,7rem)] leading-[0.95] italic font-light text-white mb-12 px-4">
+              The platform for chess<br className="hidden sm:block" />
+              <span className="not-italic font-normal">&nbsp;mastery.</span>
             </h1>
-            <p className="text-xl text-neutral-500 font-light leading-relaxed tracking-tight max-w-md mx-auto lg:mx-0">
-              The terminal for chess mastery. Tactics, deep analysis, endgame drills — everything on the board, nothing off it.
-            </p>
-            <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
-              <Link href={startHref} className="bg-white text-black px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all">
-                Begin Training
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-14 mb-14 text-white/60">
+              <div className="flex items-center gap-3">
+                <span className="text-white font-light">Stockfish 18</span>
+                <span className="uppercase text-[10px] tracking-widest opacity-60">Engine</span>
+              </div>
+              <div className="hidden sm:block w-px h-8 bg-white/15"></div>
+              <div className="flex items-center gap-3">
+                <span className="text-white font-light">Unlimited</span>
+                <span className="uppercase text-[10px] tracking-widest opacity-60">Puzzles</span>
+              </div>
+              <div className="hidden sm:block w-px h-8 bg-white/15"></div>
+              <div className="flex items-center gap-3">
+                <span className="text-white font-light">Zero</span>
+                <span className="uppercase text-[10px] tracking-widest opacity-60">Distractions</span>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+              <Link href={session ? "/dashboard" : "/play"} className="bg-transparent border border-white text-white hover:bg-white hover:text-black transition-all duration-300 text-[11px] font-bold uppercase tracking-widest px-12 py-4 rounded-full flex items-center justify-center gap-3 group">
+                <span className="material-symbols-outlined text-[18px] transition-transform group-hover:scale-110" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                Play Online
               </Link>
-              <Link href="/learn" className="bg-transparent text-white border border-white/10 px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/5 transition-all">
+              <Link href="/learn" className="bg-transparent border border-white/20 hover:border-white text-white hover:bg-white hover:text-black transition-all duration-300 text-[11px] font-bold uppercase tracking-widest px-12 py-4 rounded-full flex items-center justify-center gap-3 group">
+                <span className="material-symbols-outlined text-[18px] transition-transform group-hover:rotate-12">smart_toy</span>
                 Explore Courses
               </Link>
             </div>
           </div>
 
-          <div className="relative w-full max-w-[520px] mx-auto lg:max-w-none">
-            <div className="rounded-2xl overflow-hidden border border-white/5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]">
-              <MiniBoard id="hero" fen={HERO_FEN} />
-            </div>
+          {/* Self-playing board beneath */}
+          <div className="mt-16 md:mt-20 w-full max-w-[420px] px-6">
+            <SelfPlayingBoard />
             <div className="flex items-center justify-center gap-2 mt-5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/30">
-                Live position &middot; Stockfish 18 NNUE
+                Botvinnik &middot; Tal — Moscow 1960
               </span>
             </div>
           </div>

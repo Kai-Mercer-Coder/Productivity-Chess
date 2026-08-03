@@ -12,39 +12,40 @@ const Navbar = () => {
 
     return (
         <>
-            <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-6xl z-50 glass-nav rounded-full px-9 py-3 flex justify-between items-center border border-white/5 shadow-2xl transition-all duration-300">
-                <div className="flex items-center gap-10">
-                    <span className="text-xl font-black tracking-tighter text-white whitespace-nowrap uppercase">Monolith</span>
-                    <div className="hidden lg:flex items-center gap-8">
-                        <Link className="text-[11px] uppercase tracking-widest text-white font-bold" href="/play">Play</Link>
-                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/puzzles">Puzzles</Link>
-                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/analysis">Analysis</Link>
-                        <Link className="text-[11px] uppercase tracking-widest text-white/50 hover:text-white transition-colors" href="/learn">Learn</Link>
-                    </div>
+            <nav className="relative z-40 w-full max-w-7xl mx-auto px-6 md:px-10 py-8 flex justify-between items-center mix-blend-difference">
+                <Link href="/" className="font-display text-2xl font-bold tracking-tighter text-white whitespace-nowrap">
+                    Monolith<span className="text-white/40">.</span>
+                </Link>
+                <div className="hidden lg:flex items-center gap-12">
+                    <Link className="text-on-surface-variant hover:text-white transition-colors duration-200 text-[11px] font-bold uppercase tracking-widest" href="/play">Play</Link>
+                    <Link className="text-on-surface-variant hover:text-white transition-colors duration-200 text-[11px] font-bold uppercase tracking-widest" href="/puzzles">Puzzles</Link>
+                    <Link className="text-on-surface-variant hover:text-white transition-colors duration-200 text-[11px] font-bold uppercase tracking-widest" href="/analysis">Analysis</Link>
+                    <Link className="text-on-surface-variant hover:text-white transition-colors duration-200 text-[11px] font-bold uppercase tracking-widest" href="/learn">Learn</Link>
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="hidden lg:flex items-center gap-4">
-                        <button className="text-white/40 hover:text-white transition-colors p-1" type="button">
-                            <span className="material-symbols-outlined">search</span>
+                <div className="flex items-center gap-6">
+                    {!session && (
+                        <Link href="/login" className="hidden sm:block text-on-surface-variant hover:text-white transition-colors text-[11px] font-bold uppercase tracking-widest">
+                            Login
+                        </Link>
+                    )}
+                    <Link href={session ? "/dashboard" : "/play"} className="bg-transparent border border-white/40 hover:border-white text-white text-[11px] font-bold uppercase tracking-widest px-8 py-3 rounded-full transition-all duration-300 hover:bg-white hover:text-black active:scale-95">
+                        {session ? "Dashboard" : "Play Now"}
+                    </Link>
+                    {session && (
+                        <button type="button" onClick={() => setProfileOpen(true)}>
+                            {user?.image ? (
+                                <img
+                                    className="h-9 w-9 object-cover rounded-full cursor-pointer border border-white/20"
+                                    src={user.image}
+                                    alt="Profile"
+                                />
+                            ) : (
+                                <span className="h-9 w-9 rounded-full bg-surface-container-high border border-white/15 flex items-center justify-center cursor-pointer">
+                                    <span className="material-symbols-outlined text-sm text-on-surface-variant">person</span>
+                                </span>
+                            )}
                         </button>
-                        <button className="text-white/40 hover:text-white transition-colors p-1" type="button">
-                            <span className="material-symbols-outlined">notifications</span>
-                        </button>
-                    </div>
-                    <Link href={session ? "/dashboard" : "/play"} className="bg-white text-black px-6 py-2 rounded-full font-black text-[11px] uppercase tracking-widest hover:bg-neutral-200 transition-all active:scale-95">Play Now</Link>
-                    <button type="button" onClick={() => setProfileOpen(true)}>
-                        {user?.image ? (
-                            <img
-                                className="h-9 w-9 object-cover rounded-full cursor-pointer"
-                                src={user.image}
-                                alt="Profile"
-                            />
-                        ) : (
-                            <span className="h-9 w-9 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center cursor-pointer">
-                                <span className="material-symbols-outlined text-sm text-on-surface-variant">person</span>
-                            </span>
-                        )}
-                    </button>
+                    )}
                 </div>
             </nav>
 
