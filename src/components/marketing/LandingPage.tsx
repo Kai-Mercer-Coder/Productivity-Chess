@@ -36,25 +36,20 @@ export default function GrandmasterMonolith() {
   const startHref = session ? "/dashboard" : "/login";
 
   return (
-    <div className="bg-background text-on-background selection:bg-white selection:text-black min-h-screen relative overflow-x-hidden">
+    <div className="bg-black text-on-background selection:bg-white selection:text-black min-h-screen relative overflow-x-hidden">
       <Navbar />
-
-      {/* Atmospheric Fog */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-[10%] left-[20%] w-[800px] h-[800px] bg-white rounded-full filter blur-[200px] opacity-[0.08]"></div>
-        <div className="absolute top-[15%] right-[10%] w-[600px] h-[600px] bg-white rounded-full filter blur-[150px] opacity-[0.05]"></div>
-        <div className="absolute -bottom-[15%] left-[8%] w-[500px] h-[500px] bg-white rounded-full filter blur-[180px] opacity-[0.04]"></div>
-      </div>
-      <div className="noise-overlay" />
 
       <main className="min-h-screen relative z-10">
         {/* Hero */}
-        <section className="w-full flex flex-col items-center justify-center py-12 md:py-20">
-          <div className="text-center w-full flex flex-col items-center relative z-20 mix-blend-difference">
-            <h1 className="font-display text-[clamp(3rem,8vw,7rem)] leading-[0.95] italic font-light text-white mb-12 px-4">
-              The platform for chess<br className="hidden sm:block" />
-              <span className="not-italic font-normal">&nbsp;mastery.</span>
-            </h1>
+        <section className="relative w-full flex flex-col items-center justify-center py-12 md:py-20 overflow-hidden">
+          <div className="relative z-10 text-center w-full flex flex-col items-center">
+            <div className="relative w-fit mx-auto">
+              <h1 className="font-display text-[clamp(3rem,8vw,7rem)] leading-[0.95] italic font-light text-white mb-12 px-4">
+                The platform for chess<br className="hidden sm:block" />
+                <span className="not-italic font-normal">&nbsp;mastery.</span>
+              </h1>
+              <div className="hero-grain absolute -inset-10" aria-hidden="true"></div>
+            </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-14 mb-14 text-white/60">
               <div className="flex items-center gap-3">
                 <span className="text-white font-light">Stockfish 18</span>
@@ -84,14 +79,8 @@ export default function GrandmasterMonolith() {
           </div>
 
           {/* Self-playing board beneath */}
-          <div className="mt-16 md:mt-20 w-full max-w-[420px] px-6">
+          <div className="relative z-10 mt-16 md:mt-20 w-full max-w-[560px] px-6">
             <SelfPlayingBoard />
-            <div className="flex items-center justify-center gap-2 mt-5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/30">
-                Botvinnik &middot; Tal — Moscow 1960
-              </span>
-            </div>
           </div>
         </section>
 
@@ -121,12 +110,16 @@ export default function GrandmasterMonolith() {
           </div>
         </section>
 
-        {/* Playable Checkmate Drill */}
-        <section className="px-6 md:px-10 py-20 max-w-7xl mx-auto">
-          <div className="mb-10">
-            <h2 className="text-sm font-black tracking-tighter uppercase text-on-surface-variant">Checkmate Drill</h2>
-            <p className="text-neutral-500 font-light leading-relaxed mt-2 max-w-xl">
-              A random endgame position against Stockfish. You play the side to move. Deliver mate — there is no fanfare, only the position.
+        {/* Zen Interface */}
+        <section className="px-6 md:px-10 py-20 max-w-7xl mx-auto text-center">
+          <div className="mb-12">
+            <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tighter text-white">
+              The Zen Interface.
+            </h2>
+            <p className="text-neutral-400 font-light leading-relaxed mt-4 max-w-xl mx-auto">
+              We removed the noise. No ads, no popups, no distracting chat
+              bubbles. Just you, the board, and the engine. Deliver checkmate —
+              the drill plays itself out in silence.
             </p>
           </div>
           <CheckmateDrill />
