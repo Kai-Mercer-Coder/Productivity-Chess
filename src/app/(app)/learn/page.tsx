@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SiEthereum, SiSolana } from "react-icons/si";
+
 
 const categories = [
   {
@@ -137,50 +137,13 @@ export default function LearnPage() {
           })}
         </div>
 
-        <div className="mt-24 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-surface-container rounded-xl p-8 flex flex-col justify-between border-t-4 border-primary shadow-xl">
-            <div>
-              <h3 className="text-xl font-bold text-primary mb-4">
-                Support the Monolith
-              </h3>
-              <p className="text-on-surface-variant text-sm leading-relaxed mb-6">
-                This project is built to remain free and open for the global
-                chess community. If you find value in these tools, consider
-                supporting our mission via crypto.
-              </p>
-            </div>
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-primary/50">
-                  <span className="material-symbols-outlined text-sm">
-                    currency_bitcoin
-                  </span>
-                  BTC Address
-                </div>
-                <div className="bg-surface-container-highest p-3 rounded-lg text-[10px] font-mono break-all border border-outline-variant/20">
-                  bc1q6tmdn26zspfvpql9lhjzc9anuwwp322eunpzmk
-                </div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-primary/50">
-                  <SiEthereum className="text-sm" />
-                  ETH Address
-                </div>
-                <div className="bg-surface-container-highest p-3 rounded-lg text-[10px] font-mono break-all border border-outline-variant/20">
-                  0xB13C6d8986F9F0567e95952458e4Fd39c29F3f2d
-                </div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-primary/50">
-                  <SiSolana className="text-sm" />
-                  SOL Address
-                </div>
-                <div className="bg-surface-container-highest p-3 rounded-lg text-[10px] font-mono break-all border border-outline-variant/20">
-                  FpnmSaSy4HRC2QCRXse3jVen6j62DeKL236z5paUTqNh
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="mt-24 border-t border-outline-variant/20 pt-8 text-center">
+          <p className="text-on-surface-variant text-sm mb-4">
+            This project is built to remain free. If you find value, consider supporting via crypto.
+          </p>
+          <a href="https://nowpayments.io/payment/?iid=5293579669&source=button" target="_blank" rel="noreferrer noopener">
+            <img src="https://nowpayments.io/images/embeds/payments-button-black.svg" alt="Crypto payment button by NOWPayments" />
+          </a>
         </div>
       </main>
     </>

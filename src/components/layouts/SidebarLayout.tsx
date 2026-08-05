@@ -1,13 +1,11 @@
 "use client";
 
-import { ViewTransition } from "react";
-import { usePathname } from "next/navigation";
 import { useSidebar } from "./SidebarContext";
 import Sidebar from "./Sidebar";
 import MobileNavbar from "./MobileNavbar";
+import PageTransition from "./PageTransition";
 
 export default function SidebarLayout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
     const { isCollapsed } = useSidebar();
 
     return (
@@ -21,9 +19,7 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
                         : "md:ml-[220px] lg:ml-[240px] xl:ml-[260px]"
                 }`}
             >
-                <ViewTransition name="page" enter="fade" exit="fade" default="none">
-                    <div key={pathname}>{children}</div>
-                </ViewTransition>
+                <PageTransition>{children}</PageTransition>
             </main>
         </div>
     );

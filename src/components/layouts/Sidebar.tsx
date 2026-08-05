@@ -30,10 +30,6 @@ const Sidebar = () => {
     <aside
       className={`hidden md:flex fixed left-0 top-0 bottom-0 flex-col bg-[#0e0e0e] border-r border-white/5 z-40 will-change-[width] transition-[width] duration-300 ${isCollapsed ? "w-[68px]" : "w-[220px] lg:w-[240px] xl:w-[260px]"
         }`}
-      style={{
-        viewTransitionName: 'main-sidebar',
-        // ⚡️ SQUEEZE: Keeps sidebar isolated from page DOM changes completely
-      }}
     >
       <Link href="/dashboard" className="flex items-center h-16 border-b border-white/5 shrink-0 px-4 hover:bg-white/5 transition-colors">
         <div className="w-8 h-8 rounded-lg bg-linear-to-br from-white to-neutral-500 p-px shrink-0">

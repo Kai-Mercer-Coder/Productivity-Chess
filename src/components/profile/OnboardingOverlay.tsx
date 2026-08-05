@@ -23,8 +23,8 @@ export default function OnboardingOverlay() {
 
   const isNew =
     !done &&
-    (user as any)?.elo === 1200 &&
-    (user as any)?.puzzles_solved === 0;
+    ((user as any)?.elo ?? 1200) === 1200 &&
+    ((user as any)?.puzzles_solved ?? 0) === 0;
 
   const handleConfirm = async () => {
     if (selected === null) return;
@@ -35,7 +35,12 @@ export default function OnboardingOverlay() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ elo: selected }),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        console.error("onboarding save failed — keeping local value:", res.status);
+        await update({ elo: selected }).catch(() => {});
+        setDone(true);
+        return;
+      }
       const data = await res.json();
       await update({ elo: data.elo });
       setDone(true);

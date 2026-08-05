@@ -1,11 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import type { SessionWithProfile } from "@/types/profile";
 import { Chess } from "chess.js";
+import { motion, AnimatePresence } from "motion/react";
 import { useGameStats } from "@/lib/hooks/useGameStats";
+import { useLocalElo } from "@/lib/hooks/useLocalElo";
 import MiniBoard from "./MiniBoard";
 
 function timeAgo(iso: string): string {
@@ -66,9 +68,9 @@ const TIERS = [
 
 export default function GrandmasterDashboard() {
   const { data: session } = useSession();
-  const user = session?.user;
-  const elo = (user as SessionWithProfile["user"])?.elo ?? 1200;
+  const { userElo: elo } = useLocalElo((session?.user as SessionWithProfile["user"] | undefined)?.elo);
   const stats = useGameStats();
+  const [graphExpanded, setGraphExpanded] = useState(false);
 
   const ratingHistory =
     stats.ratingHistory.length > 0
@@ -131,7 +133,10 @@ export default function GrandmasterDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <div className="lg:col-span-8 w-full h-72 bg-surface-container-low rounded-xl relative overflow-hidden border border-white/5">
+          <div
+            className="lg:col-span-8 w-full h-72 bg-surface-container-low rounded-xl relative overflow-hidden border border-white/5 cursor-pointer hover:border-primary/30 transition-colors"
+            onClick={() => setGraphExpanded(true)}
+          >
             {line ? (
               <svg className="w-full h-full" viewBox="0 0 1000 300" preserveAspectRatio="none">
                 <defs>
@@ -416,6 +421,118 @@ export default function GrandmasterDashboard() {
           </Link>
         </div>
       </section>
+
+      <AnimatePresence>
+        {graphExpanded && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setGraphExpanded(false)}
+          >
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+            <motion.div
+              className="relative w-full max-w-5xl bg-surface-container rounded-2xl border border-white/10 p-8 shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-xl font-black tracking-tight">Rating History</h3>
+                  <p className="text-sm text-on-surface-variant mt-1">
+                    {ratingHistory.length} data point{ratingHistory.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setGraphExpanded(false)}
+                  className="p-2 rounded-full hover:bg-surface-container-high transition-colors"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <div className="w-full h-96 bg-surface-container-low rounded-xl relative overflow-hidden border border-white/5">
+                {line ? (
+                  <svg className="w-full h-full" viewBox="0 0 1000 300" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="modalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="white" stopOpacity="0.18" />
+                        <stop offset="100%" stopColor="white" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path d={area} fill="url(#modalGrad)" />
+                    <path
+                      d={line}
+                      fill="none"
+                      stroke="white"
+                      strokeLinecap="round"
+                      strokeWidth="3"
+                    />
+                    {ratingHistory.map((d, i) => {
+                      const x =
+                        ratingHistory.length === 1
+                          ? 500
+                          : 24 + (i / (ratingHistory.length - 1)) * 952;
+                      const minR = Math.min(...ratingHistory.map((r) => r.rating));
+                      const maxR = Math.max(...ratingHistory.map((r) => r.rating));
+                      const rangeR = maxR - minR || 1;
+                      const y = 300 - 24 - ((d.rating - minR) / rangeR) * 252;
+                      return (
+                        <g key={`${d.date}-${i}`}>
+                          <circle cx={x} cy={y} r="4" fill="white" className="opacity-80" />
+                          <text
+                            x={x}
+                            y={y - 10}
+                            textAnchor="middle"
+                            fill="white"
+                            fontSize="9"
+                            className="font-bold"
+                            style={{ fontFamily: "monospace" }}
+                          >
+                            {d.rating}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-on-surface-variant text-sm font-medium">
+                      No rating history yet
+                    </span>
+                  </div>
+                )}
+                <div className="absolute bottom-4 inset-x-6 flex justify-between text-[9px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">
+                  {ratingHistory.map(
+                    (d, i) =>
+                      i % Math.max(1, Math.ceil(ratingHistory.length / 10)) === 0 && (
+                        <span key={`${d.date}-${i}`}>{d.date}</span>
+                      ),
+                  )}
+                </div>
+                <div className="absolute top-4 right-6 flex gap-3">
+                  <div className="px-4 py-2 border border-outline-variant/30 rounded-lg backdrop-blur-md bg-black/20">
+                    <span className="block text-[8px] text-on-surface-variant font-black tracking-widest">
+                      AVG RATING
+                    </span>
+                    <span className="text-lg font-bold leading-tight">{avgRating}</span>
+                  </div>
+                  <div className="px-4 py-2 border border-outline-variant/30 rounded-lg backdrop-blur-md bg-black/20">
+                    <span className="block text-[8px] text-on-surface-variant font-black tracking-widest">
+                      PEAK RATING
+                    </span>
+                    <span className="text-lg font-bold leading-tight">{maxRating}</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

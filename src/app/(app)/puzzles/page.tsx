@@ -16,6 +16,7 @@ import { preloadShardsForElo } from "@/lib/puzzles/PuzzleShards";
 import { usePuzzle } from "@/lib/puzzles/usePuzzle";
 import { usePuzzleStorage } from "@/lib/hooks/usePuzzleStorage";
 import type { PuzzleSolveRecord } from "@/lib/db/gameDB";
+import { useLocalElo } from "@/lib/hooks/useLocalElo";
 import { pickTheme, RARITY_COLORS } from "@/lib/puzzles/puzzleThemes";
 import {
   PuzzleSettingsModal,
@@ -41,7 +42,7 @@ function StreakDots({
       onClick={onShowAll}
       className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-surface-container-low/80 border border-white/5 hover:bg-surface-container-low hover:border-white/10 transition-all cursor-pointer group"
     >
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2.5">
         {visible.map((a, i) => {
           let color: string;
           if (a.hinted) {
@@ -181,7 +182,8 @@ export default function PuzzlePage() {
   const [selectedTheme, setSelectedTheme] = useState("all");
   const [showSettings, setShowSettings] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
-  const [userElo, setUserElo] = useState(1200);
+  const sessionElo = (session?.user as SessionWithProfile["user"] | undefined)?.elo;
+  const { userElo, lastDelta, updateEloAfterPuzzle, clearDelta } = useLocalElo(sessionElo);
   const [unrated, setUnrated] = useState(false);
   const [showStreak, setShowStreak] = useState(false);
   const [recentAttempts, setRecentAttempts] = useState<PuzzleSolveRecord[]>([]);
@@ -196,13 +198,6 @@ export default function PuzzlePage() {
     puzzle.fetchAndLoad({ userElo });
     puzzleStorage.getRecentAttempts(50, 4).then(setRecentAttempts);
   }, []);
-
-  useEffect(() => {
-    if (session?.user) {
-      const elo = (session.user as SessionWithProfile["user"])?.elo;
-      if (elo) setUserElo(elo);
-    }
-  }, [session]);
 
   useEffect(() => {
     if (!puzzle.puzzle) return;
@@ -235,11 +230,12 @@ export default function PuzzlePage() {
     submittedRef.current = true;
 
     const perfect = !hadWrongMoveRef.current;
+    const currentPuzzle = puzzle.puzzle;
 
     if (!recordedRef.current) {
       puzzleStorage.recordAttempt(
-        puzzleIdRef.current ?? puzzle.puzzle.fen,
-        puzzle.puzzle.fen,
+        puzzleIdRef.current ?? currentPuzzle.fen,
+        currentPuzzle.fen,
         perfect,
         puzzle.usedHint || undefined,
       ).then(() => {
@@ -254,22 +250,9 @@ export default function PuzzlePage() {
 
     if (unrated) return;
 
-    fetch("/api/updateStats", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        solved: perfect,
-        puzzleRating: puzzle.puzzle.rating,
-        usedHint: puzzle.usedHint,
-      }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.newElo) setUserElo(data.newElo);
-        update({ elo: data.newElo, delta_value: data.newDelta, volatility: data.newVol });
-      })
-      .catch(() => {});
-  }, [puzzle.status, puzzle.puzzle, unrated]);
+    const result = updateEloAfterPuzzle(currentPuzzle.rating, perfect, puzzle.usedHint);
+    update({ elo: result.newRating, delta_value: result.newRd, volatility: result.newVol }).catch(() => {});
+  }, [puzzle.status, puzzle.puzzle, unrated, updateEloAfterPuzzle, update]);
 
   const handlePieceDrop = useCallback(
     (args: PieceDropHandlerArgs): boolean => {
@@ -298,6 +281,7 @@ export default function PuzzlePage() {
     puzzleIdRef.current = null;
     hadWrongMoveRef.current = false;
     recordedRef.current = false;
+    clearDelta();
     preloadShardsForElo(userElo, 3);
     puzzle.fetchAndLoad({ theme: selectedTheme, hard: difficulty === "hard", userElo });
   };
@@ -383,6 +367,16 @@ export default function PuzzlePage() {
                       <span className="text-4xl font-black text-white tracking-tighter">
                         {userElo.toLocaleString()}
                       </span>
+                      {lastDelta !== null && lastDelta !== 0 && (
+                        <span
+                          className={`text-lg font-black tabular-nums ${
+                            lastDelta > 0 ? "text-green-400" : "text-red-400"
+                          }`}
+                        >
+                          {lastDelta > 0 ? "+" : ""}
+                          {lastDelta}
+                        </span>
+                      )}
                       <div className={`w-4 h-4 rounded-full ${puzzle.playerColor === "w" ? "bg-white" : "bg-neutral-800 border border-white/30"}`} />
                     </div>
                   </div>

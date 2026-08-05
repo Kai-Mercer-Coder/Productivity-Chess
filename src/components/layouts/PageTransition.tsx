@@ -6,7 +6,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
     const pathname = usePathname();
 
     return (
-        <div key={pathname} className="page-transition-wrapper">
+        <div key={pathname} className="page-fade-in">
             {children}
         </div>
     );
