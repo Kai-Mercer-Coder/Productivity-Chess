@@ -79,7 +79,13 @@ export function useGameStats() {
         }, 0);
         const blundersPerGame = analyzed.length > 0 ? blunders / analyzed.length : 0;
 
-        const ratingHistory = all.map(g => ({ date: g.date.split('T')[0], rating: g.eloAtTime }));
+        // Rating history comes from eloHistory (written on every puzzle solve and
+        // game end) so the graph tracks actual elo changes, not just games played.
+        const eloHistory = await db.eloHistory.orderBy('date').toArray();
+        const ratingHistory =
+          eloHistory.length > 0
+            ? eloHistory.map(h => ({ date: h.date.split('T')[0], rating: h.rating }))
+            : all.map(g => ({ date: g.date.split('T')[0], rating: g.eloAtTime }));
         const eloDelta = ratingHistory.length >= 2
           ? ratingHistory[ratingHistory.length - 1].rating - ratingHistory[ratingHistory.length - 2].rating
           : 0;

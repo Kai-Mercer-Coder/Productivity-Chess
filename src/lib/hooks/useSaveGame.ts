@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { Chess } from 'chess.js';
 import { analyse } from '@/lib/chess/analyse';
 import { db, type GameRecord } from '@/lib/db/gameDB';
+import { recordEloHistory } from '@/lib/hooks/useLocalElo';
 import type { EvaluatedPosition } from '@/lib/types/Position';
 
 interface SaveGameParams {
@@ -99,6 +100,7 @@ export function useSaveGame() {
       };
 
       const id = await db.games.add(record);
+      await recordEloHistory(params.eloAtTime, 'game');
 
       const positions = reconstructPositions(params.pgn, params.getPositionEval);
       if (positions.length > 1) {

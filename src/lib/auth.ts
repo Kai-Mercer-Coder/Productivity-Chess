@@ -17,6 +17,34 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
         GithubProvider({
             clientId: process.env.GITHUB_CLIENT!,
             clientSecret: process.env.GITHUB_SECRET!,
+            userinfo: {
+                url: "https://api.github.com/user",
+                async request({ tokens, provider }) {
+                    const [profile, emailsRes] = await Promise.all([
+                        fetch(provider.userinfo?.url, {
+                            headers: { Authorization: `Bearer ${tokens.access_token}`, "User-Agent": "authjs" },
+                        }).then(r => r.json()),
+                        fetch("https://api.github.com/user/emails", {
+                            headers: { Authorization: `Bearer ${tokens.access_token}`, "User-Agent": "authjs" },
+                        }),
+                    ]);
+                    const emails = emailsRes.ok ? await emailsRes.json() : [];
+                    const primary = emails.find((e: any) => e.primary) ?? emails[0];
+                    const email = profile.email ?? primary?.email;
+                    profile.email = email;
+                    profile.email_verified = emails.find((e: any) => e.email === email)?.verified ?? false;
+                    return profile;
+                },
+            },
+            profile(profile: any) {
+                return {
+                    id: profile.id.toString(),
+                    name: profile.name ?? profile.login,
+                    email: profile.email,
+                    image: profile.avatar_url,
+                    emailVerified: profile.email_verified ? new Date() : null,
+                };
+            },
         }),
         CredentialsProvider({
             id: "guest",
@@ -33,8 +61,20 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
         }),
     ],
     callbacks: {
-        async signIn({ user }) {
+        async signIn({ user, account, profile }: { user: any; account?: any; profile?: any }) {
             if (!user.email) return false;
+
+            // Guest accounts use synthetic emails — nothing to verify.
+            if (account?.provider !== "guest") {
+                // OAuth only: accept verified emails so an unverified email on one
+                // provider can't be used to take over a victim's account.
+                const emailVerified =
+                    account?.provider === "github"
+                        ? user.emailVerified instanceof Date
+                        : profile?.email_verified === true;
+
+                if (!emailVerified) return false;
+            }
 
             const { data: existing, error: fetchError } = await supabase
                 .from("users")

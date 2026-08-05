@@ -50,6 +50,13 @@ function buildChart(data: { rating: number }[]): { line: string; area: string } 
     const y = h - pad - ((d.rating - min) / range) * (h - pad * 2);
     return [x, y];
   });
+  if (data.length === 1) {
+    const [x, y] = pts[0];
+    const half = 80;
+    const line = `M${x - half},${y} L${x + half},${y}`;
+    const area = `${line} L${x + half},${h} L${x - half},${h} Z`;
+    return { line, area };
+  }
   const line = pts
     .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`)
     .join(" ");

@@ -53,8 +53,8 @@ function buildCsp(nonce: string): string {
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""};
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    font-src 'self' https://fonts.gstatic.com;
-    img-src 'self' blob: data: https://lh3.googleusercontent.com;
+    font-src 'self' data: https://fonts.gstatic.com;
+    img-src 'self' blob: data: https://lh3.googleusercontent.com https://nowpayments.io;
     connect-src ${connectSrc.join(" ")};
     worker-src 'self' blob:;
     object-src 'none';
@@ -82,7 +82,7 @@ function handler(request: NextRequest) {
   });
   response.headers.set("Content-Security-Policy", csp);
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+  response.headers.set("Cross-Origin-Embedder-Policy", "credentialless");
 
   return response;
 }
