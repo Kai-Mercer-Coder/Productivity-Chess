@@ -19,9 +19,9 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
             clientSecret: process.env.GITHUB_SECRET!,
             userinfo: {
                 url: "https://api.github.com/user",
-                async request({ tokens, provider }) {
+                async request({ tokens, provider }: { tokens: { access_token?: string }; provider: { userinfo?: { url?: string } } }) {
                     const [profile, emailsRes] = await Promise.all([
-                        fetch(provider.userinfo?.url, {
+                        fetch(provider.userinfo?.url ?? "https://api.github.com/user", {
                             headers: { Authorization: `Bearer ${tokens.access_token}`, "User-Agent": "authjs" },
                         }).then(r => r.json()),
                         fetch("https://api.github.com/user/emails", {

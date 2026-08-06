@@ -10,7 +10,7 @@ import {
   captureSquareStyle,
   legalMoveSquareStyle,
 } from "@/lib/chess/boardTheme";
-import { playCaptureSound, playMoveSound } from "@/lib/chess/sounds";
+import { playSoundForMove } from "@/lib/chess/sounds";
 
 type Mode = "learn" | "revise";
 type Status = "idle" | "playing" | "wrong" | "completed";
@@ -89,16 +89,11 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
 
       const move = line.moves[idx];
       const game = chessRef.current;
-      let isCapture = false;
       try {
-        const target = move.san.replace(/[^a-h1-8]/g, "").slice(-2);
-        isCapture = !!game.get(target as any);
-      } catch {}
-      if (isCapture) playCaptureSound();
-      else playMoveSound();
-      try {
-        game.move(move.san);
+        const played = game.move(move.san);
+        if (!played) return;
         setPosition(game.fen());
+        playSoundForMove(game);
       } catch {
         return;
       }
@@ -142,13 +137,6 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
 
       const expectedSan = line.moves[idx].san;
 
-      let isCapture = false;
-      try {
-        isCapture = !!game.get(targetSquare as any);
-      } catch {}
-      if (isCapture) playCaptureSound();
-      else playMoveSound();
-
       let result: { san: string } | undefined;
       try {
         result = game.move({
@@ -159,6 +147,8 @@ export default function OpeningTrainer({ line, mode, onComplete }: Props) {
       } catch {
         return false;
       }
+
+      if (result) playSoundForMove(game);
 
       clearSelection();
 

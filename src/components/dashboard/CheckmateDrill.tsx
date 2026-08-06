@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { customPieces } from "@/components/chess/customPieces";
-import { playCaptureSound, playMoveSound } from "@/lib/chess/sounds";
+import { playSoundForMove } from "@/lib/chess/sounds";
 
 const DRILL_FEN = "3k4/3P4/3K4/8/8/8/8/8 w - - 0 1";
 
@@ -58,15 +58,13 @@ export default function CheckmateDrill() {
     setTimeout(() => {
       if (statusRef.current !== "thinking") return;
       try {
-        const isCapture = !!game.get(reply.to as any);
         game.move({
           from: reply.from as any,
           to: reply.to as any,
           promotion: "q",
         });
         setPosition(game.fen());
-        if (isCapture) playCaptureSound();
-        else playMoveSound();
+        playSoundForMove(game);
         if (game.isGameOver()) {
           freezeSilently();
           return;
@@ -87,11 +85,9 @@ export default function CheckmateDrill() {
       if (!piece || piece.color !== userColor) return false;
 
       try {
-        const isCapture = !!game.get(target as any);
         game.move({ from: source as any, to: target as any, promotion: "q" });
         setPosition(game.fen());
-        if (isCapture) playCaptureSound();
-        else playMoveSound();
+        playSoundForMove(game);
         clearSelection();
         if (game.isGameOver()) {
           freezeSilently();

@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback } from "react";
-import { Chess, type Square } from "chess.js";
+import { Chess } from "chess.js";
 import { StockfishEngine } from "@/lib/chess/MoveEngine";
 import type { MoveEngine } from "@/lib/types/Engine";
-import { playMoveSound } from "@/lib/chess/sounds";
+import { playSoundForMove } from "@/lib/chess/sounds";
 
 export function useEngine(
   game: {
@@ -59,12 +59,11 @@ export function useEngine(
         return;
       }
 
-      const isCapture = !!game.chessGame.get(matched.to as Square);
       game.chessGame.move(move);
       const newFen = game.chessGame.fen();
       game.setPosition(newFen);
 
-      playMoveSound({ isCapture, isCheck: game.chessGame.isCheck(), isGameOver: game.chessGame.isGameOver() });
+      playSoundForMove(game.chessGame);
 
       if (onPieceDrop && game.premovesRef.current.length > 0) {
         const nextPlayerPremove = game.premovesRef.current[0];

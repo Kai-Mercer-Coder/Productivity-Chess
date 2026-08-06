@@ -10,6 +10,7 @@ import {
   createPosition,
   positionToFen,
   applyMove,
+  isCaptureUci,
   getAllUciMoves,
   isGameOver,
   getResult,
@@ -282,12 +283,10 @@ export default function VariantBoard({
         strengthRef.current,
       );
       if (bestMove && mountedRef.current && posRef.current) {
-        const isCapture =
-          bestMove.length >= 4 &&
-          posRef.current.board.get(bestMove.slice(2, 4) as any) !== undefined;
+        const isCapture = isCaptureUci(posRef.current, bestMove);
         if (applyMove(posRef.current, bestMove)) {
           moveHistoryRef.current.push(bestMove);
-          playMoveSound({ isCapture });
+          playMoveSound({ isCapture, isCheck: posRef.current.isCheck() });
           syncState();
         }
       }
@@ -342,13 +341,14 @@ export default function VariantBoard({
       if (!args.targetSquare) return false;
       if (!isPlayerTurn(pos)) return false;
 
-      const isCapture =
-        !args.piece.isSparePiece &&
-        pos.board.get(args.targetSquare as any) !== undefined;
-
       let moveUci = args.sourceSquare + args.targetSquare;
       if (args.piece.isSparePiece) {
         moveUci = sparePieceToDropUci(args.sourceSquare, args.targetSquare);
+      }
+
+      const isCapture = isCaptureUci(pos, moveUci);
+
+      if (args.piece.isSparePiece) {
         if (!applyMove(pos, moveUci)) return false;
       } else {
         if (!tryApplyMove(pos, args.sourceSquare, args.targetSquare))
@@ -356,7 +356,7 @@ export default function VariantBoard({
       }
 
       moveHistoryRef.current.push(moveUci);
-      playMoveSound({ isCapture });
+      playMoveSound({ isCapture, isCheck: pos.isCheck() });
       syncState();
       setSelectedSquare(null);
       triggerAiMove();
@@ -375,10 +375,11 @@ export default function VariantBoard({
       const sel = selectedSquare;
 
       if (sel) {
-        const isCapture = pos.board.get(square as any) !== undefined;
+        const moveUci = sel + square;
+        const isCapture = isCaptureUci(pos, moveUci);
         if (tryApplyMove(pos, sel, square)) {
-          moveHistoryRef.current.push(sel + square);
-          playMoveSound({ isCapture });
+          moveHistoryRef.current.push(moveUci);
+          playMoveSound({ isCapture, isCheck: pos.isCheck() });
           syncState();
           setSelectedSquare(null);
           triggerAiMove();

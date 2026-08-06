@@ -1,3 +1,5 @@
+import type { Chess } from "chess.js";
+
 let moveAudio: HTMLAudioElement | null = null;
 let captureAudio: HTMLAudioElement | null = null;
 let checkAudio: HTMLAudioElement | null = null;
@@ -43,4 +45,15 @@ export function playMoveSound(opts?: { isCapture?: boolean; isCheck?: boolean; i
 
 export function playCaptureSound() {
   try { (getCapture().cloneNode(true) as HTMLAudioElement).play(); } catch {}
+}
+
+export function playSoundForMove(game: Chess) {
+  try {
+    const last = game.history({ verbose: true }).at(-1);
+    playMoveSound({
+      isCapture: last?.captured !== undefined,
+      isCheck: game.isCheck(),
+      isGameOver: game.isGameOver(),
+    });
+  } catch {}
 }

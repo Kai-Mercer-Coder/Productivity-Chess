@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Chess, type Square } from 'chess.js';
 import type { PieceDropHandlerArgs } from 'react-chessboard';
-import { playCaptureSound, playMoveSound } from '@/lib/chess/sounds';
+import { playMoveSound } from '@/lib/chess/sounds';
 
 interface BoardInteractionConfig {
   chessGame: Chess;
@@ -79,8 +79,17 @@ export function useBoardInteraction({
       if (!targetSquare || sourceSquare === targetSquare) return false;
       clearSelection();
       let isCapture = false;
-      try { isCapture = !!chessGame.get(targetSquare as Square); } catch {}
-      if (isCapture) playCaptureSound(); else playMoveSound();
+      let isCheck = false;
+      let isGameOver = false;
+      try {
+        const vm = chessGame.moves({ square: sourceSquare as Square, verbose: true }).find(m => m.to === targetSquare);
+        if (vm) {
+          isCapture = vm.captured !== undefined;
+          isCheck = vm.san.endsWith('+');
+          isGameOver = vm.san.endsWith('#');
+        }
+      } catch {}
+      playMoveSound({ isCapture, isCheck, isGameOver });
       return onMove(sourceSquare, targetSquare);
     },
     [onMove, clearSelection, chessGame],

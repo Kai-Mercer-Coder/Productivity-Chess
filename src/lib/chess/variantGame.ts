@@ -1,5 +1,5 @@
 import { Chess, Position, Board, SquareSet, Material, parseUci, makeUci, compat, variant, fen } from 'chessops';
-import type { Role, Setup, Square } from 'chessops';
+import type { Color, Role, Setup, Square } from 'chessops';
 
 export interface VariantConfig {
   id: string;
@@ -90,6 +90,14 @@ export function applyMove(pos: Position, uci: string): boolean {
   try { pos.play(move); return true; } catch { return false; }
 }
 
+export function isCaptureUci(pos: Position, uci: string): boolean {
+  const move = parseUci(uci);
+  if (!move) return false;
+  if (!('from' in move)) return false;
+  if (pos.board.get(move.to) !== undefined) return true;
+  return pos.epSquare === move.to && pos.board.get(move.from)?.role === 'pawn';
+}
+
 export function getAllUciMoves(pos: Position): string[] {
   const moves: string[] = [];
   const ctx = pos.ctx();
@@ -126,21 +134,19 @@ export function getLegalDests(pos: Position): Map<string, string[]> {
   return compat.chessgroundDests(pos);
 }
 
-const ROLE_TO_CHAR: Record<string, string> = { pawn: 'P', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q' };
-const CHAR_TO_ROLE: Record<string, Role> = { P: 'pawn', N: 'knight', B: 'bishop', R: 'rook', Q: 'queen' };
-
-export function getPlayerPocket(pos: Position): Record<string, number> {
+function getPocket(pos: Position, color: Color): Record<string, number> {
   const pockets = pos.pockets;
   if (!pockets) return {};
-  const side = pockets.white;
+  const side = color === 'white' ? pockets.white : pockets.black;
   return { pawn: side.pawn, knight: side.knight, bishop: side.bishop, rook: side.rook, queen: side.queen };
 }
 
+export function getPlayerPocket(pos: Position): Record<string, number> {
+  return getPocket(pos, 'white');
+}
+
 export function getAiPocket(pos: Position): Record<string, number> {
-  const pockets = pos.pockets;
-  if (!pockets) return {};
-  const side = pockets.black;
-  return { pawn: side.pawn, knight: side.knight, bishop: side.bishop, rook: side.rook, queen: side.queen };
+  return getPocket(pos, 'black');
 }
 
 export function sparePieceToDropUci(pieceType: string, targetSquare: string): string {

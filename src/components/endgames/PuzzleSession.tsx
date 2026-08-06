@@ -14,7 +14,7 @@ import {
   LocalStockfishEvalEngine,
 } from "@/lib/chess/MoveEngine";
 import type { LocalEvalResult } from "@/lib/chess/MoveEngine";
-import { playCaptureSound, playMoveSound } from "@/lib/chess/sounds";
+import { playSoundForMove } from "@/lib/chess/sounds";
 
 type Status = "playing" | "thinking" | "won" | "failed" | "draw" | "done";
 
@@ -85,15 +85,10 @@ export default function PuzzleSession({
         setStatus("playing");
         return;
       }
-      let isCapture = false;
-      try {
-        isCapture = !!game.get(uci.slice(2, 4) as any);
-      } catch {}
       try {
         game.move(uci, { strict: false });
         setCurrentFen(game.fen());
-        if (isCapture) playCaptureSound();
-        else playMoveSound();
+        playSoundForMove(game);
         setMoveCount((c) => c + 1);
         if (game.isCheckmate()) {
           setStatus("won");
@@ -185,19 +180,14 @@ export default function PuzzleSession({
 
       fenHistoryRef.current.push(game.fen());
 
-      let isCapture = false;
-      try {
-        isCapture = !!game.get(target as any);
-      } catch {}
-      if (isCapture) playCaptureSound();
-      else playMoveSound();
-
       try {
         game.move({ from: source as any, to: target as any, promotion: "q" });
       } catch {
         fenHistoryRef.current.pop();
         return false;
       }
+
+      playSoundForMove(game);
 
       clearSelection();
       setCurrentFen(game.fen());

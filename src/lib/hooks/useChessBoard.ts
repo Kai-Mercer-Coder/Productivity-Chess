@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { type PieceSymbol, type Square } from 'chess.js';
+import { type PieceSymbol } from 'chess.js';
 import { fenStringToPositionObject } from 'react-chessboard';
 import type { PieceDropHandlerArgs, PieceHandlerArgs, SquareHandlerArgs } from 'react-chessboard';
 
@@ -13,7 +13,7 @@ import { useEngine } from './useEngine';
 import { useBookMoves } from './useBookMoves';
 import type { ChessApiResponse } from '@/lib/chess/MoveEngine';
 import type { BookMove } from './useBookMoves';
-import { playCaptureSound, playMoveSound } from '@/lib/chess/sounds';
+import { playSoundForMove } from '@/lib/chess/sounds';
 
 export interface ChessBoardConfig {
   enablePremove?: boolean;
@@ -142,11 +142,8 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
         return true;
       }
 
-      let isCapture = false;
-      try { isCapture = !!game.chessGame.get(targetSquare as Square); } catch {}
-      if (isCapture) playCaptureSound(); else playMoveSound();
-
       if (moveHandlerRef.current.executeMove(sourceSquare, targetSquare, 'q')) {
+        playSoundForMove(game.chessGame);
         const newFen = game.chessGame.fen();
         game.setPosition(newFen);
         registerMoveForAnalysis(newFen, oldEval, playerColor);
@@ -170,6 +167,7 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
 
       const oldEval = rawScore;
       moveHandlerRef.current.executeMove(game.promotionMove.sourceSquare, game.promotionMove.targetSquare, piece);
+      playSoundForMove(game.chessGame);
       const newFen = game.chessGame.fen();
       game.setPosition(newFen);
 

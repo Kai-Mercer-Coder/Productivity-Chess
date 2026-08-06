@@ -11,7 +11,7 @@ import {
   legalMoveSquareStyle,
 } from "@/lib/chess/boardTheme";
 import { StockfishEngine } from "@/lib/chess/MoveEngine";
-import { playCaptureSound, playMoveSound } from "@/lib/chess/sounds";
+import { playSoundForMove } from "@/lib/chess/sounds";
 
 type Status = "idle" | "playing" | "wrong" | "completed" | "challenge-fail";
 type Mode = "walkthrough" | "challenge";
@@ -83,16 +83,11 @@ export default function EndgameTrainer({ line, onComplete }: Props) {
       }
       const san = line.moves[idx].san;
       const game = chessRef.current;
-      let isCapture = false;
       try {
-        const target = san.replace(/[^a-h1-8]/g, "").slice(-2);
-        isCapture = !!game.get(target as any);
-      } catch {}
-      try {
-        game.move(san);
+        const played = game.move(san);
+        if (!played) return;
         setPosition(game.fen());
-        if (isCapture) playCaptureSound();
-        else playMoveSound();
+        playSoundForMove(game);
       } catch {
         return;
       }
@@ -137,14 +132,9 @@ export default function EndgameTrainer({ line, onComplete }: Props) {
     try {
       const uci = await engineRef.current.getNextMove(game);
       if (!uci || uci.length < 4) return;
-      let isCapture = false;
-      try {
-        isCapture = !!game.get(uci.slice(2, 4) as any);
-      } catch {}
       game.move(uci, { strict: false });
       setPosition(game.fen());
-      if (isCapture) playCaptureSound();
-      else playMoveSound();
+      playSoundForMove(game);
       setMoveCount((c) => c + 1);
       if (checkGameEnd(game)) return;
     } catch {}
@@ -189,13 +179,6 @@ export default function EndgameTrainer({ line, onComplete }: Props) {
       const piece = game.get(sourceSquare as any);
       if (!piece || piece.color !== userColor) return false;
 
-      let isCapture = false;
-      try {
-        isCapture = !!game.get(targetSquare as any);
-      } catch {}
-      if (isCapture) playCaptureSound();
-      else playMoveSound();
-
       let result: { san: string } | undefined;
       try {
         result = game.move({
@@ -206,6 +189,8 @@ export default function EndgameTrainer({ line, onComplete }: Props) {
       } catch {
         return false;
       }
+
+      if (result) playSoundForMove(game);
 
       clearSelection();
 
