@@ -5,6 +5,16 @@ let captureAudio: HTMLAudioElement | null = null;
 let checkAudio: HTMLAudioElement | null = null;
 let gameOverAudio: HTMLAudioElement | null = null;
 
+let soundsEnabled = true;
+
+export function setSoundsEnabled(enabled: boolean) {
+  soundsEnabled = enabled;
+}
+
+export function isSoundsEnabled() {
+  return soundsEnabled;
+}
+
 function getMove() {
   if (!moveAudio) moveAudio = new Audio('/SwiftMove.mp3');
   return moveAudio;
@@ -26,6 +36,7 @@ function getGameOver() {
 }
 
 export function playMoveSound(opts?: { isCapture?: boolean; isCheck?: boolean; isGameOver?: boolean }) {
+  if (!soundsEnabled) return;
   try {
     if (opts?.isGameOver) {
       (getGameOver().cloneNode(true) as HTMLAudioElement).play();
@@ -44,10 +55,12 @@ export function playMoveSound(opts?: { isCapture?: boolean; isCheck?: boolean; i
 }
 
 export function playCaptureSound() {
+  if (!soundsEnabled) return;
   try { (getCapture().cloneNode(true) as HTMLAudioElement).play(); } catch {}
 }
 
 export function playSoundForMove(game: Chess) {
+  if (!soundsEnabled) return;
   try {
     const last = game.history({ verbose: true }).at(-1);
     playMoveSound({

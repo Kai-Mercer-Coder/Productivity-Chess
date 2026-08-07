@@ -35,15 +35,10 @@ export default function GameHistory({ game }: GameHistoryProps) {
     }
   }, [history.length]);
 
-  const resetToStart = () => {
-    game.chessGame.reset();
-    game.setPosition(game.chessGame.fen());
-    game.resetMoveState(true);
-  };
-
-  const copyFEN = () => {
-    navigator.clipboard.writeText(game.chessGame.fen());
-  };
+  const pairs: string[][] = [];
+  for (let i = 0; i < history.length; i += 2) {
+    pairs.push([history[i], history[i + 1]]);
+  }
 
   let resultStr = "Game Over";
   let reasonStr = "";
@@ -61,52 +56,53 @@ export default function GameHistory({ game }: GameHistoryProps) {
   }
 
   return (
-    <div className="w-100! xl:w-80 bg-neutral-900/40 border border-neutral-800 rounded-xl p-5 flex flex-col h-[400px] backdrop-blur-sm shadow-2xl">
-      <h3 className="font-semibold text-lg tracking-tight mb-4 border-b border-neutral-800 pb-2">Game History</h3>
-
+    <div className="flex flex-col h-full min-h-0">
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto space-y-1 pr-12 scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-black [&::-webkit-scrollbar-thumb]:bg-neutral-700"
+        className="flex-1 min-h-0 overflow-y-auto px-3 py-2 space-y-0.5"
       >
-        {history.reduce((result: any[], move: string, index: number) => {
-          if (index % 2 === 0) {
-            result.push([move]);
-          } else {
-            result[result.length - 1].push(move);
-          }
-          return result;
-        }, []).map((pair: string[], i: number) => (
-          <div key={i} className="flex items-center justify-between text-sm px-2 py-1.5 rounded hover:bg-white/5 transition-colors group">
-            <span className="text-neutral-500 font-mono text-xs w-6">{i + 1}.</span>
-            <div className="flex gap-6 font-mono text-neutral-200">
-              <span className="w-15 text-right group-hover:text-white transition-colors">{pair[0]}</span>
-              <span className="w-15 text-right group-hover:text-white transition-colors">{pair[1] || ''}</span>
-            </div>
+        {pairs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full gap-3 text-neutral-700 p-8">
+            <span className="material-symbols-outlined text-3xl">touch_app</span>
+            <span className="text-[11px]">Make a move</span>
           </div>
-        ))}
+        ) : (
+          pairs.map((pair, i) => (
+            <div
+              key={i}
+              className="grid grid-cols-[3rem_1fr_1fr] items-center px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors group"
+            >
+              <span className="text-[10px] font-bold text-on-surface-variant">
+                {i + 1}.
+              </span>
+              <span className="text-sm font-bold text-white/80 group-hover:text-white transition-colors">
+                {pair[0]}
+              </span>
+              <span className="text-sm font-bold text-white/40 group-hover:text-white/70 transition-colors">
+                {pair[1] || ""}
+              </span>
+            </div>
+          ))
+        )}
       </div>
 
       {gameState.isGameOver && (
-        <div className="mb-4 p-4 bg-linear-to-r from-neutral-800 to-neutral-900 border-2 border-white/20 rounded-lg text-center">
-          <div className="text-xl font-bold text-white mb-1">{resultStr}</div>
-          <div className="text-sm text-neutral-400">{reasonStr}</div>
+        <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                game.chessGame.isCheckmate() ? "bg-green-500" : "bg-white/40"
+              } animate-pulse`}
+            />
+            <span className="text-xs font-black text-white uppercase tracking-wide">
+              {resultStr}
+            </span>
+          </div>
+          <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+            {reasonStr}
+          </span>
         </div>
       )}
-
-      <div className="mt-4 pt-4 border-t border-neutral-800 flex flex-col gap-2">
-        <button
-          onClick={resetToStart}
-          className="w-full px-4 py-2 bg-zinc-900! text-white border border-white/20 rounded text-sm font-bold transition-colors hover:bg-neutral-800"
-        >
-          {gameState.isGameOver ? "New Game" : "Restart"}
-        </button>
-        <button
-          onClick={copyFEN}
-          className="w-full px-4 py-2 bg-zinc-900! hover:bg-neutral-700 text-white rounded text-sm font-medium transition-colors border border-neutral-700"
-        >
-          Copy FEN
-        </button>
-      </div>
     </div>
   );
 }

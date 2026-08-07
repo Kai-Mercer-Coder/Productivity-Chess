@@ -148,7 +148,7 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
         game.setPosition(newFen);
         registerMoveForAnalysis(newFen, oldEval, playerColor);
         game.resetMoveState();
-        setTimeout(() => rawEngineMove(onPieceDropRef.current), 500);
+        setTimeout(() => rawEngineMove(onPieceDropRef.current), 350);
         return true;
       }
 
@@ -174,7 +174,7 @@ export function useChessBoard(config: ChessBoardConfig = {}): ChessBoardReturn {
       registerMoveForAnalysis(newFen, oldEval, playerColor);
       game.setPromotionMove(null);
       game.resetMoveState();
-      setTimeout(() => rawEngineMove(onPieceDropRef.current), 300);
+      setTimeout(() => rawEngineMove(onPieceDropRef.current), 250);
     },
     [game, rawScore, registerMoveForAnalysis, rawEngineMove],
   );

@@ -17,12 +17,12 @@ const EvalBar: FC<EvalBarProps> = ({ evaluation, mate }) => {
 
   const isWhiteWinning = whitePercent >= 50;
 
-  const displayEval = mate !== null 
-    ? `#${mate > 0 ? '+' : '-'}${Math.abs(mate)}` 
+  const displayEval = mate !== null
+    ? `#${mate > 0 ? '+' : '-'}${Math.abs(mate)}`
     : evalNum.toFixed(2);
 
   return (
-    <div className="w-8 md:w-[42px] h-[460px] rounded border-2 border-neutral-800 bg-neutral-950 overflow-hidden hidden md:flex flex-col-reverse relative shrink-0">
+    <div className="w-8 md:w-10 h-full min-h-[320px] rounded-xl border border-white/5 bg-surface-container-low overflow-hidden flex flex-col-reverse relative shrink-0">
       {/* White advantage bar */}
       <div
         className="w-full transition-all duration-700 ease-out bg-white"
@@ -30,11 +30,11 @@ const EvalBar: FC<EvalBarProps> = ({ evaluation, mate }) => {
       />
 
       {/* Center line */}
-      <div className="absolute top-1/2 w-full h-px bg-neutral-700 -translate-y-px" />
+      <div className="absolute top-1/2 w-full h-px bg-white/10 -translate-y-px" />
 
       {/* Evaluation text */}
       <div
-        className={`absolute left-0 right-0 flex justify-center font-mono text-[11px] font-bold transition-all duration-500 ${isWhiteWinning ? 'bottom-1 text-black' : 'top-1 text-white'
+        className={`absolute left-0 right-0 flex justify-center font-mono text-[10px] font-bold transition-all duration-500 ${isWhiteWinning ? 'bottom-1 text-black' : 'top-1 text-white/70'
           }`}
       >
         {displayEval}

@@ -13,9 +13,10 @@ const Hints = ({ game, hintData }: { game: any; hintData: ChessApiResponse | nul
             <button
                 onClick={() => setOpen(true)}
                 disabled={!isPlayerTurn || !hintData}
-                className='px-1 flex text-xl gap-4 h-12 w-15 justify-center items-center py-3 bg-zinc-900 text-white rounded-full z-50 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed'
+                className='w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-yellow-400/70 hover:text-yellow-400 transition-all flex justify-center items-center disabled:opacity-30 disabled:cursor-not-allowed active:scale-95'
+                aria-label="Get hint"
             >
-                <GoLightBulb />
+                <GoLightBulb className="text-xl" />
             </button>
 
             {open && (

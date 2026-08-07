@@ -4,6 +4,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { boardTheme } from "@/lib/chess/boardTheme";
+import { customPieces } from "@/components/chess/customPieces";
 
 const START_FEN = new Chess().fen();
 
@@ -169,6 +170,7 @@ export function SelectEngineView({
                   id: "setup-board",
                   position: START_FEN,
                   allowDragging: false,
+                  pieces: customPieces,
                   darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
                   lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
                   animationDurationInMs: 400,
@@ -223,24 +225,33 @@ export function SelectEngineView({
                 </Fragment>
               ))}
 
-              <div className="relative rounded-xl p-8 mt-8 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-8 bg-neutral-900/60 border border-white/5 backdrop-blur-sm">
-                <div className="max-w-xs">
-                  <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-2 text-neutral-400">
-                    CUSTOM_CALIBRATION
-                  </p>
-                  <h3 className="text-3xl font-black tracking-tighter uppercase mb-4 text-white">
-                    ENGINE_ADJUST
-                  </h3>
-                  <p className="text-xs leading-relaxed text-neutral-400">
-                    Manually override the rating parameters for precise opponent
-                    simulation.
-                  </p>
+              <div className="relative rounded-xl p-6 md:p-8 mt-8 bg-neutral-900/60 border border-white/5 backdrop-blur-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-1 text-neutral-400">
+                      CUSTOM_CALIBRATION
+                    </p>
+                    <h3 className="text-xl md:text-2xl font-black tracking-tighter uppercase text-white">
+                      ENGINE_ADJUST
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onSelectEngine(customElo)}
+                    className="shrink-0 px-6 py-3 font-black text-[10px] uppercase tracking-[0.2em] rounded-full whitespace-nowrap transition-all duration-300 bg-neutral-700 text-white hover:bg-white hover:text-black border border-white/5 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    PLAY
+                  </button>
                 </div>
+                <p className="text-xs leading-relaxed text-neutral-400 mt-2">
+                  Manually override the rating parameters for precise opponent
+                  simulation.
+                </p>
 
-                <div className="flex-1 w-full space-y-6">
+                <div className="mt-5 space-y-4">
                   <div className="flex justify-between items-end">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl md:text-7xl font-black tracking-tighter transition-opacity text-white">
+                      <span className="text-4xl font-black tracking-tighter transition-opacity text-white">
                         {customElo}
                       </span>
                       <span className="text-xs font-black tracking-widest uppercase text-neutral-600">
@@ -316,16 +327,6 @@ export function SelectEngineView({
                       }
                     `}</style>
                   </div>
-                </div>
-
-                <div className="flex flex-col justify-center shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => onSelectEngine(customElo)}
-                    className="px-8 py-4 font-black text-[10px] uppercase tracking-[0.2em] rounded-full whitespace-nowrap transition-all duration-300 bg-neutral-700 text-white hover:bg-white hover:text-black border border-white/5 hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                    PLAY
-                  </button>
                 </div>
               </div>
             </div>

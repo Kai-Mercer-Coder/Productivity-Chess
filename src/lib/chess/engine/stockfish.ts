@@ -57,7 +57,7 @@ export class StockfishEngine extends BaseStockfishEngine implements MoveEngine {
     return new Promise((resolve) => {
       this.moveResolver = resolve;
       this.bestMove = null;
-      const tme = moveTime ?? Math.ceil(Math.random() * 5000);
+      const tme = moveTime ?? Math.ceil(Math.random() * 3000);
       this.postCommand(`position fen ${chessGame.fen()}`);
       this.postCommand(`go movetime ${tme}`);
     });

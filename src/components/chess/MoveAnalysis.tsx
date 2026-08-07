@@ -61,7 +61,7 @@ const MoveAnalysis = ({ diff, mate, openingName, bookMoves, showEngineReaction, 
     }, [diff, mate]);
 
     const diffDisplay = useMemo(() => {
-        if (mate !== null) return mate > 0 ? `M${mate}` : `M${mate}`;
+        if (mate !== null) return `M${Math.abs(mate)}`;
         return diff === null ? '—' : (diff > 0 ? '+' : '') + diff.toFixed(2);
     }, [diff, mate]);
 
@@ -71,51 +71,48 @@ const MoveAnalysis = ({ diff, mate, openingName, bookMoves, showEngineReaction, 
     const showMainSection = isBookMove || showEngineReaction;
 
     return (
-        <div className="w-100! max-w-sm mx-auto bg-neutral-900 border border-neutral-800 rounded-xl text-white overflow-hidden shadow-xl">
-
+        <div className="w-full text-white">
             {/* Main Analysis Section */}
             {showMainSection && (
-                <div className="p-5 text-center">
-                    <AnimatePresence mode="wait">
-                        {isBookMove ? (
-                            <motion.div
-                                key="book-view"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2 }}
-                                className="space-y-2"
-                            >
-                                <div className="inline-block px-3 py-1 rounded-full bg-blue-900/40 border border-blue-500/30 text-[10px] font-bold uppercase tracking-widest text-blue-400">
-                                    {/* Key prop ensures animation replays if text changes */}
-                                    <AnimatedText key="book-label" text="Book Move" className="text-blue-400" />
-                                </div>
-                                <div className="text-base font-semibold text-white leading-tight">
-                                    <AnimatedText key={openingName} text={openingName || ''} />
-                                </div>
-                            </motion.div>
-                        ) : showEngineReaction ? (
-                            <motion.div
-                                key="engine-view"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2 }}
-                                className="space-y-1"
-                            >
-                                <p className="text-xs uppercase tracking-wider text-neutral-500">
-                                    <AnimatedText key="quality-label" text="Move Quality" />
-                                </p>
-                                <h3 className={`text-xl font-bold ${remarkColor}`}>
-                                    <AnimatedText key={engineRemark} text={engineRemark} className={remarkColor} />
-                                </h3>
-                                <p className="text-xs text-neutral-400 font-mono h-4">
-                                    <AnimatedText key={diffDisplay} text={diffDisplay} />
-                                </p>
-                            </motion.div>
-                        ) : null}
-                    </AnimatePresence>
-                </div>
+                <AnimatePresence mode="wait">
+                    {isBookMove ? (
+                        <motion.div
+                            key="book-view"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex items-center gap-3 flex-wrap"
+                        >
+                            <div className="inline-flex px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-[10px] font-black uppercase tracking-widest">
+                                {/* Key prop ensures animation replays if text changes */}
+                                <AnimatedText key="book-label" text="Book Move" className="text-blue-400" />
+                            </div>
+                            <div className="text-base font-black text-white leading-tight tracking-tight">
+                                <AnimatedText key={openingName} text={openingName || ''} />
+                            </div>
+                        </motion.div>
+                    ) : showEngineReaction ? (
+                        <motion.div
+                            key="engine-view"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="space-y-1"
+                        >
+                            <p className="text-[10px] uppercase tracking-widest text-neutral-500">
+                                <AnimatedText key="quality-label" text="Move Quality" />
+                            </p>
+                            <h3 className={`text-2xl font-black tracking-tighter ${remarkColor}`}>
+                                <AnimatedText key={engineRemark} text={engineRemark} className={remarkColor} />
+                            </h3>
+                            <p className="text-xs text-neutral-500 font-mono">
+                                <AnimatedText key={diffDisplay} text={diffDisplay} />
+                            </p>
+                        </motion.div>
+                    ) : null}
+                </AnimatePresence>
             )}
 
             {/* Theory Section */}
@@ -124,19 +121,19 @@ const MoveAnalysis = ({ diff, mate, openingName, bookMoves, showEngineReaction, 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
-                    className="border-t border-neutral-800 bg-neutral-900/50 p-4"
+                    className="mt-4"
                 >
-                    <p className="text-[10px] uppercase text-neutral-600 font-bold tracking-widest mb-3 text-center">
+                    <p className="text-[10px] uppercase text-neutral-600 font-bold tracking-widest mb-2">
                         <AnimatedText key="theory-label" text="Theory" />
                     </p>
-                    <div className="flex flex-wrap justify-center gap-2">
+                    <div className="flex flex-wrap gap-2">
                         {bookMoves.map((m, i) => (
                             <motion.span
                                 key={i}
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.3 + (i * 0.05), duration: 0.2 }}
-                                className="px-3 py-1.5 bg-blue-900/20 border border-blue-500/20 rounded-md text-xs text-blue-300 font-mono"
+                                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white/80 font-mono hover:bg-white/10 transition-colors"
                             >
                                 {m.san}
                             </motion.span>
