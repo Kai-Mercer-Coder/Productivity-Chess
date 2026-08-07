@@ -41,11 +41,7 @@ function buildCsp(nonce: string): string {
     "'self'",
     "https://*.supabase.co",
     "wss://*.supabase.co",
-    "https://chess-api.com",
     "https://tablebase.lichess.ovh",
-    "https://lichess.org",
-    "https://www.chessdb.cn",
-    "https://clonicalcloner-aasopd-stockfish-depth-18.hf.space",
   ];
   if (isDev) connectSrc.push("ws://localhost:* http://localhost:*");
 

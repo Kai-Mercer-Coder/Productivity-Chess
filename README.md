@@ -12,7 +12,7 @@ A full-stack chess training app with **328,000+ free puzzles**, unlimited game a
 
 - **Opening Trainer** — Learn and revise opening lines with an interactive board. The Sicilian Najdorf main line is included with hints. Two modes: **Learn** (hints always shown) and **Revise** (hints hidden until you get it wrong). Wrong moves use the puzzle-style revert animation (1.2s). Progress is saved to localStorage.
 
-- **Engine Evaluation** — Six-source evaluation fallback chain: Tablebase (≤7 pieces) → Lichess Cloud → ChessDB → chess-api → HuggingFace → local Stockfish WASM. Local engine reports live at depth 8+, caps at depth 18, with iterative deepening.
+- **Engine Evaluation** — Tablebase (≤7 pieces) lookup with local Stockfish WASM fallback. Local engine reports live at depth 8+, caps at depth 18, with iterative deepening.
 
 - **Analysis Board** — Full chess analysis with click-to-move, drag-to-move, legal move highlights, engine evaluation, PGN/FEN import/export, and position navigation. Board flips between white and black orientation. Inputs are sanitized against payload injection.
 
@@ -38,7 +38,7 @@ A full-stack chess training app with **328,000+ free puzzles**, unlimited game a
 | Auth | [NextAuth.js](https://next-auth.js.org) (v5) + [Supabase](https://supabase.com) |
 | Database | [Supabase](https://supabase.com) (Postgres) |
 | Chess | [chess.js](https://github.com/jhlywa/chess.js), [react-chessboard](https://github.com/Clariity/react-chessboard), [chess-tactics](https://github.com/evan-eschwege/chess-tactics), [@chess-openings/eco.json](https://github.com/chess-openings/eco.json) |
-| Engine | Local [Stockfish 18 WASM](https://github.com/lichess-org/stockfish.wasm) via [wintrchess](https://github.com/devsh9/wintrchess) + Lichess Cloud, ChessDB, chess-api, HuggingFace and Tablebase fallbacks |
+| Engine | Local [Stockfish 18 WASM](https://github.com/lichess-org/stockfish.wasm) via [wintrchess](https://github.com/devsh9/wintrchess) + Lichess Tablebase lookup |
 | Rating | [glicko2](https://github.com/mmai/glicko2) npm library |
 | Cache | [Dexie.js](https://dexie.org) (IndexedDB) — 40 MB limit, 328K puzzles |
 | Charts | [Recharts](https://recharts.org) |
@@ -99,10 +99,10 @@ src/
 ### Evaluation Fallback Chain
 
 ```
-Tablebase (≤7 pieces) → Lichess Cloud → ChessDB → chess-api → HuggingFace → Local Stockfish WASM
+Tablebase (≤7 pieces) → Local Stockfish WASM
 ```
 
-Each source is tried in order with appropriate timeouts (3–8s). Cloud sources are parallelized for lowest latency. Local Stockfish uses a shared WASM worker singleton with exponential backoff auto-restart.
+Each source is tried in order with appropriate timeouts. Local Stockfish uses a shared WASM worker singleton with exponential backoff auto-restart.
 
 ### Puzzle Caching
 
@@ -117,7 +117,6 @@ Each source is tried in order with appropriate timeouts (3–8s). Cloud sources 
 
 - Node.js 20+
 - A Supabase project (Postgres database with a `profiles` table)
-- A Chess API key (for engine evaluation fallback — optional if using local Stockfish)
 
 ### Environment Variables
 
@@ -129,8 +128,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 NEXTAUTH_SECRET=<generate with: openssl rand -base64 32>
 NEXTAUTH_URL=http://localhost:3000
-CHESS_API_EMAIL=<email-for-chess-api>
-CHESS_API_KEY=<chess-api-key>
 ```
 
 ### Install & Run

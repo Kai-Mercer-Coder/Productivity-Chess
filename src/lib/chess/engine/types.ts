@@ -1,4 +1,4 @@
-export interface ChessApiResponse {
+export interface HintData {
   bestmove: string;
   san: string;
   text: string;
@@ -6,15 +6,6 @@ export interface ChessApiResponse {
   mate: number | null;
   continuationArr: string[];
   winChance: number;
-  [key: string]: any;
-}
-
-export interface HFApiResponse {
-  success?: boolean;
-  best_move?: string;
-  depth_reached?: number;
-  score?: { type?: string; value?: number };
-  [key: string]: any;
 }
 
 export interface LocalEvalResult {

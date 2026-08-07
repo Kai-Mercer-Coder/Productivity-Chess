@@ -3,8 +3,8 @@ export { getAttackers, getDefenders, isPieceHanging, pieceValues, promotions } f
 export type { InfluencingPiece } from './board';
 export { Classification, classificationValues, WPL_THRESHOLDS, winPercent, computeWPL, wplClassify, isMiss } from './classification';
 export { MoveHandler } from './MoveHandler';
-export { StockfishEngine, ChessApiEvalEngine, LocalStockfishEvalEngine, fetchTablebase } from './MoveEngine';
-export type { ChessApiResponse, LocalEvalResult } from './MoveEngine';
+export { StockfishEngine, LocalStockfishEvalEngine, fetchTablebase } from './MoveEngine';
+export type { HintData, LocalEvalResult } from './MoveEngine';
 export {
   ensureReady as ensureWasmAnalyzerReady,
   isReady as isWasmAnalyzerReady,

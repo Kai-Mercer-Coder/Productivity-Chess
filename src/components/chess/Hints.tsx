@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { GoLightBulb } from "react-icons/go";
-import { type ChessApiResponse } from '@/lib/chess/MoveEngine';
+import { type HintData } from '@/lib/chess/MoveEngine';
 
-const Hints = ({ game, hintData }: { game: any; hintData: ChessApiResponse | null }) => {
+const Hints = ({ game, hintData }: { game: any; hintData: HintData | null }) => {
     const [open, setOpen] = useState(false);
     const isPlayerTurn = game.chessGame.turn() === 'w';
 

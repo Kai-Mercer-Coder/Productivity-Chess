@@ -1,13 +1,12 @@
 // Barrel re-export — keeps all existing `@/lib/chess/MoveEngine` imports working.
-// The actual implementations live in `./engine/` (local-stockfish, cloud-api, evaluators, types).
+// The actual implementations live in `./engine/` (local-stockfish, evaluators, types).
 export {
   LocalStockfishEvalEngine,
   StockfishEngine,
-  ChessApiEvalEngine,
   fetchTablebase,
 } from "./engine";
 
 export type {
-  ChessApiResponse,
+  HintData,
   LocalEvalResult,
 } from "./engine/types";

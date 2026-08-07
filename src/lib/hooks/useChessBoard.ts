@@ -11,7 +11,7 @@ import { useBoardStyles } from './useBoardStyles';
 import { useEvaluation } from './useEvaluation';
 import { useEngine } from './useEngine';
 import { useBookMoves } from './useBookMoves';
-import type { ChessApiResponse } from '@/lib/chess/MoveEngine';
+import type { HintData } from '@/lib/chess/MoveEngine';
 import type { BookMove } from './useBookMoves';
 import { playSoundForMove } from '@/lib/chess/sounds';
 
@@ -38,7 +38,7 @@ export interface ChessBoardReturn {
   rawScore: number;
   mateIn: number | null;
   diff: number | null;
-  hintData: ChessApiResponse | null;
+  hintData: HintData | null;
   elo: number;
   isThinking: boolean;
   openingName: string | null;
