@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import type { SessionWithProfile } from "@/types/profile";
 import { Chess } from "chess.js";
 import { motion, AnimatePresence } from "motion/react";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useGameStats } from "@/lib/hooks/useGameStats";
 import { useLocalElo } from "@/lib/hooks/useLocalElo";
 import MiniBoard from "./MiniBoard";
@@ -33,35 +34,94 @@ function fenFromMoves(moves: string[]): string {
   return game.fen();
 }
 
-function buildChart(data: { rating: number }[]): { line: string; area: string } {
-  if (data.length === 0) return { line: "", area: "" };
-  const w = 1000;
-  const h = 300;
-  const pad = 24;
+type RatingPoint = { date: string; rating: number };
+
+function RatingChartTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: RatingPoint }>;
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+  const point = payload[0].payload;
+  return (
+    <div className="bg-surface-container-highest border border-outline rounded-lg px-4 py-3 shadow-xl">
+      <span className="block text-[9px] font-black uppercase tracking-widest text-on-surface-variant">
+        {point.date}
+      </span>
+      <span className="block text-sm font-black text-primary">
+        {point.rating} ELO
+      </span>
+    </div>
+  );
+}
+
+function RatingChart({
+  data,
+  gradientId,
+  maxLabels = 6,
+  showDots = false,
+}: {
+  data: RatingPoint[];
+  gradientId: string;
+  maxLabels?: number;
+  showDots?: boolean;
+}) {
   const ratings = data.map((d) => d.rating);
   const min = Math.min(...ratings);
   const max = Math.max(...ratings);
   const range = max - min || 1;
-  const pts = data.map((d, i) => {
-    const x =
-      data.length === 1
-        ? w / 2
-        : pad + (i / (data.length - 1)) * (w - pad * 2);
-    const y = h - pad - ((d.rating - min) / range) * (h - pad * 2);
-    return [x, y];
-  });
+  const domainMin = min - range * 0.08;
+  const domainMax = max + range * 0.08;
+  const tickInterval = Math.max(0, Math.ceil(data.length / maxLabels) - 1);
+
   if (data.length === 1) {
-    const [x, y] = pts[0];
-    const half = 80;
-    const line = `M${x - half},${y} L${x + half},${y}`;
-    const area = `${line} L${x + half},${h} L${x - half},${h} Z`;
-    return { line, area };
+    return (
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-3 h-3 rounded-full bg-white shadow-[0_0_16px_rgba(255,255,255,0.6)]" />
+      </div>
+    );
   }
-  const line = pts
-    .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`)
-    .join(" ");
-  const area = `${line} L${pts[pts.length - 1][0]},${h} L${pts[0][0]},${h} Z`;
-  return { line, area };
+
+  return (
+    <div className="absolute inset-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 12, right: 12, bottom: 4, left: 12 }}>
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity={0.18} />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <XAxis
+            dataKey="date"
+            interval={tickInterval}
+            tickLine={false}
+            axisLine={false}
+            tick={{ fontSize: 9, fontWeight: 700, fill: "var(--color-on-surface-variant)" }}
+            tickFormatter={(value: string) => value.toUpperCase()}
+            dy={6}
+          />
+          <YAxis hide domain={[domainMin, domainMax]} />
+          <Tooltip
+            content={<RatingChartTooltip />}
+            cursor={{ stroke: "rgba(255,255,255,0.15)", strokeDasharray: "4 4" }}
+          />
+          <Area
+            type="linear"
+            dataKey="rating"
+            stroke="#ffffff"
+            strokeWidth={3}
+            strokeLinecap="round"
+            fill={`url(#${gradientId})`}
+            dot={showDots ? { r: 4, fill: "#ffffff", strokeWidth: 0 } : false}
+            activeDot={{ r: 6, fill: "#ffffff" }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
 }
 
 const TIERS = [
@@ -83,7 +143,6 @@ export default function GrandmasterDashboard() {
     stats.ratingHistory.length > 0
       ? stats.ratingHistory
       : [{ date: "Today", rating: elo }];
-  const { line, area } = buildChart(ratingHistory);
 
   const avgRating =
     ratingHistory.length > 0
@@ -104,8 +163,6 @@ export default function GrandmasterDashboard() {
     Math.max(0, ((elo - tierMin) / (milestone - tierMin)) * 100),
   );
   const remaining = milestone - elo;
-
-  const labelEvery = Math.max(1, Math.ceil(ratingHistory.length / 6));
 
   return (
     <div className="px-8 pb-12 max-w-7xl mx-auto pt-12 space-y-12">
@@ -144,23 +201,8 @@ export default function GrandmasterDashboard() {
             className="lg:col-span-8 w-full h-72 bg-surface-container-low rounded-xl relative overflow-hidden border border-white/5 cursor-pointer hover:border-primary/30 transition-colors"
             onClick={() => setGraphExpanded(true)}
           >
-            {line ? (
-              <svg className="w-full h-full" viewBox="0 0 1000 300" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="dashGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="white" stopOpacity="0.18" />
-                    <stop offset="100%" stopColor="white" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path d={area} fill="url(#dashGrad)" />
-                <path
-                  d={line}
-                  fill="none"
-                  stroke="white"
-                  strokeLinecap="round"
-                  strokeWidth="3"
-                />
-              </svg>
+            {ratingHistory.length > 0 ? (
+              <RatingChart data={ratingHistory} gradientId="dashGrad" maxLabels={6} />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-on-surface-variant text-sm font-medium">
@@ -168,12 +210,6 @@ export default function GrandmasterDashboard() {
                 </span>
               </div>
             )}
-            <div className="absolute bottom-4 inset-x-6 flex justify-between text-[9px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">
-              {ratingHistory.map(
-                (d, i) =>
-                  i % labelEvery === 0 && <span key={`${d.date}-${i}`}>{d.date}</span>,
-              )}
-            </div>
             <div className="absolute top-4 right-6 flex gap-3">
               <div className="px-4 py-2 border border-outline-variant/30 rounded-lg backdrop-blur-md bg-black/20">
                 <span className="block text-[8px] text-on-surface-variant font-black tracking-widest">
@@ -463,49 +499,8 @@ export default function GrandmasterDashboard() {
               </div>
 
               <div className="w-full h-96 bg-surface-container-low rounded-xl relative overflow-hidden border border-white/5">
-                {line ? (
-                  <svg className="w-full h-full" viewBox="0 0 1000 300" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="modalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="white" stopOpacity="0.18" />
-                        <stop offset="100%" stopColor="white" stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-                    <path d={area} fill="url(#modalGrad)" />
-                    <path
-                      d={line}
-                      fill="none"
-                      stroke="white"
-                      strokeLinecap="round"
-                      strokeWidth="3"
-                    />
-                    {ratingHistory.map((d, i) => {
-                      const x =
-                        ratingHistory.length === 1
-                          ? 500
-                          : 24 + (i / (ratingHistory.length - 1)) * 952;
-                      const minR = Math.min(...ratingHistory.map((r) => r.rating));
-                      const maxR = Math.max(...ratingHistory.map((r) => r.rating));
-                      const rangeR = maxR - minR || 1;
-                      const y = 300 - 24 - ((d.rating - minR) / rangeR) * 252;
-                      return (
-                        <g key={`${d.date}-${i}`}>
-                          <circle cx={x} cy={y} r="4" fill="white" className="opacity-80" />
-                          <text
-                            x={x}
-                            y={y - 10}
-                            textAnchor="middle"
-                            fill="white"
-                            fontSize="9"
-                            className="font-bold"
-                            style={{ fontFamily: "monospace" }}
-                          >
-                            {d.rating}
-                          </text>
-                        </g>
-                      );
-                    })}
-                  </svg>
+                {ratingHistory.length > 0 ? (
+                  <RatingChart data={ratingHistory} gradientId="modalGrad" maxLabels={10} showDots />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-on-surface-variant text-sm font-medium">
@@ -513,14 +508,6 @@ export default function GrandmasterDashboard() {
                     </span>
                   </div>
                 )}
-                <div className="absolute bottom-4 inset-x-6 flex justify-between text-[9px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">
-                  {ratingHistory.map(
-                    (d, i) =>
-                      i % Math.max(1, Math.ceil(ratingHistory.length / 10)) === 0 && (
-                        <span key={`${d.date}-${i}`}>{d.date}</span>
-                      ),
-                  )}
-                </div>
                 <div className="absolute top-4 right-6 flex gap-3">
                   <div className="px-4 py-2 border border-outline-variant/30 rounded-lg backdrop-blur-md bg-black/20">
                     <span className="block text-[8px] text-on-surface-variant font-black tracking-widest">
