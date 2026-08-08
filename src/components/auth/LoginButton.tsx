@@ -1,9 +1,12 @@
 
 'use client'
-import { useSession, signIn, signOut } from "next-auth/react"
+import { useSession, signIn } from "next-auth/react"
+import { useSignOut } from "@/lib/hooks/useSignOut"
+import SignOutConfirmDialog from "@/components/auth/SignOutConfirmDialog"
 
 const LoginButton = () => {
     const { data: session } = useSession()
+    const signOut = useSignOut({ user: session?.user })
 
     if (session) {
         return (
@@ -13,7 +16,12 @@ const LoginButton = () => {
                 <p>Signed in as {session.user?.id}</p>
                 <p>Signed in as {session.user?.name}</p>
 
-                <button onClick={() => signOut()}>Sign out</button>
+                <button onClick={signOut.requestSignOut}>Sign out</button>
+                <SignOutConfirmDialog
+                    open={signOut.confirmOpen}
+                    onCancel={signOut.cancelSignOut}
+                    onConfirm={signOut.confirmSignOut}
+                />
             </>
         )
     }

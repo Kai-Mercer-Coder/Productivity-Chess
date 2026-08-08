@@ -47,3 +47,15 @@ export async function saveOnboarding(record: OnboardingRecord): Promise<void> {
     });
   } catch {}
 }
+
+export async function clearOnboarding(email: string): Promise<void> {
+  try {
+    const db = await openDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE, "readwrite");
+      tx.objectStore(STORE).delete(email);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch {}
+}

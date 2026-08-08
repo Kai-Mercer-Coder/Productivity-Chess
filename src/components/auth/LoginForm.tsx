@@ -1,10 +1,12 @@
 'use client'
 
-import { useSession, signIn, signOut } from "next-auth/react"
+import { useSession, signIn } from "next-auth/react"
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import '../../app/globals.css'
 import Link from "next/link"
+import { useSignOut } from "@/lib/hooks/useSignOut"
+import SignOutConfirmDialog from "@/components/auth/SignOutConfirmDialog"
 
 const Login = () => {
     const { data: session, status } = useSession()
@@ -13,6 +15,7 @@ const Login = () => {
     const [focused, setFocused] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [visible, setVisible] = useState(false)
+    const signOut = useSignOut({ user: session?.user })
 
     useEffect(() => {
         setMounted(true)
@@ -167,7 +170,7 @@ const Login = () => {
                         </div>
 
                         <button
-                            onClick={() => signOut()}
+                            onClick={() => signOut.requestSignOut()}
                             className="w-full py-3.5 rounded-xl text-[13px] font-medium tracking-wide bg-red-800/4 text-white/50 border border-white/8 transition-all duration-500 hover:bg-white/[0.07] hover:text-white/70 hover:border-white/12 active:scale-[0.98] cursor-pointer"
                         >
                             Sign out
@@ -193,6 +196,12 @@ const Login = () => {
                     </div>
                 </div>
             </div>
+
+            <SignOutConfirmDialog
+                open={signOut.confirmOpen}
+                onCancel={signOut.cancelSignOut}
+                onConfirm={signOut.confirmSignOut}
+            />
         </div>
     )
 }

@@ -1,14 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import type { SessionWithProfile } from "@/types/profile";
 import Link from 'next/link';
+import { useSignOut } from "@/lib/hooks/useSignOut";
+import SignOutConfirmDialog from "@/components/auth/SignOutConfirmDialog";
 
 const Navbar = () => {
     const { data: session } = useSession();
     const [profileOpen, setProfileOpen] = useState(false);
     const user = session?.user;
+    const signOut = useSignOut({ user, callbackUrl: '/login' });
 
     return (
         <>
@@ -110,7 +113,7 @@ const Navbar = () => {
                                 </Link>
                                 <button
                                     type="button"
-                                    onClick={() => signOut({ callbackUrl: '/login' })}
+                                    onClick={signOut.requestSignOut}
                                     className="w-full py-3 text-center rounded-xl bg-red-900/30 hover:bg-red-900/50 text-red-400 transition-colors"
                                 >
                                     Sign Out
@@ -120,6 +123,11 @@ const Navbar = () => {
                     </div>
                 </div>
             )}
+            <SignOutConfirmDialog
+                open={signOut.confirmOpen}
+                onCancel={signOut.cancelSignOut}
+                onConfirm={signOut.confirmSignOut}
+            />
         </>
     );
 };
