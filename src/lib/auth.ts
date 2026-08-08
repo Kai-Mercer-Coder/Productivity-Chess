@@ -76,6 +76,10 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
                 if (!emailVerified) return false;
             }
 
+            // Guests are fully local — their data lives in IndexedDB, so there is
+            // no Supabase row to fetch or insert.
+            if (account?.provider === "guest") return true;
+
             const { data: existing, error: fetchError } = await supabase
                 .from("users")
                 .select("*")
@@ -109,6 +113,16 @@ export const { handlers: { GET, POST }, auth } = NextAuth({
                 token.name = user.name;
             }
             if (user?.email) {
+                // Guests carry no Supabase row — seed defaults locally instead of querying.
+                if (user.email.endsWith("@guest.local")) {
+                    token.id = user.id;
+                    token.elo = 1200;
+                    token.puzzles_solved = 0;
+                    token.delta_value = 200;
+                    token.volatility = 0.06;
+                    token.course = 1;
+                    return token;
+                }
                 const { data: profile } = await supabase
                     .from("users")
                     .select("id, elo, puzzles_solved, delta_value, volatility, course")

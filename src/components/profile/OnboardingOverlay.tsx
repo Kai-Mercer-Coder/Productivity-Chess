@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { db } from "@/lib/db/gameDB";
 
 const levels = [
   { elo: 400, label: "New to Chess", desc: "Just learned the rules" },
@@ -17,19 +18,42 @@ export default function OnboardingOverlay() {
   const [selected, setSelected] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [guestElo, setGuestElo] = useState<number | null>(null);
 
   const user = session?.user;
+  const isGuest = !!user?.email?.endsWith("@guest.local");
+
+  useEffect(() => {
+    if (!isGuest) return;
+    db.elo.get(1).then((r) => setGuestElo(r?.rating ?? null));
+  }, [isGuest]);
+
   if (!user) return null;
 
   const isNew =
     !done &&
-    ((user as any)?.elo ?? 1200) === 1200 &&
-    ((user as any)?.puzzles_solved ?? 0) === 0;
+    (isGuest
+      ? guestElo === null || guestElo === 1200
+      : ((user as any)?.elo ?? 1200) === 1200 &&
+        ((user as any)?.puzzles_solved ?? 0) === 0);
 
   const handleConfirm = async () => {
     if (selected === null) return;
     setSubmitting(true);
     try {
+      if (isGuest) {
+        await db.elo.put({
+          id: 1,
+          rating: selected,
+          rd: 200,
+          volatility: 0.06,
+          prevRatings: [],
+          updatedAt: new Date().toISOString(),
+        });
+        await update({ elo: selected, delta_value: 200, volatility: 0.06 }).catch(() => {});
+        setDone(true);
+        return;
+      }
       const res = await fetch("/api/user/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

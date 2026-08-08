@@ -9,6 +9,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Guests are fully local — their solve count lives in IndexedDB.
+    if (email.endsWith("@guest.local")) {
+        return NextResponse.json({ success: true });
+    }
+
     const { count } = await req.json();
     if (typeof count !== "number") {
         return NextResponse.json({ error: "Invalid count" }, { status: 400 });

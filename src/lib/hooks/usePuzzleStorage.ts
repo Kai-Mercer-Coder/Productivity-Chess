@@ -1,11 +1,14 @@
 "use client";
 
 import { useCallback, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import { db } from '@/lib/db/gameDB';
 
 const BATCH_SIZE = 10;
 
 export function usePuzzleStorage() {
+  const { data: session } = useSession();
+  const isGuest = !!session?.user?.email?.endsWith("@guest.local");
   const lastBatchRef = useRef(0);
 
   const recordAttempt = useCallback(async (
@@ -23,6 +26,7 @@ export function usePuzzleStorage() {
       const nextBatch = Math.floor(total / BATCH_SIZE);
       if (nextBatch > prevBatch) {
         lastBatchRef.current = nextBatch;
+        if (isGuest) return;
         try {
           await fetch('/api/puzzlecount', {
             method: 'POST',
@@ -41,7 +45,7 @@ export function usePuzzleStorage() {
       });
       await db.puzzleSolves.add({ puzzleId, date: new Date().toISOString(), correct: false, hinted });
     }
-  }, []);
+  }, [isGuest]);
 
   const getRecentAttempts = useCallback(async (limit = 20, windowHours = 0) => {
     let cutoff = 0;
