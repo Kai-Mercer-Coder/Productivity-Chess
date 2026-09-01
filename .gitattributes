@@ -1,0 +1,7 @@
+# Normalize line endings to LF in the repository. Checkouts use platform
+# default (CRLF on Windows) via core.autocrlf unless eol is overridden below.
+* text=auto
+
+# Lock these to LF regardless of platform (shell scripts must stay LF).
+*.sh text eol=lf
+.gitattributes text eol=lf
