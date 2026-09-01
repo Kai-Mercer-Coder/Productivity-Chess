@@ -9,7 +9,6 @@ import { boardTheme } from "@/lib/chess/boardTheme";
 import { useSession } from "next-auth/react";
 import type { SessionWithProfile } from "@/types/profile";
 import { toast } from "react-toastify";
-import Dexie from 'dexie';
 import { useChessGame } from "@/lib/hooks/useChessGame";
 import { useBoardInteraction } from "@/lib/hooks";
 import { preloadShardsForElo } from "@/lib/puzzles/PuzzleShards";

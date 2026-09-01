@@ -144,16 +144,6 @@ const Login = () => {
                             </svg>
                             Continue with Github
                         </button>
-
-                        <div className="pt-5 mt-5 border-t border-white/5">
-                            <button
-                                onClick={() => signIn("guest")}
-                                className="w-full py-3 rounded-xl text-[12px] font-light tracking-wide text-white/25 border border-dashed border-white/6 transition-all duration-500 flex items-center justify-center gap-2.5 hover:text-white/50 hover:border-white/10 hover:bg-white/[0.02] active:scale-[0.98] cursor-pointer"
-                            >
-                                <span className="material-symbols-outlined text-[14px]">person_outline</span>
-                                Continue as Guest
-                            </button>
-                        </div>
                     </div>
                 )}
 

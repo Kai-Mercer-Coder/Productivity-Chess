@@ -1,38 +1,32 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-// DEV MODE: auth() wrapper removed to avoid intermittent
-// "adapterFn is not a function" error from NextAuth v5 + Turbopack HMR.
-// Uncomment lines below when auth is needed:
-//
-// import { auth } from "@/lib/auth";
-//
-// function handler(req: NextRequest) {
-//   const url = req.nextUrl.pathname;
-//   const isStockfish = url.startsWith("/stockfish-mv/");
-//   const isVariant = url.startsWith("/variants/");
-//   const isEndgame = url.startsWith("/learn/endgames/");
-//   const needsCrossOrigin = isStockfish || isVariant || isEndgame;
-//
-//   if (needsCrossOrigin) {
-//     if (!req.auth) {
-//       const response = NextResponse.redirect(new URL("/login", req.url));
-//       response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-//       response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
-//       return response;
-//     }
-//     const response = NextResponse.next();
-//     response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-//     response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
-//     return response;
-//   }
-//
-//   if (!req.auth) {
-//     return NextResponse.redirect(new URL("/login", req.url));
-//   }
-//   return NextResponse.next();
-// }
-//
-// export default auth(handler);
+// Public paths a logged-out visitor may reach. Everything else redirects to /login.
+// The landing page is now a free, no-login game review tool; the rest of the app
+// (play, puzzles, learn, analysis, dashboard, stats) requires a real account.
+const PUBLIC_PREFIXES = [
+  "/",
+  "/login",
+  "/privacy",
+  "/terms",
+  "/credits",
+  "/demo",
+  "/review",
+  "/stockfish",
+  "/stockfish-mv",
+  "/wasm",
+  "/badges",
+  "/puzzle_shards",
+  "/_next",
+];
+
+function isPublic(pathname: string): boolean {
+  const clean = pathname.replace(/\/+$/, "") || "/";
+  return PUBLIC_PREFIXES.some((p) => {
+    if (p === "/") return clean === "/";
+    return clean === p || clean.startsWith(`${p}/`);
+  });
+}
 
 function buildCsp(nonce: string): string {
   const isDev = process.env.NODE_ENV === "development";
@@ -63,9 +57,34 @@ function buildCsp(nonce: string): string {
     .trim();
 }
 
-function handler(request: NextRequest) {
+function applySecurityHeaders(response: NextResponse, csp: string) {
+  response.headers.set("Content-Security-Policy", csp);
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Embedder-Policy", "credentialless");
+}
+
+async function handler(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const csp = buildCsp(nonce);
+
+  const pathname = request.nextUrl.pathname;
+
+  // Gate the app behind login (guest accounts removed — an authenticated
+  // Google/GitHub session is required). The landing page + public assets stay free.
+  if (!isPublic(pathname)) {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === "production",
+    });
+    if (!token) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      const redirect = NextResponse.redirect(url);
+      applySecurityHeaders(redirect, csp);
+      return redirect;
+    }
+  }
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
@@ -76,9 +95,7 @@ function handler(request: NextRequest) {
       headers: requestHeaders,
     },
   });
-  response.headers.set("Content-Security-Policy", csp);
-  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  response.headers.set("Cross-Origin-Embedder-Policy", "credentialless");
+  applySecurityHeaders(response, csp);
 
   return response;
 }

@@ -12,6 +12,11 @@ import { toast } from "react-toastify";
 
 type EvalResponse = EvalResult;
 
+interface RunReviewOptions {
+  maxPasses?: number;
+  onDone?: (report: Report) => void;
+}
+
 interface UseGameReviewReturn {
   report: Report | null;
   loading: boolean;
@@ -20,7 +25,7 @@ interface UseGameReviewReturn {
   deepLoading: boolean;
   analysisPass: number;
   completedMoves: number;
-  runReview: (pgn: string) => Promise<void>;
+  runReview: (pgn: string, options?: RunReviewOptions) => Promise<void>;
   runDeepAnalysis: (pgn: string) => Promise<void>;
   reset: () => void;
 }
@@ -36,13 +41,16 @@ export function useGameReview(): UseGameReviewReturn {
   const positionsRef = useRef<EvaluatedPosition[]>([]);
   const abortRef = useRef(false);
 
-  const runReview = useCallback(async (pgn: string) => {
+  const runReview = useCallback(async (pgn: string, options?: RunReviewOptions) => {
     if (!pgn.trim()) return;
+    const maxPasses = options?.maxPasses ?? 3;
     setLoading(true);
     setReport(null);
     setAnalysisPass(1);
     setCompletedMoves(0);
     abortRef.current = false;
+
+    let engine: LocalStockfishEvalEngine | null = null;
 
     try {
       const game = new Chess();
@@ -59,7 +67,10 @@ export function useGameReview(): UseGameReviewReturn {
 
       const startGame = new Chess();
       try {
-        const startEval = await evaluateFenToDepth(startGame.fen(), 13);
+        // One engine for the whole depth-13 sweep — spawning a worker per
+        // position was the dominant overhead of this pass.
+        engine = new LocalStockfishEvalEngine();
+        const startEval = await evaluateFenToDepth(startGame.fen(), 13, engine);
         const startEvalCp = Math.round(startEval.eval * 100);
         const startMate = startEval.mate;
         positions.push({
@@ -100,7 +111,7 @@ export function useGameReview(): UseGameReviewReturn {
         const currentFen = replay.fen();
 
         try {
-          const evalData = await evaluateFenToDepth(currentFen, 13);
+          const evalData = await evaluateFenToDepth(currentFen, 13, engine);
           const evalCp = Math.round(evalData.eval * 100);
           positions.push({
             fen: currentFen,
@@ -137,20 +148,29 @@ export function useGameReview(): UseGameReviewReturn {
       const result = await analyse([...positions]);
       setReport(result);
 
-      if (!abortRef.current) {
-        toast.success("Depth 13 analysis complete", { autoClose: 1500 });
-        runPass2(pgn, positions);
+      if (abortRef.current) return;
+
+      toast.success("Depth 13 analysis complete", { autoClose: 1500 });
+
+      if (maxPasses >= 2) {
+        runPass2(pgn, positions, options);
+      } else {
+        setAnalysisPass(0);
+        setLoading(false);
+        options?.onDone?.(result);
       }
     } catch (err) {
       console.error("Game review failed:", err);
     } finally {
+      engine?.terminate();
       setLoading(false);
     }
   }, []);
 
-  const runPass2 = useCallback(async (pgn: string, basePositions: EvaluatedPosition[]) => {
+  const runPass2 = useCallback(async (pgn: string, basePositions: EvaluatedPosition[], options?: RunReviewOptions) => {
     setAnalysisPass(2);
     setCompletedMoves(0);
+    const maxPasses = options?.maxPasses ?? 3;
     const engine = new LocalStockfishEvalEngine();
     const updated = basePositions.map(p => ({ ...p }));
 
@@ -200,7 +220,13 @@ export function useGameReview(): UseGameReviewReturn {
         } else {
           toast.success("Depth 15 analysis complete", { autoClose: 1500 });
         }
-        runPass3(pgn, updated);
+        if (maxPasses >= 3) {
+          runPass3(pgn, updated, options);
+        } else {
+          setAnalysisPass(0);
+          setLoading(false);
+          options?.onDone?.(newResult);
+        }
       }
     } catch (err) {
       console.error("Pass 2 failed:", err);
@@ -209,7 +235,7 @@ export function useGameReview(): UseGameReviewReturn {
     }
   }, []);
 
-  const runPass3 = useCallback(async (pgn: string, basePositions: EvaluatedPosition[]) => {
+  const runPass3 = useCallback(async (pgn: string, basePositions: EvaluatedPosition[], options?: RunReviewOptions) => {
     setAnalysisPass(3);
     setCompletedMoves(0);
     const engine = new LocalStockfishEvalEngine();
@@ -259,6 +285,8 @@ export function useGameReview(): UseGameReviewReturn {
         }
         toast.success("Analysis complete", { autoClose: 1500 });
         setAnalysisPass(0);
+        setLoading(false);
+        options?.onDone?.(newResult);
       }
     } catch (err) {
       console.error("Pass 3 failed:", err);
@@ -324,22 +352,42 @@ export function useGameReview(): UseGameReviewReturn {
   return { report, loading, progress, total, deepLoading, analysisPass, completedMoves, runReview, runDeepAnalysis, reset };
 }
 
-async function evaluateFenToDepth(fen: string, depth: number): Promise<EvalResponse> {
-  const tablebase = await fetchTablebase(fen);
-  if (tablebase) {
-    return {
-      eval: tablebase.eval,
-      mate: tablebase.mate,
-      bestmove: tablebase.bestmove,
-      san: "",
-      continuationArr: tablebase.continuationArr,
-      winChance: tablebase.winChance,
-    };
+// Lichess tablebases only cover positions with up to 7 pieces — skip the
+// network call for everything else.
+function countPieces(fen: string): number {
+  const placement = fen.split(" ")[0];
+  let count = 0;
+  for (const ch of placement) {
+    if ((ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z")) count++;
+  }
+  return count;
+}
+
+async function evaluateFenToDepth(
+  fen: string,
+  depth: number,
+  engine?: LocalStockfishEvalEngine | null,
+): Promise<EvalResponse> {
+  if (countPieces(fen) <= 7) {
+    const tablebase = await fetchTablebase(fen);
+    if (tablebase) {
+      return {
+        eval: tablebase.eval,
+        mate: tablebase.mate,
+        bestmove: tablebase.bestmove,
+        san: "",
+        continuationArr: tablebase.continuationArr,
+        winChance: tablebase.winChance,
+      };
+    }
   }
 
-  const engine = new LocalStockfishEvalEngine();
+  // Reuse the caller's engine when given so a sweep doesn't pay wasm
+  // instantiation per position; otherwise own a short-lived one.
+  const ownsEngine = !engine;
+  const evalEngine = engine ?? new LocalStockfishEvalEngine();
   try {
-    const result = await engine.evaluateToDepth(fen, depth);
+    const result = await evalEngine.evaluateToDepth(fen, depth);
     const evalCp = Math.round(result.eval * 100);
     return {
       eval: result.eval,
@@ -350,6 +398,6 @@ async function evaluateFenToDepth(fen: string, depth: number): Promise<EvalRespo
       winChance: 50 + (evalCp / 200),
     };
   } finally {
-    engine.terminate();
+    if (ownsEngine) evalEngine.terminate();
   }
 }

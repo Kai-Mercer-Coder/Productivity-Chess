@@ -92,6 +92,7 @@ function GameReviewView({
   total,
   analysisPass,
   completedMoves,
+  coachEnabled = true,
 }: {
   fen: string;
   report: Report | null;
@@ -104,6 +105,7 @@ function GameReviewView({
   total: number;
   analysisPass: number;
   completedMoves: number;
+  coachEnabled?: boolean;
 }) {
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showStats, setShowStats] = useState(false);
@@ -131,7 +133,7 @@ function GameReviewView({
   }, [report, navIndex]);
 
   useEffect(() => {
-    if (!showAnalysis || !report || navIndex < 1) {
+    if (!coachEnabled || !showAnalysis || !report || navIndex < 1) {
       setLocalCoachMsg(null);
       return;
     }
